@@ -57,7 +57,7 @@ PRODUCTS = [
 
 # Use every Nth grid point after cropping. 1 = full density. 2 = lighter/faster.
 # Start at 2. If the map looks too blocky, change to 1 later.
-SPATIAL_STRIDE = 1
+SPATIAL_STRIDE = 2
 
 # Keep local downloads out of docs so only final web data gets published.
 CACHE_DIR = Path(".cache/href_grib")
