@@ -1,5 +1,5 @@
 {
-  "generatedUTC": "2026-05-11T21:59:07.854903+00:00",
+  "generatedUTC": "2026-05-11T22:20:32.425640+00:00",
   "domain": {
     "west": -95.0,
     "east": -83.0,
@@ -80,6 +80,13 @@
     {
       "id": "2026051112_lpmm_f06_a01_1",
       "url": "data/grids/2026051112_lpmm_f06_a01_1.json.gz",
+      "rasterUrl": "data/rasters/2026051112_lpmm_f06_a01_1.png",
+      "rasterBounds": {
+        "south": 24.00016,
+        "north": 33.99978,
+        "west": -94.9536,
+        "east": -83.00009
+      },
       "run": "2026051112",
       "runLabel": "20260511 12Z",
       "product": "lpmm",
@@ -90,12 +97,19 @@
       "validTimeUTC": "2026-05-11T17:00:00",
       "stepRange": "5-6",
       "name": "Total Precipitation",
-      "maxValue": 2.62,
+      "maxValue": 2.65,
       "pointCount": 12537
     },
     {
       "id": "2026051112_avrg_f06_a01_1",
       "url": "data/grids/2026051112_avrg_f06_a01_1.json.gz",
+      "rasterUrl": "data/rasters/2026051112_avrg_f06_a01_1.png",
+      "rasterBounds": {
+        "south": 24.00016,
+        "north": 33.99978,
+        "west": -94.9536,
+        "east": -83.00009
+      },
       "run": "2026051112",
       "runLabel": "20260511 12Z",
       "product": "avrg",
@@ -106,12 +120,19 @@
       "validTimeUTC": "2026-05-11T17:00:00",
       "stepRange": "5-6",
       "name": "Total Precipitation",
-      "maxValue": 2.11,
+      "maxValue": 2.21,
       "pointCount": 12537
     },
     {
       "id": "2026051112_pmmn_f06_a01_1",
       "url": "data/grids/2026051112_pmmn_f06_a01_1.json.gz",
+      "rasterUrl": "data/rasters/2026051112_pmmn_f06_a01_1.png",
+      "rasterBounds": {
+        "south": 24.00016,
+        "north": 33.99978,
+        "west": -94.9536,
+        "east": -83.00009
+      },
       "run": "2026051112",
       "runLabel": "20260511 12Z",
       "product": "pmmn",
@@ -122,12 +143,19 @@
       "validTimeUTC": "2026-05-11T17:00:00",
       "stepRange": "5-6",
       "name": "Total Precipitation",
-      "maxValue": 3.3,
+      "maxValue": 3.5,
       "pointCount": 12537
     },
     {
       "id": "2026051112_lpmm_f06_a03_2",
       "url": "data/grids/2026051112_lpmm_f06_a03_2.json.gz",
+      "rasterUrl": "data/rasters/2026051112_lpmm_f06_a03_2.png",
+      "rasterBounds": {
+        "south": 24.0136,
+        "north": 33.9917,
+        "west": -94.95359,
+        "east": -83.00044
+      },
       "run": "2026051112",
       "runLabel": "20260511 12Z",
       "product": "lpmm",
@@ -138,12 +166,19 @@
       "validTimeUTC": "2026-05-11T15:00:00",
       "stepRange": "3-6",
       "name": "Total Precipitation",
-      "maxValue": 3.82,
+      "maxValue": 3.97,
       "pointCount": 3763
     },
     {
       "id": "2026051112_avrg_f06_a03_2",
       "url": "data/grids/2026051112_avrg_f06_a03_2.json.gz",
+      "rasterUrl": "data/rasters/2026051112_avrg_f06_a03_2.png",
+      "rasterBounds": {
+        "south": 24.00016,
+        "north": 33.99916,
+        "west": -94.9536,
+        "east": -83.00009
+      },
       "run": "2026051112",
       "runLabel": "20260511 12Z",
       "product": "avrg",
@@ -154,12 +189,19 @@
       "validTimeUTC": "2026-05-11T15:00:00",
       "stepRange": "3-6",
       "name": "Total Precipitation",
-      "maxValue": 3.19,
+      "maxValue": 3.22,
       "pointCount": 6672
     },
     {
       "id": "2026051112_pmmn_f06_a03_2",
       "url": "data/grids/2026051112_pmmn_f06_a03_2.json.gz",
+      "rasterUrl": "data/rasters/2026051112_pmmn_f06_a03_2.png",
+      "rasterBounds": {
+        "south": 24.008,
+        "north": 33.77951,
+        "west": -94.9536,
+        "east": -83.00044
+      },
       "run": "2026051112",
       "runLabel": "20260511 12Z",
       "product": "pmmn",
@@ -170,12 +212,19 @@
       "validTimeUTC": "2026-05-11T15:00:00",
       "stepRange": "3-6",
       "name": "Total Precipitation",
-      "maxValue": 4.63,
+      "maxValue": 4.67,
       "pointCount": 4267
     },
     {
       "id": "2026051112_lpmm_f12_a01_1",
       "url": "data/grids/2026051112_lpmm_f12_a01_1.json.gz",
+      "rasterUrl": "data/rasters/2026051112_lpmm_f12_a01_1.png",
+      "rasterBounds": {
+        "south": 24.00016,
+        "north": 33.99978,
+        "west": -94.9536,
+        "east": -83.00009
+      },
       "run": "2026051112",
       "runLabel": "20260511 12Z",
       "product": "lpmm",
@@ -186,12 +235,19 @@
       "validTimeUTC": "2026-05-11T23:00:00",
       "stepRange": "11-12",
       "name": "Total Precipitation",
-      "maxValue": 1.67,
+      "maxValue": 1.89,
       "pointCount": 12537
     },
     {
       "id": "2026051112_avrg_f12_a01_1",
       "url": "data/grids/2026051112_avrg_f12_a01_1.json.gz",
+      "rasterUrl": "data/rasters/2026051112_avrg_f12_a01_1.png",
+      "rasterBounds": {
+        "south": 24.00016,
+        "north": 33.99978,
+        "west": -94.9536,
+        "east": -83.00009
+      },
       "run": "2026051112",
       "runLabel": "20260511 12Z",
       "product": "avrg",
@@ -208,6 +264,13 @@
     {
       "id": "2026051112_pmmn_f12_a01_1",
       "url": "data/grids/2026051112_pmmn_f12_a01_1.json.gz",
+      "rasterUrl": "data/rasters/2026051112_pmmn_f12_a01_1.png",
+      "rasterBounds": {
+        "south": 24.00016,
+        "north": 33.99978,
+        "west": -94.9536,
+        "east": -83.00009
+      },
       "run": "2026051112",
       "runLabel": "20260511 12Z",
       "product": "pmmn",
@@ -224,6 +287,13 @@
     {
       "id": "2026051112_lpmm_f12_a03_2",
       "url": "data/grids/2026051112_lpmm_f12_a03_2.json.gz",
+      "rasterUrl": "data/rasters/2026051112_lpmm_f12_a03_2.png",
+      "rasterBounds": {
+        "south": 24.00216,
+        "north": 33.99811,
+        "west": -94.95315,
+        "east": -83.00302
+      },
       "run": "2026051112",
       "runLabel": "20260511 12Z",
       "product": "lpmm",
@@ -234,12 +304,19 @@
       "validTimeUTC": "2026-05-11T21:00:00",
       "stepRange": "9-12",
       "name": "Total Precipitation",
-      "maxValue": 4.04,
+      "maxValue": 4.13,
       "pointCount": 3874
     },
     {
       "id": "2026051112_avrg_f12_a03_2",
       "url": "data/grids/2026051112_avrg_f12_a03_2.json.gz",
+      "rasterUrl": "data/rasters/2026051112_avrg_f12_a03_2.png",
+      "rasterBounds": {
+        "south": 24.00469,
+        "north": 33.99895,
+        "west": -94.9536,
+        "east": -83.00302
+      },
       "run": "2026051112",
       "runLabel": "20260511 12Z",
       "product": "avrg",
@@ -250,12 +327,19 @@
       "validTimeUTC": "2026-05-11T21:00:00",
       "stepRange": "9-12",
       "name": "Total Precipitation",
-      "maxValue": 3.25,
+      "maxValue": 3.26,
       "pointCount": 6485
     },
     {
       "id": "2026051112_pmmn_f12_a03_2",
       "url": "data/grids/2026051112_pmmn_f12_a03_2.json.gz",
+      "rasterUrl": "data/rasters/2026051112_pmmn_f12_a03_2.png",
+      "rasterBounds": {
+        "south": 24.00761,
+        "north": 33.99811,
+        "west": -94.95195,
+        "east": -83.00302
+      },
       "run": "2026051112",
       "runLabel": "20260511 12Z",
       "product": "pmmn",
@@ -272,6 +356,13 @@
     {
       "id": "2026051112_lpmm_f18_a01_1",
       "url": "data/grids/2026051112_lpmm_f18_a01_1.json.gz",
+      "rasterUrl": "data/rasters/2026051112_lpmm_f18_a01_1.png",
+      "rasterBounds": {
+        "south": 24.00016,
+        "north": 33.99978,
+        "west": -94.9536,
+        "east": -83.00009
+      },
       "run": "2026051112",
       "runLabel": "20260511 12Z",
       "product": "lpmm",
@@ -282,12 +373,19 @@
       "validTimeUTC": "2026-05-12T05:00:00",
       "stepRange": "17-18",
       "name": "Total Precipitation",
-      "maxValue": 1.3,
+      "maxValue": 1.55,
       "pointCount": 12537
     },
     {
       "id": "2026051112_avrg_f18_a01_1",
       "url": "data/grids/2026051112_avrg_f18_a01_1.json.gz",
+      "rasterUrl": "data/rasters/2026051112_avrg_f18_a01_1.png",
+      "rasterBounds": {
+        "south": 24.00016,
+        "north": 33.99978,
+        "west": -94.9536,
+        "east": -83.00009
+      },
       "run": "2026051112",
       "runLabel": "20260511 12Z",
       "product": "avrg",
@@ -298,12 +396,19 @@
       "validTimeUTC": "2026-05-12T05:00:00",
       "stepRange": "17-18",
       "name": "Total Precipitation",
-      "maxValue": 1.16,
+      "maxValue": 1.72,
       "pointCount": 12537
     },
     {
       "id": "2026051112_pmmn_f18_a01_1",
       "url": "data/grids/2026051112_pmmn_f18_a01_1.json.gz",
+      "rasterUrl": "data/rasters/2026051112_pmmn_f18_a01_1.png",
+      "rasterBounds": {
+        "south": 24.00016,
+        "north": 33.99978,
+        "west": -94.9536,
+        "east": -83.00009
+      },
       "run": "2026051112",
       "runLabel": "20260511 12Z",
       "product": "pmmn",
@@ -314,12 +419,19 @@
       "validTimeUTC": "2026-05-12T05:00:00",
       "stepRange": "17-18",
       "name": "Total Precipitation",
-      "maxValue": 1.9,
+      "maxValue": 2.98,
       "pointCount": 12537
     },
     {
       "id": "2026051112_lpmm_f18_a03_2",
       "url": "data/grids/2026051112_lpmm_f18_a03_2.json.gz",
+      "rasterUrl": "data/rasters/2026051112_lpmm_f18_a03_2.png",
+      "rasterBounds": {
+        "south": 24.00016,
+        "north": 33.99978,
+        "west": -94.9536,
+        "east": -83.00009
+      },
       "run": "2026051112",
       "runLabel": "20260511 12Z",
       "product": "lpmm",
@@ -336,6 +448,13 @@
     {
       "id": "2026051112_avrg_f18_a03_2",
       "url": "data/grids/2026051112_avrg_f18_a03_2.json.gz",
+      "rasterUrl": "data/rasters/2026051112_avrg_f18_a03_2.png",
+      "rasterBounds": {
+        "south": 24.00016,
+        "north": 33.98983,
+        "west": -94.9536,
+        "east": -83.00099
+      },
       "run": "2026051112",
       "runLabel": "20260511 12Z",
       "product": "avrg",
@@ -346,12 +465,19 @@
       "validTimeUTC": "2026-05-12T03:00:00",
       "stepRange": "15-18",
       "name": "Total Precipitation",
-      "maxValue": 2.32,
+      "maxValue": 2.4,
       "pointCount": 7934
     },
     {
       "id": "2026051112_pmmn_f18_a03_2",
       "url": "data/grids/2026051112_pmmn_f18_a03_2.json.gz",
+      "rasterUrl": "data/rasters/2026051112_pmmn_f18_a03_2.png",
+      "rasterBounds": {
+        "south": 24.00016,
+        "north": 33.99978,
+        "west": -94.9536,
+        "east": -83.00009
+      },
       "run": "2026051112",
       "runLabel": "20260511 12Z",
       "product": "pmmn",
@@ -368,6 +494,13 @@
     {
       "id": "2026051112_lpmm_f24_a01_1",
       "url": "data/grids/2026051112_lpmm_f24_a01_1.json.gz",
+      "rasterUrl": "data/rasters/2026051112_lpmm_f24_a01_1.png",
+      "rasterBounds": {
+        "south": 24.00016,
+        "north": 33.99978,
+        "west": -94.9536,
+        "east": -83.00009
+      },
       "run": "2026051112",
       "runLabel": "20260511 12Z",
       "product": "lpmm",
@@ -378,12 +511,19 @@
       "validTimeUTC": "2026-05-12T11:00:00",
       "stepRange": "23-24",
       "name": "Total Precipitation",
-      "maxValue": 2.11,
+      "maxValue": 2.24,
       "pointCount": 12537
     },
     {
       "id": "2026051112_avrg_f24_a01_1",
       "url": "data/grids/2026051112_avrg_f24_a01_1.json.gz",
+      "rasterUrl": "data/rasters/2026051112_avrg_f24_a01_1.png",
+      "rasterBounds": {
+        "south": 24.00016,
+        "north": 33.99978,
+        "west": -94.9536,
+        "east": -83.00009
+      },
       "run": "2026051112",
       "runLabel": "20260511 12Z",
       "product": "avrg",
@@ -394,12 +534,19 @@
       "validTimeUTC": "2026-05-12T11:00:00",
       "stepRange": "23-24",
       "name": "Total Precipitation",
-      "maxValue": 1.97,
+      "maxValue": 2.22,
       "pointCount": 12537
     },
     {
       "id": "2026051112_pmmn_f24_a01_1",
       "url": "data/grids/2026051112_pmmn_f24_a01_1.json.gz",
+      "rasterUrl": "data/rasters/2026051112_pmmn_f24_a01_1.png",
+      "rasterBounds": {
+        "south": 24.00016,
+        "north": 33.99978,
+        "west": -94.9536,
+        "east": -83.00009
+      },
       "run": "2026051112",
       "runLabel": "20260511 12Z",
       "product": "pmmn",
@@ -410,12 +557,19 @@
       "validTimeUTC": "2026-05-12T11:00:00",
       "stepRange": "23-24",
       "name": "Total Precipitation",
-      "maxValue": 3.42,
+      "maxValue": 3.91,
       "pointCount": 12537
     },
     {
       "id": "2026051112_lpmm_f24_a03_2",
       "url": "data/grids/2026051112_lpmm_f24_a03_2.json.gz",
+      "rasterUrl": "data/rasters/2026051112_lpmm_f24_a03_2.png",
+      "rasterBounds": {
+        "south": 24.00016,
+        "north": 33.99978,
+        "west": -94.9536,
+        "east": -83.00009
+      },
       "run": "2026051112",
       "runLabel": "20260511 12Z",
       "product": "lpmm",
@@ -432,6 +586,13 @@
     {
       "id": "2026051112_avrg_f24_a03_2",
       "url": "data/grids/2026051112_avrg_f24_a03_2.json.gz",
+      "rasterUrl": "data/rasters/2026051112_avrg_f24_a03_2.png",
+      "rasterBounds": {
+        "south": 24.00049,
+        "north": 32.68554,
+        "west": -94.9536,
+        "east": -83.00009
+      },
       "run": "2026051112",
       "runLabel": "20260511 12Z",
       "product": "avrg",
@@ -448,6 +609,13 @@
     {
       "id": "2026051112_pmmn_f24_a03_2",
       "url": "data/grids/2026051112_pmmn_f24_a03_2.json.gz",
+      "rasterUrl": "data/rasters/2026051112_pmmn_f24_a03_2.png",
+      "rasterBounds": {
+        "south": 24.00016,
+        "north": 33.99962,
+        "west": -94.9536,
+        "east": -83.00009
+      },
       "run": "2026051112",
       "runLabel": "20260511 12Z",
       "product": "pmmn",
@@ -464,6 +632,13 @@
     {
       "id": "2026051112_lpmm_f30_a01_1",
       "url": "data/grids/2026051112_lpmm_f30_a01_1.json.gz",
+      "rasterUrl": "data/rasters/2026051112_lpmm_f30_a01_1.png",
+      "rasterBounds": {
+        "south": 24.00016,
+        "north": 33.99978,
+        "west": -94.9536,
+        "east": -83.00009
+      },
       "run": "2026051112",
       "runLabel": "20260511 12Z",
       "product": "lpmm",
@@ -480,6 +655,13 @@
     {
       "id": "2026051112_avrg_f30_a01_1",
       "url": "data/grids/2026051112_avrg_f30_a01_1.json.gz",
+      "rasterUrl": "data/rasters/2026051112_avrg_f30_a01_1.png",
+      "rasterBounds": {
+        "south": 24.00016,
+        "north": 33.99978,
+        "west": -94.9536,
+        "east": -83.00009
+      },
       "run": "2026051112",
       "runLabel": "20260511 12Z",
       "product": "avrg",
@@ -496,6 +678,13 @@
     {
       "id": "2026051112_pmmn_f30_a01_1",
       "url": "data/grids/2026051112_pmmn_f30_a01_1.json.gz",
+      "rasterUrl": "data/rasters/2026051112_pmmn_f30_a01_1.png",
+      "rasterBounds": {
+        "south": 24.00016,
+        "north": 33.99978,
+        "west": -94.9536,
+        "east": -83.00009
+      },
       "run": "2026051112",
       "runLabel": "20260511 12Z",
       "product": "pmmn",
@@ -512,6 +701,13 @@
     {
       "id": "2026051112_lpmm_f30_a03_2",
       "url": "data/grids/2026051112_lpmm_f30_a03_2.json.gz",
+      "rasterUrl": "data/rasters/2026051112_lpmm_f30_a03_2.png",
+      "rasterBounds": {
+        "south": 24.00016,
+        "north": 33.99978,
+        "west": -94.9536,
+        "east": -83.00009
+      },
       "run": "2026051112",
       "runLabel": "20260511 12Z",
       "product": "lpmm",
@@ -522,12 +718,19 @@
       "validTimeUTC": "2026-05-12T15:00:00",
       "stepRange": "27-30",
       "name": "Total Precipitation",
-      "maxValue": 4.29,
+      "maxValue": 4.64,
       "pointCount": 12537
     },
     {
       "id": "2026051112_avrg_f30_a03_2",
       "url": "data/grids/2026051112_avrg_f30_a03_2.json.gz",
+      "rasterUrl": "data/rasters/2026051112_avrg_f30_a03_2.png",
+      "rasterBounds": {
+        "south": 24.00016,
+        "north": 33.99978,
+        "west": -94.9536,
+        "east": -83.00009
+      },
       "run": "2026051112",
       "runLabel": "20260511 12Z",
       "product": "avrg",
@@ -538,12 +741,19 @@
       "validTimeUTC": "2026-05-12T15:00:00",
       "stepRange": "27-30",
       "name": "Total Precipitation",
-      "maxValue": 3.29,
+      "maxValue": 3.99,
       "pointCount": 12537
     },
     {
       "id": "2026051112_pmmn_f30_a03_2",
       "url": "data/grids/2026051112_pmmn_f30_a03_2.json.gz",
+      "rasterUrl": "data/rasters/2026051112_pmmn_f30_a03_2.png",
+      "rasterBounds": {
+        "south": 24.00016,
+        "north": 33.99978,
+        "west": -94.9536,
+        "east": -83.00009
+      },
       "run": "2026051112",
       "runLabel": "20260511 12Z",
       "product": "pmmn",
@@ -554,12 +764,19 @@
       "validTimeUTC": "2026-05-12T15:00:00",
       "stepRange": "27-30",
       "name": "Total Precipitation",
-      "maxValue": 5.29,
+      "maxValue": 6.54,
       "pointCount": 12537
     },
     {
       "id": "2026051112_lpmm_f36_a01_1",
       "url": "data/grids/2026051112_lpmm_f36_a01_1.json.gz",
+      "rasterUrl": "data/rasters/2026051112_lpmm_f36_a01_1.png",
+      "rasterBounds": {
+        "south": 24.00016,
+        "north": 33.99978,
+        "west": -94.9536,
+        "east": -83.00009
+      },
       "run": "2026051112",
       "runLabel": "20260511 12Z",
       "product": "lpmm",
@@ -570,12 +787,19 @@
       "validTimeUTC": "2026-05-12T23:00:00",
       "stepRange": "35-36",
       "name": "Total Precipitation",
-      "maxValue": 1.36,
+      "maxValue": 1.71,
       "pointCount": 12537
     },
     {
       "id": "2026051112_avrg_f36_a01_1",
       "url": "data/grids/2026051112_avrg_f36_a01_1.json.gz",
+      "rasterUrl": "data/rasters/2026051112_avrg_f36_a01_1.png",
+      "rasterBounds": {
+        "south": 24.00016,
+        "north": 33.99978,
+        "west": -94.9536,
+        "east": -83.00009
+      },
       "run": "2026051112",
       "runLabel": "20260511 12Z",
       "product": "avrg",
@@ -586,12 +810,19 @@
       "validTimeUTC": "2026-05-12T23:00:00",
       "stepRange": "35-36",
       "name": "Total Precipitation",
-      "maxValue": 1.19,
+      "maxValue": 1.59,
       "pointCount": 12537
     },
     {
       "id": "2026051112_pmmn_f36_a01_1",
       "url": "data/grids/2026051112_pmmn_f36_a01_1.json.gz",
+      "rasterUrl": "data/rasters/2026051112_pmmn_f36_a01_1.png",
+      "rasterBounds": {
+        "south": 24.00016,
+        "north": 33.99978,
+        "west": -94.9536,
+        "east": -83.00009
+      },
       "run": "2026051112",
       "runLabel": "20260511 12Z",
       "product": "pmmn",
@@ -602,12 +833,19 @@
       "validTimeUTC": "2026-05-12T23:00:00",
       "stepRange": "35-36",
       "name": "Total Precipitation",
-      "maxValue": 1.95,
+      "maxValue": 2.67,
       "pointCount": 12537
     },
     {
       "id": "2026051112_lpmm_f36_a03_2",
       "url": "data/grids/2026051112_lpmm_f36_a03_2.json.gz",
+      "rasterUrl": "data/rasters/2026051112_lpmm_f36_a03_2.png",
+      "rasterBounds": {
+        "south": 24.0226,
+        "north": 33.74259,
+        "west": -94.9535,
+        "east": -83.00009
+      },
       "run": "2026051112",
       "runLabel": "20260511 12Z",
       "product": "lpmm",
@@ -624,6 +862,13 @@
     {
       "id": "2026051112_avrg_f36_a03_2",
       "url": "data/grids/2026051112_avrg_f36_a03_2.json.gz",
+      "rasterUrl": "data/rasters/2026051112_avrg_f36_a03_2.png",
+      "rasterBounds": {
+        "south": 24.00169,
+        "north": 33.97854,
+        "west": -94.9536,
+        "east": -83.00009
+      },
       "run": "2026051112",
       "runLabel": "20260511 12Z",
       "product": "avrg",
@@ -640,6 +885,13 @@
     {
       "id": "2026051112_pmmn_f36_a03_2",
       "url": "data/grids/2026051112_pmmn_f36_a03_2.json.gz",
+      "rasterUrl": "data/rasters/2026051112_pmmn_f36_a03_2.png",
+      "rasterBounds": {
+        "south": 24.02574,
+        "north": 32.97111,
+        "west": -93.89339,
+        "east": -83.00009
+      },
       "run": "2026051112",
       "runLabel": "20260511 12Z",
       "product": "pmmn",
@@ -650,12 +902,19 @@
       "validTimeUTC": "2026-05-12T21:00:00",
       "stepRange": "33-36",
       "name": "Total Precipitation",
-      "maxValue": 3.47,
+      "maxValue": 6.58,
       "pointCount": 3591
     },
     {
       "id": "2026051112_lpmm_f42_a01_1",
       "url": "data/grids/2026051112_lpmm_f42_a01_1.json.gz",
+      "rasterUrl": "data/rasters/2026051112_lpmm_f42_a01_1.png",
+      "rasterBounds": {
+        "south": 24.00016,
+        "north": 33.99978,
+        "west": -94.9536,
+        "east": -83.00009
+      },
       "run": "2026051112",
       "runLabel": "20260511 12Z",
       "product": "lpmm",
@@ -666,12 +925,19 @@
       "validTimeUTC": "2026-05-13T05:00:00",
       "stepRange": "41-42",
       "name": "Total Precipitation",
-      "maxValue": 1.27,
+      "maxValue": 1.29,
       "pointCount": 12537
     },
     {
       "id": "2026051112_avrg_f42_a01_1",
       "url": "data/grids/2026051112_avrg_f42_a01_1.json.gz",
+      "rasterUrl": "data/rasters/2026051112_avrg_f42_a01_1.png",
+      "rasterBounds": {
+        "south": 24.00016,
+        "north": 33.99978,
+        "west": -94.9536,
+        "east": -83.00009
+      },
       "run": "2026051112",
       "runLabel": "20260511 12Z",
       "product": "avrg",
@@ -682,12 +948,19 @@
       "validTimeUTC": "2026-05-13T05:00:00",
       "stepRange": "41-42",
       "name": "Total Precipitation",
-      "maxValue": 1.0,
+      "maxValue": 1.52,
       "pointCount": 12537
     },
     {
       "id": "2026051112_pmmn_f42_a01_1",
       "url": "data/grids/2026051112_pmmn_f42_a01_1.json.gz",
+      "rasterUrl": "data/rasters/2026051112_pmmn_f42_a01_1.png",
+      "rasterBounds": {
+        "south": 24.00016,
+        "north": 33.99978,
+        "west": -94.9536,
+        "east": -83.00009
+      },
       "run": "2026051112",
       "runLabel": "20260511 12Z",
       "product": "pmmn",
@@ -698,12 +971,19 @@
       "validTimeUTC": "2026-05-13T05:00:00",
       "stepRange": "41-42",
       "name": "Total Precipitation",
-      "maxValue": 1.54,
+      "maxValue": 2.5,
       "pointCount": 12537
     },
     {
       "id": "2026051112_lpmm_f42_a03_2",
       "url": "data/grids/2026051112_lpmm_f42_a03_2.json.gz",
+      "rasterUrl": "data/rasters/2026051112_lpmm_f42_a03_2.png",
+      "rasterBounds": {
+        "south": 24.00016,
+        "north": 33.99978,
+        "west": -94.9536,
+        "east": -83.00009
+      },
       "run": "2026051112",
       "runLabel": "20260511 12Z",
       "product": "lpmm",
@@ -714,12 +994,19 @@
       "validTimeUTC": "2026-05-13T03:00:00",
       "stepRange": "39-42",
       "name": "Total Precipitation",
-      "maxValue": 2.84,
+      "maxValue": 3.11,
       "pointCount": 12415
     },
     {
       "id": "2026051112_avrg_f42_a03_2",
       "url": "data/grids/2026051112_avrg_f42_a03_2.json.gz",
+      "rasterUrl": "data/rasters/2026051112_avrg_f42_a03_2.png",
+      "rasterBounds": {
+        "south": 24.00063,
+        "north": 33.9847,
+        "west": -94.9536,
+        "east": -83.00009
+      },
       "run": "2026051112",
       "runLabel": "20260511 12Z",
       "product": "avrg",
@@ -730,12 +1017,19 @@
       "validTimeUTC": "2026-05-13T03:00:00",
       "stepRange": "39-42",
       "name": "Total Precipitation",
-      "maxValue": 1.79,
+      "maxValue": 2.0,
       "pointCount": 6132
     },
     {
       "id": "2026051112_pmmn_f42_a03_2",
       "url": "data/grids/2026051112_pmmn_f42_a03_2.json.gz",
+      "rasterUrl": "data/rasters/2026051112_pmmn_f42_a03_2.png",
+      "rasterBounds": {
+        "south": 24.00016,
+        "north": 33.99978,
+        "west": -94.9536,
+        "east": -83.00009
+      },
       "run": "2026051112",
       "runLabel": "20260511 12Z",
       "product": "pmmn",
@@ -746,12 +1040,19 @@
       "validTimeUTC": "2026-05-13T03:00:00",
       "stepRange": "39-42",
       "name": "Total Precipitation",
-      "maxValue": 2.76,
+      "maxValue": 3.13,
       "pointCount": 12537
     },
     {
       "id": "2026051112_lpmm_f48_a01_1",
       "url": "data/grids/2026051112_lpmm_f48_a01_1.json.gz",
+      "rasterUrl": "data/rasters/2026051112_lpmm_f48_a01_1.png",
+      "rasterBounds": {
+        "south": 24.00016,
+        "north": 33.99978,
+        "west": -94.9536,
+        "east": -83.00009
+      },
       "run": "2026051112",
       "runLabel": "20260511 12Z",
       "product": "lpmm",
@@ -762,12 +1063,19 @@
       "validTimeUTC": "2026-05-13T11:00:00",
       "stepRange": "47-48",
       "name": "Total Precipitation",
-      "maxValue": 0.59,
+      "maxValue": 0.74,
       "pointCount": 12537
     },
     {
       "id": "2026051112_avrg_f48_a01_1",
       "url": "data/grids/2026051112_avrg_f48_a01_1.json.gz",
+      "rasterUrl": "data/rasters/2026051112_avrg_f48_a01_1.png",
+      "rasterBounds": {
+        "south": 24.00016,
+        "north": 33.99978,
+        "west": -94.9536,
+        "east": -83.00009
+      },
       "run": "2026051112",
       "runLabel": "20260511 12Z",
       "product": "avrg",
@@ -778,12 +1086,19 @@
       "validTimeUTC": "2026-05-13T11:00:00",
       "stepRange": "47-48",
       "name": "Total Precipitation",
-      "maxValue": 0.45,
+      "maxValue": 0.77,
       "pointCount": 12537
     },
     {
       "id": "2026051112_pmmn_f48_a01_1",
       "url": "data/grids/2026051112_pmmn_f48_a01_1.json.gz",
+      "rasterUrl": "data/rasters/2026051112_pmmn_f48_a01_1.png",
+      "rasterBounds": {
+        "south": 24.00016,
+        "north": 33.99978,
+        "west": -94.9536,
+        "east": -83.00009
+      },
       "run": "2026051112",
       "runLabel": "20260511 12Z",
       "product": "pmmn",
@@ -794,12 +1109,19 @@
       "validTimeUTC": "2026-05-13T11:00:00",
       "stepRange": "47-48",
       "name": "Total Precipitation",
-      "maxValue": 0.6,
+      "maxValue": 1.13,
       "pointCount": 12537
     },
     {
       "id": "2026051112_lpmm_f48_a03_2",
       "url": "data/grids/2026051112_lpmm_f48_a03_2.json.gz",
+      "rasterUrl": "data/rasters/2026051112_lpmm_f48_a03_2.png",
+      "rasterBounds": {
+        "south": 24.00016,
+        "north": 33.99978,
+        "west": -94.9536,
+        "east": -83.00009
+      },
       "run": "2026051112",
       "runLabel": "20260511 12Z",
       "product": "lpmm",
@@ -810,12 +1132,19 @@
       "validTimeUTC": "2026-05-13T09:00:00",
       "stepRange": "45-48",
       "name": "Total Precipitation",
-      "maxValue": 1.05,
+      "maxValue": 1.11,
       "pointCount": 12035
     },
     {
       "id": "2026051112_avrg_f48_a03_2",
       "url": "data/grids/2026051112_avrg_f48_a03_2.json.gz",
+      "rasterUrl": "data/rasters/2026051112_avrg_f48_a03_2.png",
+      "rasterBounds": {
+        "south": 24.00016,
+        "north": 33.99916,
+        "west": -94.9536,
+        "east": -83.00009
+      },
       "run": "2026051112",
       "runLabel": "20260511 12Z",
       "product": "avrg",
@@ -826,12 +1155,19 @@
       "validTimeUTC": "2026-05-13T09:00:00",
       "stepRange": "45-48",
       "name": "Total Precipitation",
-      "maxValue": 0.43,
+      "maxValue": 0.63,
       "pointCount": 7586
     },
     {
       "id": "2026051112_pmmn_f48_a03_2",
       "url": "data/grids/2026051112_pmmn_f48_a03_2.json.gz",
+      "rasterUrl": "data/rasters/2026051112_pmmn_f48_a03_2.png",
+      "rasterBounds": {
+        "south": 24.00016,
+        "north": 33.99916,
+        "west": -94.9536,
+        "east": -83.00009
+      },
       "run": "2026051112",
       "runLabel": "20260511 12Z",
       "product": "pmmn",
@@ -842,7 +1178,7 @@
       "validTimeUTC": "2026-05-13T09:00:00",
       "stepRange": "45-48",
       "name": "Total Precipitation",
-      "maxValue": 0.49,
+      "maxValue": 0.77,
       "pointCount": 9106
     }
   ]
