@@ -34,7 +34,7 @@
     }
 
     .leaflet-container {
-      background: #1c2530;
+      background: #dbe8ef;
     }
 
     .top-panel {
@@ -312,13 +312,75 @@
       preferCanvas: true,
     }).setView([30.1, -90.2], 6);
 
-    L.tileLayer(
-      'https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}',
+    const blankTileSvg = encodeURIComponent(`
+      <svg xmlns="http://www.w3.org/2000/svg" width="256" height="256">
+        <rect width="256" height="256" fill="#dbe8ef"/>
+      </svg>
+    `);
+    
+    const blankTileUrl = `data:image/svg+xml;charset=UTF-8,${blankTileSvg}`;
+    
+    const basemapChoices = [
       {
-        maxZoom: 18,
-        attribution: 'Tiles &copy; Esri'
+        name: 'Carto Light',
+        url: 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',
+        options: {
+          subdomains: 'abcd',
+          maxZoom: 19,
+          attribution: '&copy; OpenStreetMap &copy; CARTO'
+        }
+      },
+      {
+        name: 'USGS Topo',
+        url: 'https://basemap.nationalmap.gov/arcgis/rest/services/USGSTopo/MapServer/tile/{z}/{y}/{x}',
+        options: {
+          maxZoom: 16,
+          attribution: 'Tiles &copy; USGS'
+        }
+      },
+      {
+        name: 'Esri Topo',
+        url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}',
+        options: {
+          maxZoom: 18,
+          attribution: 'Tiles &copy; Esri'
+        }
       }
-    ).addTo(map);
+    ];
+    
+    let activeBasemap = null;
+    let activeBasemapIndex = 0;
+    let basemapTileErrors = 0;
+    
+    function loadBasemap(index) {
+      if (activeBasemap) {
+        map.removeLayer(activeBasemap);
+      }
+    
+      activeBasemapIndex = index;
+      basemapTileErrors = 0;
+    
+      const cfg = basemapChoices[index];
+    
+      activeBasemap = L.tileLayer(cfg.url, {
+        ...cfg.options,
+        errorTileUrl: blankTileUrl,
+        updateWhenIdle: true,
+        updateWhenZooming: false,
+        keepBuffer: 4
+      }).addTo(map);
+    
+      activeBasemap.on('tileerror', () => {
+        basemapTileErrors += 1;
+    
+        if (basemapTileErrors >= 6 && activeBasemapIndex < basemapChoices.length - 1) {
+          console.warn(`Basemap ${cfg.name} is failing. Switching basemap.`);
+          loadBasemap(activeBasemapIndex + 1);
+        }
+      });
+    }
+    
+    loadBasemap(0);
 
     function colorForValue(v) {
       const scale = state.catalog?.colorScale || [];
@@ -348,6 +410,9 @@
       redraw() {
         if (!this._map || !this._canvas || !state.activeGrid) return;
         const size = this._map.getSize();
+        const topLeft = this._map.containerPointToLayerPoint([0, 0]);
+        L.DomUtil.setPosition(this._canvas, topLeft);
+        
         const dpr = window.devicePixelRatio || 1;
         this._canvas.width = size.x * dpr;
         this._canvas.height = size.y * dpr;
