@@ -1,0 +1,25 @@
+{
+  "generatedUTC": null,
+  "domain": {
+    "west": -95.0,
+    "east": -83.0,
+    "south": 24.0,
+    "north": 34.0
+  },
+  "source": "Run the GitHub Action to generate HREF data.",
+  "defaultLayerId": null,
+  "colorScale": [
+    {"min": 0.001, "max": 0.10, "color": "#d7f9d0", "label": "Trace-0.10"},
+    {"min": 0.10, "max": 0.25, "color": "#9beb7f", "label": "0.10-0.25"},
+    {"min": 0.25, "max": 0.50, "color": "#52d24c", "label": "0.25-0.50"},
+    {"min": 0.50, "max": 1.00, "color": "#1faa3e", "label": "0.50-1.00"},
+    {"min": 1.00, "max": 2.00, "color": "#1787d4", "label": "1.00-2.00"},
+    {"min": 2.00, "max": 3.00, "color": "#1f49d8", "label": "2.00-3.00"},
+    {"min": 3.00, "max": 5.00, "color": "#7b2cbf", "label": "3.00-5.00"},
+    {"min": 5.00, "max": 8.00, "color": "#d000ff", "label": "5.00-8.00"},
+    {"min": 8.00, "max": 12.00, "color": "#ff2d2d", "label": "8.00-12.00"},
+    {"min": 12.00, "max": 15.00, "color": "#ff9f1c", "label": "12.00-15.00"},
+    {"min": 15.00, "max": 999.00, "color": "#ffffff", "label": ">15.00"}
+  ],
+  "layers": []
+}
