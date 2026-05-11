@@ -333,10 +333,10 @@
     }).setView([30.1, -90.2], 6);
 
     L.tileLayer(
-      'https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}',
+      'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',
       {
         maxZoom: 18,
-        attribution: 'Tiles &copy; Esri'
+        attribution: '&copy; OpenStreetMap contributors &copy; CARTO'
       }
     ).addTo(map);
 
@@ -377,8 +377,16 @@
         this._ctx.clearRect(0, 0, size.x, size.y);
         this._ctx.globalAlpha = state.opacity;
         const z = this._map.getZoom();
-        const px = Math.max(2, Math.min(12, Math.round((z - 3) * 1.9)));
-        const half = px / 2;
+        
+        // Base pixel size at Zoom Level 6 (You can tweak the '4.5' depending on your grid's actual resolution)
+        const basePxAtZoom6 = 4.5; 
+        
+        // Exponentially scale the size based on the zoom level
+        const exactPx = basePxAtZoom6 * Math.pow(2, z - 6);
+        
+        // Ceil the size and add 1 pixel to ensure squares overlap slightly, hiding any seams
+        const px = Math.ceil(exactPx) + 1; 
+        const half = exactPx / 2;
         const grid = state.activeGrid;
 
         for (let i = 0; i < grid.value.length; i++) {
