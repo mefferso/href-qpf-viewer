@@ -2,7 +2,8 @@
 """Build HREF QPF data for the web viewer.
 
 Outputs per layer:
-  - gzipped JSON points for click sampling
+  - gzipped JSON points for fallback sampling
+  - gzipped aligned value-grid JSON for cursor/click sampling
   - transparent PNG raster for Leaflet imageOverlay display
   - catalog.json with layer metadata
 """
@@ -33,13 +34,14 @@ PRODUCTS = [
     {"file_code": "lpmm", "label": "LPMM"},
 ]
 
-# JSON sampling can stay lighter; the displayed PNG uses the full cropped grid.
 SAMPLE_STRIDE = 2
 RASTER_UPSCALE = 4
+MISSING_VALUE = -9999
 
 CACHE_DIR = Path(".cache/href_grib")
 DATA_DIR = Path("docs/data")
 GRID_DIR = DATA_DIR / "grids"
+VALUE_GRID_DIR = DATA_DIR / "value_grids"
 RASTER_DIR = DATA_DIR / "rasters"
 NOMADS_BASE = "https://nomads.ncep.noaa.gov/pub/data/nccf/com/href/prod"
 HEADERS = {"User-Agent": "href-qpf-viewer/1.0"}
@@ -59,7 +61,7 @@ COLOR_SCALE = [
 ]
 
 
-def hex_to_rgba(hex_color: str, alpha: int = 210) -> Tuple[int, int, int, int]:
+def hex_to_rgba(hex_color: str, alpha: int = 215) -> Tuple[int, int, int, int]:
     h = hex_color.lstrip("#")
     return int(h[0:2], 16), int(h[2:4], 16), int(h[4:6], 16), alpha
 
@@ -95,10 +97,7 @@ def candidate_cycles(now: Optional[datetime] = None) -> List[Cycle]:
 
 
 def grib_url(cycle: Cycle, product_code: str, fhour: int) -> str:
-    return (
-        f"{NOMADS_BASE}/href.{cycle.yyyymmdd}/ensprod/"
-        f"href.t{cycle.hour:02d}z.conus.{product_code}.f{fhour:02d}.grib2"
-    )
+    return f"{NOMADS_BASE}/href.{cycle.yyyymmdd}/ensprod/href.t{cycle.hour:02d}z.conus.{product_code}.f{fhour:02d}.grib2"
 
 
 def url_exists(session: requests.Session, url: str) -> bool:
@@ -126,7 +125,6 @@ def download_file(session: requests.Session, url: str, out_path: Path) -> bool:
     out_path.parent.mkdir(parents=True, exist_ok=True)
     if out_path.exists() and out_path.stat().st_size > 10_000:
         return True
-
     tmp_path = out_path.with_suffix(out_path.suffix + ".tmp")
     tmp_path.unlink(missing_ok=True)
     log(f"Downloading {url}")
@@ -163,12 +161,7 @@ def message_is_precip(grb) -> bool:
     name = str(safe_get(grb, "name", "")).lower()
     parameter_name = str(safe_get(grb, "parameterName", "")).lower()
     haystack = " ".join([short_name, name, parameter_name])
-    return (
-        short_name in {"tp", "apcp"}
-        or "total precipitation" in haystack
-        or "total precip" in haystack
-        or ("precipitation" in haystack and "probability" not in haystack)
-    )
+    return short_name in {"tp", "apcp"} or "total precipitation" in haystack or "total precip" in haystack or ("precipitation" in haystack and "probability" not in haystack)
 
 
 def accum_hours_from_message(grb) -> Optional[int]:
@@ -178,7 +171,6 @@ def accum_hours_from_message(grb) -> Optional[int]:
             return int(val)
     except Exception:
         pass
-
     text = str(safe_get(grb, "stepRange", ""))
     m = re.match(r"^(\d+)\s*-\s*(\d+)$", text)
     if m:
@@ -195,26 +187,37 @@ def value_units_to_inches(values: np.ndarray, units: str) -> np.ndarray:
 
 def crop_2d(lats: np.ndarray, lons: np.ndarray, vals: np.ndarray) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
     lons = np.where(lons > 180, lons - 360, lons)
-    mask = (
-        (lats >= DOMAIN["south"])
-        & (lats <= DOMAIN["north"])
-        & (lons >= DOMAIN["west"])
-        & (lons <= DOMAIN["east"])
-        & np.isfinite(vals)
-    )
+    mask = (lats >= DOMAIN["south"]) & (lats <= DOMAIN["north"]) & (lons >= DOMAIN["west"]) & (lons <= DOMAIN["east"]) & np.isfinite(vals)
     rows, cols = np.where(mask)
     if rows.size == 0:
         empty = np.array([])
         return empty, empty, empty, empty
-
     rmin, rmax = rows.min(), rows.max()
     cmin, cmax = cols.min(), cols.max()
-    return (
-        lats[rmin : rmax + 1, cmin : cmax + 1],
-        lons[rmin : rmax + 1, cmin : cmax + 1],
-        vals[rmin : rmax + 1, cmin : cmax + 1],
-        mask[rmin : rmax + 1, cmin : cmax + 1],
-    )
+    return lats[rmin:rmax+1, cmin:cmax+1], lons[rmin:rmax+1, cmin:cmax+1], vals[rmin:rmax+1, cmin:cmax+1], mask[rmin:rmax+1, cmin:cmax+1]
+
+
+def orient_for_leaflet(lats2d: np.ndarray, lons2d: np.ndarray, vals2d: np.ndarray, mask2d: np.ndarray) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
+    """Orient arrays so image row 0 is north and column 0 is west."""
+    out_lats, out_lons, out_vals, out_mask = lats2d, lons2d, vals2d, mask2d
+
+    top_lat = float(np.nanmean(out_lats[0, :]))
+    bottom_lat = float(np.nanmean(out_lats[-1, :]))
+    if top_lat < bottom_lat:
+        out_lats = np.flipud(out_lats)
+        out_lons = np.flipud(out_lons)
+        out_vals = np.flipud(out_vals)
+        out_mask = np.flipud(out_mask)
+
+    left_lon = float(np.nanmean(out_lons[:, 0]))
+    right_lon = float(np.nanmean(out_lons[:, -1]))
+    if left_lon > right_lon:
+        out_lats = np.fliplr(out_lats)
+        out_lons = np.fliplr(out_lons)
+        out_vals = np.fliplr(out_vals)
+        out_mask = np.fliplr(out_mask)
+
+    return out_lats, out_lons, out_vals, out_mask
 
 
 def sample_points(lats2d: np.ndarray, lons2d: np.ndarray, vals2d: np.ndarray, mask2d: np.ndarray) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
@@ -253,16 +256,26 @@ def make_raster_png(vals2d: np.ndarray, mask2d: np.ndarray, out_path: Path) -> N
     out_size = (max(1, w * RASTER_UPSCALE), max(1, h * RASTER_UPSCALE))
     vals_hi = resize_float_grid(vals2d, out_size)
     mask_hi = resize_mask(mask2d, out_size)
-
     rgba = np.zeros((out_size[1], out_size[0], 4), dtype=np.uint8)
     visible = mask_hi & np.isfinite(vals_hi) & (vals_hi >= 0.001)
-
     for b in COLOR_SCALE:
         m = visible & (vals_hi >= b["min"]) & (vals_hi < b["max"])
         rgba[m] = hex_to_rgba(b["color"], 215)
-
     out_path.parent.mkdir(parents=True, exist_ok=True)
     Image.fromarray(rgba, mode="RGBA").save(out_path, optimize=True)
+
+
+def write_value_grid(vals2d: np.ndarray, mask2d: np.ndarray, bounds: dict, out_path: Path) -> None:
+    grid = np.where(mask2d & np.isfinite(vals2d), vals2d, MISSING_VALUE)
+    payload = {
+        "bounds": bounds,
+        "width": int(grid.shape[1]),
+        "height": int(grid.shape[0]),
+        "missing": MISSING_VALUE,
+        "units": "inches",
+        "values": [round(float(v), 3) for v in grid.ravel()],
+    }
+    write_json_gz(payload, out_path)
 
 
 def bounds_from_crop(lats2d: np.ndarray, lons2d: np.ndarray, mask2d: np.ndarray) -> dict:
@@ -281,19 +294,16 @@ def process_grib_file(grib_path: Path, cycle: Cycle, product_code: str, product_
     except Exception as e:
         log(f"Could not open {grib_path}: {e}")
         return layers
-
     try:
         messages = [g for g in grbs if message_is_precip(g)]
     except Exception as e:
         log(f"Could not scan {grib_path}: {e}")
         grbs.close()
         return layers
-
     if not messages:
         log(f"No precipitation messages found in {grib_path.name}")
         grbs.close()
         return layers
-
     log(f"Found {len(messages)} precip message(s) in {grib_path.name}")
 
     for idx, grb in enumerate(messages, start=1):
@@ -304,28 +314,25 @@ def process_grib_file(grib_path: Path, cycle: Cycle, product_code: str, product_
             step_range = str(safe_get(grb, "stepRange", ""))
             valid_date = safe_get(grb, "validDate", None)
             anal_date = safe_get(grb, "analDate", None)
-
             vals_raw = grb.values
             if np.ma.isMaskedArray(vals_raw):
                 vals_raw = vals_raw.filled(np.nan)
             vals_in = value_units_to_inches(np.array(vals_raw, dtype=float), units)
             vals_in[vals_in < 0] = np.nan
-
             lats, lons = grb.latlons()
             lats2d, lons2d, vals2d, mask2d = crop_2d(lats, lons, vals_in)
             if vals2d.size == 0:
                 continue
-
             vals2d = np.where(vals2d < 0.001, 0.0, vals2d)
+            lats2d, lons2d, vals2d, mask2d = orient_for_leaflet(lats2d, lons2d, vals2d, mask2d)
             pts_lat, pts_lon, pts_val = sample_points(lats2d, lons2d, vals2d, mask2d)
             if pts_val.size == 0:
                 continue
-
             layer_id = f"{cycle.cycle_string}_{product_code}_f{fhour:02d}_a{accum:02d}_{idx}"
             grid_rel = f"data/grids/{layer_id}.json.gz"
+            value_grid_rel = f"data/value_grids/{layer_id}.json.gz"
             raster_rel = f"data/rasters/{layer_id}.png"
             raster_bounds = bounds_from_crop(lats2d, lons2d, mask2d)
-
             payload = {
                 "metadata": {
                     "id": layer_id,
@@ -349,14 +356,14 @@ def process_grib_file(grib_path: Path, cycle: Cycle, product_code: str, product_
                 "lon": round_list(pts_lon, 4),
                 "value": round_list(pts_val, 3),
             }
-
             write_json_gz(payload, Path("docs") / grid_rel)
+            write_value_grid(vals2d, mask2d, raster_bounds, Path("docs") / value_grid_rel)
             make_raster_png(vals2d, mask2d, Path("docs") / raster_rel)
-
             max_val = float(np.nanmax(vals2d[mask2d])) if np.any(mask2d) else 0.0
             layer_record = {
                 "id": layer_id,
                 "url": grid_rel,
+                "valueGridUrl": value_grid_rel,
                 "rasterUrl": raster_rel,
                 "rasterBounds": raster_bounds,
                 "run": cycle.cycle_string,
@@ -373,16 +380,15 @@ def process_grib_file(grib_path: Path, cycle: Cycle, product_code: str, product_
                 "pointCount": int(pts_val.size),
             }
             layers.append(layer_record)
-            log(f"  Wrote {layer_id}: {pts_val.size:,} sample points; raster max {max_val:.2f} in")
+            log(f"  Wrote {layer_id}: {pts_val.size:,} sample points; aligned value grid {vals2d.shape[1]}x{vals2d.shape[0]}; max {max_val:.2f} in")
         except Exception as e:
             log(f"  Message {idx} failed: {e}")
-
     grbs.close()
     return layers
 
 
 def clean_old_data() -> None:
-    for p in (GRID_DIR, RASTER_DIR):
+    for p in (GRID_DIR, VALUE_GRID_DIR, RASTER_DIR):
         if p.exists():
             shutil.rmtree(p)
         p.mkdir(parents=True, exist_ok=True)
@@ -392,11 +398,9 @@ def main() -> int:
     DATA_DIR.mkdir(parents=True, exist_ok=True)
     CACHE_DIR.mkdir(parents=True, exist_ok=True)
     clean_old_data()
-
     session = requests.Session()
     cycle = find_latest_cycle(session)
     all_layers: List[dict] = []
-
     for fhour in FORECAST_HOURS:
         for product in PRODUCTS:
             code = product["file_code"]
@@ -407,10 +411,8 @@ def main() -> int:
                 continue
             all_layers.extend(process_grib_file(local_path, cycle, code, label, fhour))
             time.sleep(1.0)
-
     if not all_layers:
         raise RuntimeError("No HREF QPF layers were generated.")
-
     all_layers.sort(key=lambda x: (x["run"], x["forecastHour"], x["accumHours"], x["productLabel"]))
     catalog = {
         "generatedUTC": datetime.now(timezone.utc).isoformat(),
@@ -420,10 +422,8 @@ def main() -> int:
         "colorScale": COLOR_SCALE,
         "layers": all_layers,
     }
-
     with (DATA_DIR / "catalog.json").open("w", encoding="utf-8") as f:
         json.dump(catalog, f, indent=2)
-
     log(f"Wrote {DATA_DIR / 'catalog.json'} with {len(all_layers)} layer(s)")
     return 0
 
