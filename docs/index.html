@@ -4,12 +4,10 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>HREF QPF Viewer</title>
-  <link
-    rel="stylesheet"
-    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-    integrity="sha256-p4NxAoJBhIINfQct8gKp3tPzvJnmEeN8yLk+G9m7L2M="
-    crossorigin=""
-  />
+
+  <!-- Keep this simple. If SRI/CORS blocks Leaflet CSS, the map tiles go full Picasso. -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
   <style>
     :root {
       --bg: #edf3f7;
@@ -23,32 +21,127 @@
       --danger: #ff7b72;
     }
 
-    html, body {
+    html,
+    body {
       height: 100%;
       width: 100%;
       margin: 0;
       padding: 0;
+      overflow: hidden;
       font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      background: #edf3f7;
+      background: var(--bg);
       color: var(--text);
     }
-    
+
     #map {
-      height: 100%;
-      width: 100%;
-      background: #11141a !important; /* Forces dark background behind tiles */
-    }
-    
-    .leaflet-container {
-      background: #11141a !important;
+      position: fixed;
+      inset: 0;
+      height: 100vh;
+      width: 100vw;
+      background: #11141a;
     }
 
+    /* Critical Leaflet layout fallback.
+       This keeps tiles clipped/positioned even if the CDN stylesheet hiccups. */
     .leaflet-container {
-      background: #1c2530;
+      position: relative;
+      overflow: hidden;
+      background: #11141a !important;
+      outline: 0;
+      font: 12px/1.5 "Helvetica Neue", Arial, Helvetica, sans-serif;
+    }
+
+    .leaflet-pane,
+    .leaflet-tile,
+    .leaflet-marker-icon,
+    .leaflet-marker-shadow,
+    .leaflet-tile-container,
+    .leaflet-pane > svg,
+    .leaflet-pane > canvas,
+    .leaflet-zoom-box,
+    .leaflet-image-layer,
+    .leaflet-layer {
+      position: absolute;
+      left: 0;
+      top: 0;
+    }
+
+    .leaflet-tile,
+    .leaflet-marker-icon,
+    .leaflet-marker-shadow {
+      user-select: none;
+      -webkit-user-drag: none;
+    }
+
+    .leaflet-tile {
+      max-width: none !important;
+      max-height: none !important;
+    }
+
+    .leaflet-tile-container {
+      pointer-events: none;
+    }
+
+    .leaflet-pane { z-index: 400; }
+    .leaflet-tile-pane { z-index: 200; }
+    .leaflet-overlay-pane { z-index: 400; }
+    .leaflet-shadow-pane { z-index: 500; }
+    .leaflet-marker-pane { z-index: 600; }
+    .leaflet-tooltip-pane { z-index: 650; }
+    .leaflet-popup-pane { z-index: 700; }
+    .leaflet-map-pane canvas { z-index: 100; }
+    .leaflet-map-pane svg { z-index: 200; }
+
+    .leaflet-control {
+      position: relative;
+      z-index: 800;
+      pointer-events: auto;
+      float: left;
+      clear: both;
+    }
+
+    .leaflet-top,
+    .leaflet-bottom {
+      position: absolute;
+      z-index: 1000;
+      pointer-events: none;
+    }
+
+    .leaflet-top { top: 0; }
+    .leaflet-right { right: 0; }
+    .leaflet-bottom { bottom: 0; }
+    .leaflet-left { left: 0; }
+    .leaflet-control-container .leaflet-top.leaflet-left { margin-top: 10px; margin-left: 10px; }
+
+    .leaflet-control-zoom {
+      border: 2px solid rgba(0,0,0,0.2);
+      background: rgba(255,255,255,0.85);
+      border-radius: 4px;
+      overflow: hidden;
+    }
+
+    .leaflet-control-zoom a {
+      display: block;
+      width: 26px;
+      height: 26px;
+      line-height: 26px;
+      text-align: center;
+      text-decoration: none;
+      color: #111;
+      font-weight: 800;
+      background: #fff;
+      border-bottom: 1px solid #ccc;
+    }
+
+    .leaflet-control-attribution {
+      background: rgba(255,255,255,0.75);
+      color: #222;
+      padding: 2px 6px;
+      font-size: 11px;
     }
 
     .top-panel {
-      position: absolute;
+      position: fixed;
       z-index: 1000;
       top: 14px;
       left: 14px;
@@ -102,12 +195,15 @@
       margin-bottom: 4px;
     }
 
-    select, input[type="range"], button {
+    select,
+    input[type="range"],
+    button {
       width: 100%;
       box-sizing: border-box;
     }
 
-    select, button {
+    select,
+    button {
       background: var(--panel2);
       color: var(--text);
       border: 1px solid var(--line);
@@ -122,7 +218,8 @@
       font-weight: 700;
     }
 
-    button:hover, select:hover {
+    button:hover,
+    select:hover {
       border-color: rgba(88,166,255,0.7);
     }
 
@@ -139,7 +236,7 @@
     }
 
     .readout {
-      position: absolute;
+      position: fixed;
       z-index: 1000;
       right: 14px;
       top: 14px;
@@ -171,7 +268,7 @@
     }
 
     .legend {
-      position: absolute;
+      position: fixed;
       z-index: 1000;
       right: 14px;
       bottom: 24px;
@@ -209,7 +306,7 @@
     }
 
     .loading {
-      position: absolute;
+      position: fixed;
       z-index: 2000;
       left: 50%;
       top: 50%;
@@ -222,7 +319,6 @@
       box-shadow: 0 18px 50px rgba(0,0,0,0.35);
       font-weight: 800;
     }
-
 
     .state-label {
       color: #56616c;
@@ -309,11 +405,7 @@
     <div id="legendRows"></div>
   </section>
 
-  <script
-    src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
-    integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
-    crossorigin=""
-  ></script>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
   <script>
     const state = {
@@ -346,6 +438,7 @@
       'https://{s}.basemaps.cartocdn.com/rastertiles/dark_all/{z}/{x}/{y}.png',
       {
         maxZoom: 18,
+        subdomains: 'abcd',
         attribution: '&copy; OpenStreetMap contributors &copy; CARTO'
       }
     ).addTo(map);
@@ -364,51 +457,56 @@
         this._canvas = L.DomUtil.create('canvas', 'leaflet-qpf-layer');
         this._canvas.style.position = 'absolute';
         this._canvas.style.pointerEvents = 'none';
+        this._canvas.style.zIndex = '450';
         this._ctx = this._canvas.getContext('2d', { alpha: true });
         map.getPanes().overlayPane.appendChild(this._canvas);
-        map.on('moveend zoomend resize', this.redraw, this);
+        map.on('moveend zoomend resize viewreset', this.redraw, this);
         this.redraw();
       }
 
       onRemove(map) {
-        map.off('moveend zoomend resize', this.redraw, this);
+        map.off('moveend zoomend resize viewreset', this.redraw, this);
         L.DomUtil.remove(this._canvas);
       }
 
       redraw() {
         if (!this._map || !this._canvas || !state.activeGrid) return;
+
         const size = this._map.getSize();
+        const topLeft = this._map.containerPointToLayerPoint([0, 0]);
+        L.DomUtil.setPosition(this._canvas, topLeft);
+
         const dpr = window.devicePixelRatio || 1;
         this._canvas.width = size.x * dpr;
         this._canvas.height = size.y * dpr;
         this._canvas.style.width = `${size.x}px`;
         this._canvas.style.height = `${size.y}px`;
+
         this._ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
         this._ctx.clearRect(0, 0, size.x, size.y);
         this._ctx.globalAlpha = state.opacity;
+
         const z = this._map.getZoom();
-        
-        // Base pixel size at Zoom Level 6 (You can tweak the '4.5' depending on your grid's actual resolution)
-        const basePxAtZoom6 = 4.5; 
-        
-        // Exponentially scale the size based on the zoom level
+        const basePxAtZoom6 = 4.5;
         const exactPx = basePxAtZoom6 * Math.pow(2, z - 6);
-        
-        // Ceil the size and add 1 pixel to ensure squares overlap slightly, hiding any seams
-        const px = Math.ceil(exactPx) + 1; 
+        const px = Math.ceil(exactPx) + 1;
         const half = exactPx / 2;
         const grid = state.activeGrid;
 
         for (let i = 0; i < grid.value.length; i++) {
           const v = grid.value[i];
           if (!Number.isFinite(v) || v < 0.001) continue;
+
           const color = colorForValue(v);
           if (!color) continue;
+
           const p = this._map.latLngToContainerPoint([grid.lat[i], grid.lon[i]]);
           if (p.x < -20 || p.y < -20 || p.x > size.x + 20 || p.y > size.y + 20) continue;
+
           this._ctx.fillStyle = color;
           this._ctx.fillRect(p.x - half, p.y - half, px, px);
         }
+
         this._ctx.globalAlpha = 1;
       }
     }
@@ -423,7 +521,8 @@
 
     function layerLabel(layer) {
       const valid = layer.validTimeUTC ?
-        new Date(layer.validTimeUTC).toISOString().slice(0, 16).replace('T', ' ') + 'Z' : 'valid time unknown';
+        new Date(layer.validTimeUTC).toISOString().slice(0, 16).replace('T', ' ') + 'Z' :
+        'valid time unknown';
       return `${layer.runLabel} • ${layer.productLabel} • ${layer.accumHours}h QPF • F${String(layer.forecastHour).padStart(2, '0')} • ${valid}`;
     }
 
@@ -466,6 +565,7 @@
         const text = await new Response(stream).text();
         return JSON.parse(text);
       }
+
       return await res.json();
     }
 
@@ -498,8 +598,10 @@
       const accum = Number(els.accumSelect.value);
       const fhour = Number(els.fhourSelect.value);
       const layer = state.catalog.layers.find(l => l.product === product && l.accumHours === accum && l.forecastHour === fhour);
-      if (layer) setActiveLayer(layer.id);
-      else {
+
+      if (layer) {
+        setActiveLayer(layer.id);
+      } else {
         els.status.innerHTML = `<span style="color: var(--danger); font-weight: 800;">No exact layer for that combo.</span><br>Try a different accumulation or forecast hour.`;
       }
     }
@@ -535,6 +637,7 @@
 
       let best = null;
       let bestD2 = Infinity;
+
       for (let i = 0; i < grid.value.length; i++) {
         const dLat = grid.lat[i] - latlng.lat;
         const dLon = (grid.lon[i] - latlng.lng) * Math.cos(latlng.lat * Math.PI / 180);
@@ -544,7 +647,9 @@
           best = i;
         }
       }
+
       if (best === null) return null;
+
       return {
         lat: grid.lat[best],
         lon: grid.lon[best],
@@ -556,6 +661,7 @@
     map.on('click', e => {
       const p = nearestGridPoint(e.latlng);
       if (!p || !state.activeLayer) return;
+
       els.sampleValue.textContent = `${p.value.toFixed(2)} in`;
       els.sampleDetail.innerHTML = `Nearest HREF grid point<br>` +
         `<strong>${p.lat.toFixed(3)}, ${p.lon.toFixed(3)}</strong><br>` +
@@ -579,18 +685,27 @@
           if (!r.ok) throw new Error(`HTTP ${r.status}`);
           return r.json();
         });
+
         state.catalog = catalog;
+
         if (!catalog.layers || catalog.layers.length === 0) {
           els.status.innerHTML = '<span style="color: var(--danger); font-weight: 800;">No layers yet.</span><br>Run the GitHub Action first.';
           return;
         }
+
         populateControls();
         drawLegend();
-        fitToDomain();
+
+        map.whenReady(() => {
+          map.invalidateSize(true);
+          fitToDomain();
+        });
+
         setTimeout(() => {
-          map.invalidateSize();
-        }, 200);
-        // A small delay gives the DOM time to settle
+          map.invalidateSize(true);
+          qpfLayer.redraw();
+        }, 250);
+
         await setActiveLayer(catalog.defaultLayerId || catalog.layers[0].id);
       } catch (err) {
         console.error(err);
