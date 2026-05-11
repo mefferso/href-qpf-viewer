@@ -312,10 +312,13 @@
       preferCanvas: true,
     }).setView([30.1, -90.2], 6);
 
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      maxZoom: 13,
-      attribution: '&copy; OpenStreetMap contributors'
-    }).addTo(map);
+    L.tileLayer(
+      'https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}',
+      {
+        maxZoom: 18,
+        attribution: 'Tiles &copy; Esri'
+      }
+    ).addTo(map);
 
     function colorForValue(v) {
       const scale = state.catalog?.colorScale || [];
