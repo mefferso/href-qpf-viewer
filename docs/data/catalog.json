@@ -1,5 +1,5 @@
 {
-  "generatedUTC": "2026-05-11T22:42:53.627695+00:00",
+  "generatedUTC": "2026-05-11T23:04:53.533180+00:00",
   "domain": {
     "west": -95.0,
     "east": -83.0,
@@ -88,6 +88,15 @@
         "west": -94.9536,
         "east": -83.00009
       },
+      "maxPoint": {
+        "lat": 27.628,
+        "lon": -92.3773,
+        "value": 2.653
+      },
+      "periodKey": "f06_a01_05_06_1",
+      "periodLabel": "F05-F06 (1-hr QPF)",
+      "stepStart": 5,
+      "stepEnd": 6,
       "run": "2026051112",
       "runLabel": "20260511 12Z",
       "product": "lpmm",
@@ -112,6 +121,15 @@
         "west": -94.9536,
         "east": -83.00009
       },
+      "maxPoint": {
+        "lat": 27.5833,
+        "lon": -92.4297,
+        "value": 2.21
+      },
+      "periodKey": "f06_a01_05_06_1",
+      "periodLabel": "F05-F06 (1-hr QPF)",
+      "stepStart": 5,
+      "stepEnd": 6,
       "run": "2026051112",
       "runLabel": "20260511 12Z",
       "product": "avrg",
@@ -136,6 +154,15 @@
         "west": -94.9536,
         "east": -83.00009
       },
+      "maxPoint": {
+        "lat": 27.5833,
+        "lon": -92.4297,
+        "value": 3.499
+      },
+      "periodKey": "f06_a01_05_06_1",
+      "periodLabel": "F05-F06 (1-hr QPF)",
+      "stepStart": 5,
+      "stepEnd": 6,
       "run": "2026051112",
       "runLabel": "20260511 12Z",
       "product": "pmmn",
@@ -160,6 +187,15 @@
         "west": -94.95359,
         "east": -83.00044
       },
+      "maxPoint": {
+        "lat": 26.5027,
+        "lon": -93.5752,
+        "value": 3.974
+      },
+      "periodKey": "f06_a03_03_06_2",
+      "periodLabel": "F03-F06 (3-hr QPF)",
+      "stepStart": 3,
+      "stepEnd": 6,
       "run": "2026051112",
       "runLabel": "20260511 12Z",
       "product": "lpmm",
@@ -184,6 +220,15 @@
         "west": -94.9536,
         "east": -83.00009
       },
+      "maxPoint": {
+        "lat": 26.5032,
+        "lon": -93.6262,
+        "value": 3.216
+      },
+      "periodKey": "f06_a03_03_06_2",
+      "periodLabel": "F03-F06 (3-hr QPF)",
+      "stepStart": 3,
+      "stepEnd": 6,
       "run": "2026051112",
       "runLabel": "20260511 12Z",
       "product": "avrg",
@@ -208,6 +253,15 @@
         "west": -94.9536,
         "east": -83.00044
       },
+      "maxPoint": {
+        "lat": 26.5032,
+        "lon": -93.6262,
+        "value": 4.67
+      },
+      "periodKey": "f06_a03_03_06_2",
+      "periodLabel": "F03-F06 (3-hr QPF)",
+      "stepStart": 3,
+      "stepEnd": 6,
       "run": "2026051112",
       "runLabel": "20260511 12Z",
       "product": "pmmn",
@@ -232,6 +286,15 @@
         "west": -94.9536,
         "east": -83.00009
       },
+      "maxPoint": {
+        "lat": 30.9092,
+        "lon": -90.4496,
+        "value": 1.886
+      },
+      "periodKey": "f12_a01_11_12_1",
+      "periodLabel": "F11-F12 (1-hr QPF)",
+      "stepStart": 11,
+      "stepEnd": 12,
       "run": "2026051112",
       "runLabel": "20260511 12Z",
       "product": "lpmm",
@@ -256,6 +319,15 @@
         "west": -94.9536,
         "east": -83.00009
       },
+      "maxPoint": {
+        "lat": 29.8688,
+        "lon": -92.8522,
+        "value": 1.892
+      },
+      "periodKey": "f12_a01_11_12_1",
+      "periodLabel": "F11-F12 (1-hr QPF)",
+      "stepStart": 11,
+      "stepEnd": 12,
       "run": "2026051112",
       "runLabel": "20260511 12Z",
       "product": "avrg",
@@ -280,6 +352,15 @@
         "west": -94.9536,
         "east": -83.00009
       },
+      "maxPoint": {
+        "lat": 29.8688,
+        "lon": -92.8522,
+        "value": 3.118
+      },
+      "periodKey": "f12_a01_11_12_1",
+      "periodLabel": "F11-F12 (1-hr QPF)",
+      "stepStart": 11,
+      "stepEnd": 12,
       "run": "2026051112",
       "runLabel": "20260511 12Z",
       "product": "pmmn",
@@ -304,6 +385,15 @@
         "west": -94.95315,
         "east": -83.00302
       },
+      "maxPoint": {
+        "lat": 30.2743,
+        "lon": -92.5814,
+        "value": 4.13
+      },
+      "periodKey": "f12_a03_09_12_2",
+      "periodLabel": "F09-F12 (3-hr QPF)",
+      "stepStart": 9,
+      "stepEnd": 12,
       "run": "2026051112",
       "runLabel": "20260511 12Z",
       "product": "lpmm",
@@ -328,6 +418,15 @@
         "west": -94.9536,
         "east": -83.00302
       },
+      "maxPoint": {
+        "lat": 30.2743,
+        "lon": -92.5814,
+        "value": 3.258
+      },
+      "periodKey": "f12_a03_09_12_2",
+      "periodLabel": "F09-F12 (3-hr QPF)",
+      "stepStart": 9,
+      "stepEnd": 12,
       "run": "2026051112",
       "runLabel": "20260511 12Z",
       "product": "avrg",
@@ -352,6 +451,15 @@
         "west": -94.95195,
         "east": -83.00302
       },
+      "maxPoint": {
+        "lat": 30.319,
+        "lon": -92.5278,
+        "value": 5.056
+      },
+      "periodKey": "f12_a03_09_12_2",
+      "periodLabel": "F09-F12 (3-hr QPF)",
+      "stepStart": 9,
+      "stepEnd": 12,
       "run": "2026051112",
       "runLabel": "20260511 12Z",
       "product": "pmmn",
@@ -376,6 +484,15 @@
         "west": -94.9536,
         "east": -83.00009
       },
+      "maxPoint": {
+        "lat": 28.9834,
+        "lon": -90.0024,
+        "value": 1.545
+      },
+      "periodKey": "f18_a01_17_18_1",
+      "periodLabel": "F17-F18 (1-hr QPF)",
+      "stepStart": 17,
+      "stepEnd": 18,
       "run": "2026051112",
       "runLabel": "20260511 12Z",
       "product": "lpmm",
@@ -386,7 +503,7 @@
       "validTimeUTC": "2026-05-12T05:00:00",
       "stepRange": "17-18",
       "name": "Total Precipitation",
-      "maxValue": 1.55,
+      "maxValue": 1.54,
       "pointCount": 12537
     },
     {
@@ -400,6 +517,15 @@
         "west": -94.9536,
         "east": -83.00009
       },
+      "maxPoint": {
+        "lat": 28.5616,
+        "lon": -87.4742,
+        "value": 1.722
+      },
+      "periodKey": "f18_a01_17_18_1",
+      "periodLabel": "F17-F18 (1-hr QPF)",
+      "stepStart": 17,
+      "stepEnd": 18,
       "run": "2026051112",
       "runLabel": "20260511 12Z",
       "product": "avrg",
@@ -424,6 +550,15 @@
         "west": -94.9536,
         "east": -83.00009
       },
+      "maxPoint": {
+        "lat": 28.5616,
+        "lon": -87.4742,
+        "value": 2.977
+      },
+      "periodKey": "f18_a01_17_18_1",
+      "periodLabel": "F17-F18 (1-hr QPF)",
+      "stepStart": 17,
+      "stepEnd": 18,
       "run": "2026051112",
       "runLabel": "20260511 12Z",
       "product": "pmmn",
@@ -448,6 +583,15 @@
         "west": -94.9536,
         "east": -83.00009
       },
+      "maxPoint": {
+        "lat": 29.7752,
+        "lon": -89.1816,
+        "value": 2.748
+      },
+      "periodKey": "f18_a03_15_18_2",
+      "periodLabel": "F15-F18 (3-hr QPF)",
+      "stepStart": 15,
+      "stepEnd": 18,
       "run": "2026051112",
       "runLabel": "20260511 12Z",
       "product": "lpmm",
@@ -472,6 +616,15 @@
         "west": -94.9536,
         "east": -83.00099
       },
+      "maxPoint": {
+        "lat": 29.8187,
+        "lon": -89.127,
+        "value": 2.405
+      },
+      "periodKey": "f18_a03_15_18_2",
+      "periodLabel": "F15-F18 (3-hr QPF)",
+      "stepStart": 15,
+      "stepEnd": 18,
       "run": "2026051112",
       "runLabel": "20260511 12Z",
       "product": "avrg",
@@ -496,6 +649,15 @@
         "west": -94.9536,
         "east": -83.00009
       },
+      "maxPoint": {
+        "lat": 29.1304,
+        "lon": -89.0045,
+        "value": 3.795
+      },
+      "periodKey": "f18_a03_15_18_2",
+      "periodLabel": "F15-F18 (3-hr QPF)",
+      "stepStart": 15,
+      "stepEnd": 18,
       "run": "2026051112",
       "runLabel": "20260511 12Z",
       "product": "pmmn",
@@ -520,6 +682,15 @@
         "west": -94.9536,
         "east": -83.00009
       },
+      "maxPoint": {
+        "lat": 28.1744,
+        "lon": -86.2029,
+        "value": 2.244
+      },
+      "periodKey": "f24_a01_23_24_1",
+      "periodLabel": "F23-F24 (1-hr QPF)",
+      "stepStart": 23,
+      "stepEnd": 24,
       "run": "2026051112",
       "runLabel": "20260511 12Z",
       "product": "lpmm",
@@ -544,6 +715,15 @@
         "west": -94.9536,
         "east": -83.00009
       },
+      "maxPoint": {
+        "lat": 30.229,
+        "lon": -83.409,
+        "value": 2.218
+      },
+      "periodKey": "f24_a01_23_24_1",
+      "periodLabel": "F23-F24 (1-hr QPF)",
+      "stepStart": 23,
+      "stepEnd": 24,
       "run": "2026051112",
       "runLabel": "20260511 12Z",
       "product": "avrg",
@@ -568,6 +748,15 @@
         "west": -94.9536,
         "east": -83.00009
       },
+      "maxPoint": {
+        "lat": 30.229,
+        "lon": -83.409,
+        "value": 3.915
+      },
+      "periodKey": "f24_a01_23_24_1",
+      "periodLabel": "F23-F24 (1-hr QPF)",
+      "stepStart": 23,
+      "stepEnd": 24,
       "run": "2026051112",
       "runLabel": "20260511 12Z",
       "product": "pmmn",
@@ -578,7 +767,7 @@
       "validTimeUTC": "2026-05-12T11:00:00",
       "stepRange": "23-24",
       "name": "Total Precipitation",
-      "maxValue": 3.91,
+      "maxValue": 3.92,
       "pointCount": 12537
     },
     {
@@ -592,6 +781,15 @@
         "west": -94.9536,
         "east": -83.00009
       },
+      "maxPoint": {
+        "lat": 28.622,
+        "lon": -87.7824,
+        "value": 3.955
+      },
+      "periodKey": "f24_a03_21_24_2",
+      "periodLabel": "F21-F24 (3-hr QPF)",
+      "stepStart": 21,
+      "stepEnd": 24,
       "run": "2026051112",
       "runLabel": "20260511 12Z",
       "product": "lpmm",
@@ -602,7 +800,7 @@
       "validTimeUTC": "2026-05-12T09:00:00",
       "stepRange": "21-24",
       "name": "Total Precipitation",
-      "maxValue": 3.95,
+      "maxValue": 3.96,
       "pointCount": 12254
     },
     {
@@ -616,6 +814,15 @@
         "west": -94.9536,
         "east": -83.00009
       },
+      "maxPoint": {
+        "lat": 28.6171,
+        "lon": -87.6787,
+        "value": 2.95
+      },
+      "periodKey": "f24_a03_21_24_2",
+      "periodLabel": "F21-F24 (3-hr QPF)",
+      "stepStart": 21,
+      "stepEnd": 24,
       "run": "2026051112",
       "runLabel": "20260511 12Z",
       "product": "avrg",
@@ -640,6 +847,15 @@
         "west": -94.9536,
         "east": -83.00009
       },
+      "maxPoint": {
+        "lat": 28.6171,
+        "lon": -87.6787,
+        "value": 4.818
+      },
+      "periodKey": "f24_a03_21_24_2",
+      "periodLabel": "F21-F24 (3-hr QPF)",
+      "stepStart": 21,
+      "stepEnd": 24,
       "run": "2026051112",
       "runLabel": "20260511 12Z",
       "product": "pmmn",
@@ -664,6 +880,15 @@
         "west": -94.9536,
         "east": -83.00009
       },
+      "maxPoint": {
+        "lat": 28.8993,
+        "lon": -86.097,
+        "value": 2.965
+      },
+      "periodKey": "f30_a01_29_30_1",
+      "periodLabel": "F29-F30 (1-hr QPF)",
+      "stepStart": 29,
+      "stepEnd": 30,
       "run": "2026051112",
       "runLabel": "20260511 12Z",
       "product": "lpmm",
@@ -674,7 +899,7 @@
       "validTimeUTC": "2026-05-12T17:00:00",
       "stepRange": "29-30",
       "name": "Total Precipitation",
-      "maxValue": 2.97,
+      "maxValue": 2.96,
       "pointCount": 12537
     },
     {
@@ -688,6 +913,15 @@
         "west": -94.9536,
         "east": -83.00009
       },
+      "maxPoint": {
+        "lat": 28.8993,
+        "lon": -86.097,
+        "value": 2.693
+      },
+      "periodKey": "f30_a01_29_30_1",
+      "periodLabel": "F29-F30 (1-hr QPF)",
+      "stepStart": 29,
+      "stepEnd": 30,
       "run": "2026051112",
       "runLabel": "20260511 12Z",
       "product": "avrg",
@@ -712,6 +946,15 @@
         "west": -94.9536,
         "east": -83.00009
       },
+      "maxPoint": {
+        "lat": 28.8993,
+        "lon": -86.097,
+        "value": 4.558
+      },
+      "periodKey": "f30_a01_29_30_1",
+      "periodLabel": "F29-F30 (1-hr QPF)",
+      "stepStart": 29,
+      "stepEnd": 30,
       "run": "2026051112",
       "runLabel": "20260511 12Z",
       "product": "pmmn",
@@ -736,6 +979,15 @@
         "west": -94.9536,
         "east": -83.00009
       },
+      "maxPoint": {
+        "lat": 29.3977,
+        "lon": -85.2735,
+        "value": 4.638
+      },
+      "periodKey": "f30_a03_27_30_2",
+      "periodLabel": "F27-F30 (3-hr QPF)",
+      "stepStart": 27,
+      "stepEnd": 30,
       "run": "2026051112",
       "runLabel": "20260511 12Z",
       "product": "lpmm",
@@ -760,6 +1012,15 @@
         "west": -94.9536,
         "east": -83.00009
       },
+      "maxPoint": {
+        "lat": 29.3977,
+        "lon": -85.2735,
+        "value": 3.99
+      },
+      "periodKey": "f30_a03_27_30_2",
+      "periodLabel": "F27-F30 (3-hr QPF)",
+      "stepStart": 27,
+      "stepEnd": 30,
       "run": "2026051112",
       "runLabel": "20260511 12Z",
       "product": "avrg",
@@ -784,6 +1045,15 @@
         "west": -94.9536,
         "east": -83.00009
       },
+      "maxPoint": {
+        "lat": 29.3977,
+        "lon": -85.2735,
+        "value": 6.54
+      },
+      "periodKey": "f30_a03_27_30_2",
+      "periodLabel": "F27-F30 (3-hr QPF)",
+      "stepStart": 27,
+      "stepEnd": 30,
       "run": "2026051112",
       "runLabel": "20260511 12Z",
       "product": "pmmn",
@@ -808,6 +1078,15 @@
         "west": -94.9536,
         "east": -83.00009
       },
+      "maxPoint": {
+        "lat": 27.651,
+        "lon": -84.4339,
+        "value": 1.71
+      },
+      "periodKey": "f36_a01_35_36_1",
+      "periodLabel": "F35-F36 (1-hr QPF)",
+      "stepStart": 35,
+      "stepEnd": 36,
       "run": "2026051112",
       "runLabel": "20260511 12Z",
       "product": "lpmm",
@@ -832,6 +1111,15 @@
         "west": -94.9536,
         "east": -83.00009
       },
+      "maxPoint": {
+        "lat": 27.651,
+        "lon": -84.4339,
+        "value": 1.594
+      },
+      "periodKey": "f36_a01_35_36_1",
+      "periodLabel": "F35-F36 (1-hr QPF)",
+      "stepStart": 35,
+      "stepEnd": 36,
       "run": "2026051112",
       "runLabel": "20260511 12Z",
       "product": "avrg",
@@ -856,6 +1144,15 @@
         "west": -94.9536,
         "east": -83.00009
       },
+      "maxPoint": {
+        "lat": 27.651,
+        "lon": -84.4339,
+        "value": 2.673
+      },
+      "periodKey": "f36_a01_35_36_1",
+      "periodLabel": "F35-F36 (1-hr QPF)",
+      "stepStart": 35,
+      "stepEnd": 36,
       "run": "2026051112",
       "runLabel": "20260511 12Z",
       "product": "pmmn",
@@ -880,6 +1177,15 @@
         "west": -94.9535,
         "east": -83.00009
       },
+      "maxPoint": {
+        "lat": 28.8426,
+        "lon": -85.1625,
+        "value": 4.357
+      },
+      "periodKey": "f36_a03_33_36_2",
+      "periodLabel": "F33-F36 (3-hr QPF)",
+      "stepStart": 33,
+      "stepEnd": 36,
       "run": "2026051112",
       "runLabel": "20260511 12Z",
       "product": "lpmm",
@@ -904,6 +1210,15 @@
         "west": -94.9536,
         "east": -83.00009
       },
+      "maxPoint": {
+        "lat": 28.8426,
+        "lon": -85.1625,
+        "value": 3.956
+      },
+      "periodKey": "f36_a03_33_36_2",
+      "periodLabel": "F33-F36 (3-hr QPF)",
+      "stepStart": 33,
+      "stepEnd": 36,
       "run": "2026051112",
       "runLabel": "20260511 12Z",
       "product": "avrg",
@@ -928,6 +1243,15 @@
         "west": -93.89339,
         "east": -83.00009
       },
+      "maxPoint": {
+        "lat": 28.8426,
+        "lon": -85.1625,
+        "value": 6.584
+      },
+      "periodKey": "f36_a03_33_36_2",
+      "periodLabel": "F33-F36 (3-hr QPF)",
+      "stepStart": 33,
+      "stepEnd": 36,
       "run": "2026051112",
       "runLabel": "20260511 12Z",
       "product": "pmmn",
@@ -952,6 +1276,15 @@
         "west": -94.9536,
         "east": -83.00009
       },
+      "maxPoint": {
+        "lat": 29.6965,
+        "lon": -83.6193,
+        "value": 1.288
+      },
+      "periodKey": "f42_a01_41_42_1",
+      "periodLabel": "F41-F42 (1-hr QPF)",
+      "stepStart": 41,
+      "stepEnd": 42,
       "run": "2026051112",
       "runLabel": "20260511 12Z",
       "product": "lpmm",
@@ -976,6 +1309,15 @@
         "west": -94.9536,
         "east": -83.00009
       },
+      "maxPoint": {
+        "lat": 26.6534,
+        "lon": -84.5724,
+        "value": 1.518
+      },
+      "periodKey": "f42_a01_41_42_1",
+      "periodLabel": "F41-F42 (1-hr QPF)",
+      "stepStart": 41,
+      "stepEnd": 42,
       "run": "2026051112",
       "runLabel": "20260511 12Z",
       "product": "avrg",
@@ -1000,6 +1342,15 @@
         "west": -94.9536,
         "east": -83.00009
       },
+      "maxPoint": {
+        "lat": 26.6534,
+        "lon": -84.5724,
+        "value": 2.5
+      },
+      "periodKey": "f42_a01_41_42_1",
+      "periodLabel": "F41-F42 (1-hr QPF)",
+      "stepStart": 41,
+      "stepEnd": 42,
       "run": "2026051112",
       "runLabel": "20260511 12Z",
       "product": "pmmn",
@@ -1024,6 +1375,15 @@
         "west": -94.9536,
         "east": -83.00009
       },
+      "maxPoint": {
+        "lat": 29.7607,
+        "lon": -83.8762,
+        "value": 3.108
+      },
+      "periodKey": "f42_a03_39_42_2",
+      "periodLabel": "F39-F42 (3-hr QPF)",
+      "stepStart": 39,
+      "stepEnd": 42,
       "run": "2026051112",
       "runLabel": "20260511 12Z",
       "product": "lpmm",
@@ -1048,6 +1408,15 @@
         "west": -94.9536,
         "east": -83.00009
       },
+      "maxPoint": {
+        "lat": 29.7607,
+        "lon": -83.8762,
+        "value": 2.004
+      },
+      "periodKey": "f42_a03_39_42_2",
+      "periodLabel": "F39-F42 (3-hr QPF)",
+      "stepStart": 39,
+      "stepEnd": 42,
       "run": "2026051112",
       "runLabel": "20260511 12Z",
       "product": "avrg",
@@ -1072,6 +1441,15 @@
         "west": -94.9536,
         "east": -83.00009
       },
+      "maxPoint": {
+        "lat": 29.7607,
+        "lon": -83.8762,
+        "value": 3.128
+      },
+      "periodKey": "f42_a03_39_42_2",
+      "periodLabel": "F39-F42 (3-hr QPF)",
+      "stepStart": 39,
+      "stepEnd": 42,
       "run": "2026051112",
       "runLabel": "20260511 12Z",
       "product": "pmmn",
@@ -1096,6 +1474,15 @@
         "west": -94.9536,
         "east": -83.00009
       },
+      "maxPoint": {
+        "lat": 24.3415,
+        "lon": -85.6223,
+        "value": 0.738
+      },
+      "periodKey": "f48_a01_47_48_1",
+      "periodLabel": "F47-F48 (1-hr QPF)",
+      "stepStart": 47,
+      "stepEnd": 48,
       "run": "2026051112",
       "runLabel": "20260511 12Z",
       "product": "lpmm",
@@ -1120,6 +1507,15 @@
         "west": -94.9536,
         "east": -83.00009
       },
+      "maxPoint": {
+        "lat": 24.3415,
+        "lon": -85.6223,
+        "value": 0.766
+      },
+      "periodKey": "f48_a01_47_48_1",
+      "periodLabel": "F47-F48 (1-hr QPF)",
+      "stepStart": 47,
+      "stepEnd": 48,
       "run": "2026051112",
       "runLabel": "20260511 12Z",
       "product": "avrg",
@@ -1144,6 +1540,15 @@
         "west": -94.9536,
         "east": -83.00009
       },
+      "maxPoint": {
+        "lat": 24.3415,
+        "lon": -85.6223,
+        "value": 1.134
+      },
+      "periodKey": "f48_a01_47_48_1",
+      "periodLabel": "F47-F48 (1-hr QPF)",
+      "stepStart": 47,
+      "stepEnd": 48,
       "run": "2026051112",
       "runLabel": "20260511 12Z",
       "product": "pmmn",
@@ -1168,6 +1573,15 @@
         "west": -94.9536,
         "east": -83.00009
       },
+      "maxPoint": {
+        "lat": 24.3415,
+        "lon": -85.6223,
+        "value": 1.113
+      },
+      "periodKey": "f48_a03_45_48_2",
+      "periodLabel": "F45-F48 (3-hr QPF)",
+      "stepStart": 45,
+      "stepEnd": 48,
       "run": "2026051112",
       "runLabel": "20260511 12Z",
       "product": "lpmm",
@@ -1192,6 +1606,15 @@
         "west": -94.9536,
         "east": -83.00009
       },
+      "maxPoint": {
+        "lat": 24.3415,
+        "lon": -85.6223,
+        "value": 0.631
+      },
+      "periodKey": "f48_a03_45_48_2",
+      "periodLabel": "F45-F48 (3-hr QPF)",
+      "stepStart": 45,
+      "stepEnd": 48,
       "run": "2026051112",
       "runLabel": "20260511 12Z",
       "product": "avrg",
@@ -1216,6 +1639,15 @@
         "west": -94.9536,
         "east": -83.00009
       },
+      "maxPoint": {
+        "lat": 24.3415,
+        "lon": -85.6223,
+        "value": 0.773
+      },
+      "periodKey": "f48_a03_45_48_2",
+      "periodLabel": "F45-F48 (3-hr QPF)",
+      "stepStart": 45,
+      "stepEnd": 48,
       "run": "2026051112",
       "runLabel": "20260511 12Z",
       "product": "pmmn",
