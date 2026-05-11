@@ -1,5 +1,5 @@
 {
-  "generatedUTC": "2026-05-11T22:29:21.803251+00:00",
+  "generatedUTC": "2026-05-11T22:42:53.627695+00:00",
   "domain": {
     "west": -95.0,
     "east": -83.0,
@@ -80,6 +80,7 @@
     {
       "id": "2026051112_lpmm_f06_a01_1",
       "url": "data/grids/2026051112_lpmm_f06_a01_1.json.gz",
+      "valueGridUrl": "data/value_grids/2026051112_lpmm_f06_a01_1.json.gz",
       "rasterUrl": "data/rasters/2026051112_lpmm_f06_a01_1.png",
       "rasterBounds": {
         "south": 24.00016,
@@ -103,6 +104,7 @@
     {
       "id": "2026051112_avrg_f06_a01_1",
       "url": "data/grids/2026051112_avrg_f06_a01_1.json.gz",
+      "valueGridUrl": "data/value_grids/2026051112_avrg_f06_a01_1.json.gz",
       "rasterUrl": "data/rasters/2026051112_avrg_f06_a01_1.png",
       "rasterBounds": {
         "south": 24.00016,
@@ -126,6 +128,7 @@
     {
       "id": "2026051112_pmmn_f06_a01_1",
       "url": "data/grids/2026051112_pmmn_f06_a01_1.json.gz",
+      "valueGridUrl": "data/value_grids/2026051112_pmmn_f06_a01_1.json.gz",
       "rasterUrl": "data/rasters/2026051112_pmmn_f06_a01_1.png",
       "rasterBounds": {
         "south": 24.00016,
@@ -149,6 +152,7 @@
     {
       "id": "2026051112_lpmm_f06_a03_2",
       "url": "data/grids/2026051112_lpmm_f06_a03_2.json.gz",
+      "valueGridUrl": "data/value_grids/2026051112_lpmm_f06_a03_2.json.gz",
       "rasterUrl": "data/rasters/2026051112_lpmm_f06_a03_2.png",
       "rasterBounds": {
         "south": 24.0136,
@@ -172,6 +176,7 @@
     {
       "id": "2026051112_avrg_f06_a03_2",
       "url": "data/grids/2026051112_avrg_f06_a03_2.json.gz",
+      "valueGridUrl": "data/value_grids/2026051112_avrg_f06_a03_2.json.gz",
       "rasterUrl": "data/rasters/2026051112_avrg_f06_a03_2.png",
       "rasterBounds": {
         "south": 24.00016,
@@ -195,6 +200,7 @@
     {
       "id": "2026051112_pmmn_f06_a03_2",
       "url": "data/grids/2026051112_pmmn_f06_a03_2.json.gz",
+      "valueGridUrl": "data/value_grids/2026051112_pmmn_f06_a03_2.json.gz",
       "rasterUrl": "data/rasters/2026051112_pmmn_f06_a03_2.png",
       "rasterBounds": {
         "south": 24.008,
@@ -213,11 +219,12 @@
       "stepRange": "3-6",
       "name": "Total Precipitation",
       "maxValue": 4.67,
-      "pointCount": 4267
+      "pointCount": 4258
     },
     {
       "id": "2026051112_lpmm_f12_a01_1",
       "url": "data/grids/2026051112_lpmm_f12_a01_1.json.gz",
+      "valueGridUrl": "data/value_grids/2026051112_lpmm_f12_a01_1.json.gz",
       "rasterUrl": "data/rasters/2026051112_lpmm_f12_a01_1.png",
       "rasterBounds": {
         "south": 24.00016,
@@ -241,6 +248,7 @@
     {
       "id": "2026051112_avrg_f12_a01_1",
       "url": "data/grids/2026051112_avrg_f12_a01_1.json.gz",
+      "valueGridUrl": "data/value_grids/2026051112_avrg_f12_a01_1.json.gz",
       "rasterUrl": "data/rasters/2026051112_avrg_f12_a01_1.png",
       "rasterBounds": {
         "south": 24.00016,
@@ -264,6 +272,7 @@
     {
       "id": "2026051112_pmmn_f12_a01_1",
       "url": "data/grids/2026051112_pmmn_f12_a01_1.json.gz",
+      "valueGridUrl": "data/value_grids/2026051112_pmmn_f12_a01_1.json.gz",
       "rasterUrl": "data/rasters/2026051112_pmmn_f12_a01_1.png",
       "rasterBounds": {
         "south": 24.00016,
@@ -287,6 +296,7 @@
     {
       "id": "2026051112_lpmm_f12_a03_2",
       "url": "data/grids/2026051112_lpmm_f12_a03_2.json.gz",
+      "valueGridUrl": "data/value_grids/2026051112_lpmm_f12_a03_2.json.gz",
       "rasterUrl": "data/rasters/2026051112_lpmm_f12_a03_2.png",
       "rasterBounds": {
         "south": 24.00216,
@@ -305,11 +315,12 @@
       "stepRange": "9-12",
       "name": "Total Precipitation",
       "maxValue": 4.13,
-      "pointCount": 3874
+      "pointCount": 3878
     },
     {
       "id": "2026051112_avrg_f12_a03_2",
       "url": "data/grids/2026051112_avrg_f12_a03_2.json.gz",
+      "valueGridUrl": "data/value_grids/2026051112_avrg_f12_a03_2.json.gz",
       "rasterUrl": "data/rasters/2026051112_avrg_f12_a03_2.png",
       "rasterBounds": {
         "south": 24.00469,
@@ -333,6 +344,7 @@
     {
       "id": "2026051112_pmmn_f12_a03_2",
       "url": "data/grids/2026051112_pmmn_f12_a03_2.json.gz",
+      "valueGridUrl": "data/value_grids/2026051112_pmmn_f12_a03_2.json.gz",
       "rasterUrl": "data/rasters/2026051112_pmmn_f12_a03_2.png",
       "rasterBounds": {
         "south": 24.00761,
@@ -351,11 +363,12 @@
       "stepRange": "9-12",
       "name": "Total Precipitation",
       "maxValue": 5.06,
-      "pointCount": 4137
+      "pointCount": 4109
     },
     {
       "id": "2026051112_lpmm_f18_a01_1",
       "url": "data/grids/2026051112_lpmm_f18_a01_1.json.gz",
+      "valueGridUrl": "data/value_grids/2026051112_lpmm_f18_a01_1.json.gz",
       "rasterUrl": "data/rasters/2026051112_lpmm_f18_a01_1.png",
       "rasterBounds": {
         "south": 24.00016,
@@ -379,6 +392,7 @@
     {
       "id": "2026051112_avrg_f18_a01_1",
       "url": "data/grids/2026051112_avrg_f18_a01_1.json.gz",
+      "valueGridUrl": "data/value_grids/2026051112_avrg_f18_a01_1.json.gz",
       "rasterUrl": "data/rasters/2026051112_avrg_f18_a01_1.png",
       "rasterBounds": {
         "south": 24.00016,
@@ -402,6 +416,7 @@
     {
       "id": "2026051112_pmmn_f18_a01_1",
       "url": "data/grids/2026051112_pmmn_f18_a01_1.json.gz",
+      "valueGridUrl": "data/value_grids/2026051112_pmmn_f18_a01_1.json.gz",
       "rasterUrl": "data/rasters/2026051112_pmmn_f18_a01_1.png",
       "rasterBounds": {
         "south": 24.00016,
@@ -425,6 +440,7 @@
     {
       "id": "2026051112_lpmm_f18_a03_2",
       "url": "data/grids/2026051112_lpmm_f18_a03_2.json.gz",
+      "valueGridUrl": "data/value_grids/2026051112_lpmm_f18_a03_2.json.gz",
       "rasterUrl": "data/rasters/2026051112_lpmm_f18_a03_2.png",
       "rasterBounds": {
         "south": 24.00016,
@@ -448,6 +464,7 @@
     {
       "id": "2026051112_avrg_f18_a03_2",
       "url": "data/grids/2026051112_avrg_f18_a03_2.json.gz",
+      "valueGridUrl": "data/value_grids/2026051112_avrg_f18_a03_2.json.gz",
       "rasterUrl": "data/rasters/2026051112_avrg_f18_a03_2.png",
       "rasterBounds": {
         "south": 24.00016,
@@ -471,6 +488,7 @@
     {
       "id": "2026051112_pmmn_f18_a03_2",
       "url": "data/grids/2026051112_pmmn_f18_a03_2.json.gz",
+      "valueGridUrl": "data/value_grids/2026051112_pmmn_f18_a03_2.json.gz",
       "rasterUrl": "data/rasters/2026051112_pmmn_f18_a03_2.png",
       "rasterBounds": {
         "south": 24.00016,
@@ -494,6 +512,7 @@
     {
       "id": "2026051112_lpmm_f24_a01_1",
       "url": "data/grids/2026051112_lpmm_f24_a01_1.json.gz",
+      "valueGridUrl": "data/value_grids/2026051112_lpmm_f24_a01_1.json.gz",
       "rasterUrl": "data/rasters/2026051112_lpmm_f24_a01_1.png",
       "rasterBounds": {
         "south": 24.00016,
@@ -517,6 +536,7 @@
     {
       "id": "2026051112_avrg_f24_a01_1",
       "url": "data/grids/2026051112_avrg_f24_a01_1.json.gz",
+      "valueGridUrl": "data/value_grids/2026051112_avrg_f24_a01_1.json.gz",
       "rasterUrl": "data/rasters/2026051112_avrg_f24_a01_1.png",
       "rasterBounds": {
         "south": 24.00016,
@@ -540,6 +560,7 @@
     {
       "id": "2026051112_pmmn_f24_a01_1",
       "url": "data/grids/2026051112_pmmn_f24_a01_1.json.gz",
+      "valueGridUrl": "data/value_grids/2026051112_pmmn_f24_a01_1.json.gz",
       "rasterUrl": "data/rasters/2026051112_pmmn_f24_a01_1.png",
       "rasterBounds": {
         "south": 24.00016,
@@ -563,6 +584,7 @@
     {
       "id": "2026051112_lpmm_f24_a03_2",
       "url": "data/grids/2026051112_lpmm_f24_a03_2.json.gz",
+      "valueGridUrl": "data/value_grids/2026051112_lpmm_f24_a03_2.json.gz",
       "rasterUrl": "data/rasters/2026051112_lpmm_f24_a03_2.png",
       "rasterBounds": {
         "south": 24.00016,
@@ -586,6 +608,7 @@
     {
       "id": "2026051112_avrg_f24_a03_2",
       "url": "data/grids/2026051112_avrg_f24_a03_2.json.gz",
+      "valueGridUrl": "data/value_grids/2026051112_avrg_f24_a03_2.json.gz",
       "rasterUrl": "data/rasters/2026051112_avrg_f24_a03_2.png",
       "rasterBounds": {
         "south": 24.00049,
@@ -604,11 +627,12 @@
       "stepRange": "21-24",
       "name": "Total Precipitation",
       "maxValue": 2.95,
-      "pointCount": 8790
+      "pointCount": 8749
     },
     {
       "id": "2026051112_pmmn_f24_a03_2",
       "url": "data/grids/2026051112_pmmn_f24_a03_2.json.gz",
+      "valueGridUrl": "data/value_grids/2026051112_pmmn_f24_a03_2.json.gz",
       "rasterUrl": "data/rasters/2026051112_pmmn_f24_a03_2.png",
       "rasterBounds": {
         "south": 24.00016,
@@ -632,6 +656,7 @@
     {
       "id": "2026051112_lpmm_f30_a01_1",
       "url": "data/grids/2026051112_lpmm_f30_a01_1.json.gz",
+      "valueGridUrl": "data/value_grids/2026051112_lpmm_f30_a01_1.json.gz",
       "rasterUrl": "data/rasters/2026051112_lpmm_f30_a01_1.png",
       "rasterBounds": {
         "south": 24.00016,
@@ -655,6 +680,7 @@
     {
       "id": "2026051112_avrg_f30_a01_1",
       "url": "data/grids/2026051112_avrg_f30_a01_1.json.gz",
+      "valueGridUrl": "data/value_grids/2026051112_avrg_f30_a01_1.json.gz",
       "rasterUrl": "data/rasters/2026051112_avrg_f30_a01_1.png",
       "rasterBounds": {
         "south": 24.00016,
@@ -678,6 +704,7 @@
     {
       "id": "2026051112_pmmn_f30_a01_1",
       "url": "data/grids/2026051112_pmmn_f30_a01_1.json.gz",
+      "valueGridUrl": "data/value_grids/2026051112_pmmn_f30_a01_1.json.gz",
       "rasterUrl": "data/rasters/2026051112_pmmn_f30_a01_1.png",
       "rasterBounds": {
         "south": 24.00016,
@@ -701,6 +728,7 @@
     {
       "id": "2026051112_lpmm_f30_a03_2",
       "url": "data/grids/2026051112_lpmm_f30_a03_2.json.gz",
+      "valueGridUrl": "data/value_grids/2026051112_lpmm_f30_a03_2.json.gz",
       "rasterUrl": "data/rasters/2026051112_lpmm_f30_a03_2.png",
       "rasterBounds": {
         "south": 24.00016,
@@ -724,6 +752,7 @@
     {
       "id": "2026051112_avrg_f30_a03_2",
       "url": "data/grids/2026051112_avrg_f30_a03_2.json.gz",
+      "valueGridUrl": "data/value_grids/2026051112_avrg_f30_a03_2.json.gz",
       "rasterUrl": "data/rasters/2026051112_avrg_f30_a03_2.png",
       "rasterBounds": {
         "south": 24.00016,
@@ -747,6 +776,7 @@
     {
       "id": "2026051112_pmmn_f30_a03_2",
       "url": "data/grids/2026051112_pmmn_f30_a03_2.json.gz",
+      "valueGridUrl": "data/value_grids/2026051112_pmmn_f30_a03_2.json.gz",
       "rasterUrl": "data/rasters/2026051112_pmmn_f30_a03_2.png",
       "rasterBounds": {
         "south": 24.00016,
@@ -770,6 +800,7 @@
     {
       "id": "2026051112_lpmm_f36_a01_1",
       "url": "data/grids/2026051112_lpmm_f36_a01_1.json.gz",
+      "valueGridUrl": "data/value_grids/2026051112_lpmm_f36_a01_1.json.gz",
       "rasterUrl": "data/rasters/2026051112_lpmm_f36_a01_1.png",
       "rasterBounds": {
         "south": 24.00016,
@@ -793,6 +824,7 @@
     {
       "id": "2026051112_avrg_f36_a01_1",
       "url": "data/grids/2026051112_avrg_f36_a01_1.json.gz",
+      "valueGridUrl": "data/value_grids/2026051112_avrg_f36_a01_1.json.gz",
       "rasterUrl": "data/rasters/2026051112_avrg_f36_a01_1.png",
       "rasterBounds": {
         "south": 24.00016,
@@ -816,6 +848,7 @@
     {
       "id": "2026051112_pmmn_f36_a01_1",
       "url": "data/grids/2026051112_pmmn_f36_a01_1.json.gz",
+      "valueGridUrl": "data/value_grids/2026051112_pmmn_f36_a01_1.json.gz",
       "rasterUrl": "data/rasters/2026051112_pmmn_f36_a01_1.png",
       "rasterBounds": {
         "south": 24.00016,
@@ -839,6 +872,7 @@
     {
       "id": "2026051112_lpmm_f36_a03_2",
       "url": "data/grids/2026051112_lpmm_f36_a03_2.json.gz",
+      "valueGridUrl": "data/value_grids/2026051112_lpmm_f36_a03_2.json.gz",
       "rasterUrl": "data/rasters/2026051112_lpmm_f36_a03_2.png",
       "rasterBounds": {
         "south": 24.0226,
@@ -862,6 +896,7 @@
     {
       "id": "2026051112_avrg_f36_a03_2",
       "url": "data/grids/2026051112_avrg_f36_a03_2.json.gz",
+      "valueGridUrl": "data/value_grids/2026051112_avrg_f36_a03_2.json.gz",
       "rasterUrl": "data/rasters/2026051112_avrg_f36_a03_2.png",
       "rasterBounds": {
         "south": 24.00169,
@@ -880,11 +915,12 @@
       "stepRange": "33-36",
       "name": "Total Precipitation",
       "maxValue": 3.96,
-      "pointCount": 7604
+      "pointCount": 7588
     },
     {
       "id": "2026051112_pmmn_f36_a03_2",
       "url": "data/grids/2026051112_pmmn_f36_a03_2.json.gz",
+      "valueGridUrl": "data/value_grids/2026051112_pmmn_f36_a03_2.json.gz",
       "rasterUrl": "data/rasters/2026051112_pmmn_f36_a03_2.png",
       "rasterBounds": {
         "south": 24.02574,
@@ -903,11 +939,12 @@
       "stepRange": "33-36",
       "name": "Total Precipitation",
       "maxValue": 6.58,
-      "pointCount": 3591
+      "pointCount": 3612
     },
     {
       "id": "2026051112_lpmm_f42_a01_1",
       "url": "data/grids/2026051112_lpmm_f42_a01_1.json.gz",
+      "valueGridUrl": "data/value_grids/2026051112_lpmm_f42_a01_1.json.gz",
       "rasterUrl": "data/rasters/2026051112_lpmm_f42_a01_1.png",
       "rasterBounds": {
         "south": 24.00016,
@@ -931,6 +968,7 @@
     {
       "id": "2026051112_avrg_f42_a01_1",
       "url": "data/grids/2026051112_avrg_f42_a01_1.json.gz",
+      "valueGridUrl": "data/value_grids/2026051112_avrg_f42_a01_1.json.gz",
       "rasterUrl": "data/rasters/2026051112_avrg_f42_a01_1.png",
       "rasterBounds": {
         "south": 24.00016,
@@ -954,6 +992,7 @@
     {
       "id": "2026051112_pmmn_f42_a01_1",
       "url": "data/grids/2026051112_pmmn_f42_a01_1.json.gz",
+      "valueGridUrl": "data/value_grids/2026051112_pmmn_f42_a01_1.json.gz",
       "rasterUrl": "data/rasters/2026051112_pmmn_f42_a01_1.png",
       "rasterBounds": {
         "south": 24.00016,
@@ -977,6 +1016,7 @@
     {
       "id": "2026051112_lpmm_f42_a03_2",
       "url": "data/grids/2026051112_lpmm_f42_a03_2.json.gz",
+      "valueGridUrl": "data/value_grids/2026051112_lpmm_f42_a03_2.json.gz",
       "rasterUrl": "data/rasters/2026051112_lpmm_f42_a03_2.png",
       "rasterBounds": {
         "south": 24.00016,
@@ -1000,6 +1040,7 @@
     {
       "id": "2026051112_avrg_f42_a03_2",
       "url": "data/grids/2026051112_avrg_f42_a03_2.json.gz",
+      "valueGridUrl": "data/value_grids/2026051112_avrg_f42_a03_2.json.gz",
       "rasterUrl": "data/rasters/2026051112_avrg_f42_a03_2.png",
       "rasterBounds": {
         "south": 24.00063,
@@ -1023,6 +1064,7 @@
     {
       "id": "2026051112_pmmn_f42_a03_2",
       "url": "data/grids/2026051112_pmmn_f42_a03_2.json.gz",
+      "valueGridUrl": "data/value_grids/2026051112_pmmn_f42_a03_2.json.gz",
       "rasterUrl": "data/rasters/2026051112_pmmn_f42_a03_2.png",
       "rasterBounds": {
         "south": 24.00016,
@@ -1046,6 +1088,7 @@
     {
       "id": "2026051112_lpmm_f48_a01_1",
       "url": "data/grids/2026051112_lpmm_f48_a01_1.json.gz",
+      "valueGridUrl": "data/value_grids/2026051112_lpmm_f48_a01_1.json.gz",
       "rasterUrl": "data/rasters/2026051112_lpmm_f48_a01_1.png",
       "rasterBounds": {
         "south": 24.00016,
@@ -1069,6 +1112,7 @@
     {
       "id": "2026051112_avrg_f48_a01_1",
       "url": "data/grids/2026051112_avrg_f48_a01_1.json.gz",
+      "valueGridUrl": "data/value_grids/2026051112_avrg_f48_a01_1.json.gz",
       "rasterUrl": "data/rasters/2026051112_avrg_f48_a01_1.png",
       "rasterBounds": {
         "south": 24.00016,
@@ -1092,6 +1136,7 @@
     {
       "id": "2026051112_pmmn_f48_a01_1",
       "url": "data/grids/2026051112_pmmn_f48_a01_1.json.gz",
+      "valueGridUrl": "data/value_grids/2026051112_pmmn_f48_a01_1.json.gz",
       "rasterUrl": "data/rasters/2026051112_pmmn_f48_a01_1.png",
       "rasterBounds": {
         "south": 24.00016,
@@ -1115,6 +1160,7 @@
     {
       "id": "2026051112_lpmm_f48_a03_2",
       "url": "data/grids/2026051112_lpmm_f48_a03_2.json.gz",
+      "valueGridUrl": "data/value_grids/2026051112_lpmm_f48_a03_2.json.gz",
       "rasterUrl": "data/rasters/2026051112_lpmm_f48_a03_2.png",
       "rasterBounds": {
         "south": 24.00016,
@@ -1138,6 +1184,7 @@
     {
       "id": "2026051112_avrg_f48_a03_2",
       "url": "data/grids/2026051112_avrg_f48_a03_2.json.gz",
+      "valueGridUrl": "data/value_grids/2026051112_avrg_f48_a03_2.json.gz",
       "rasterUrl": "data/rasters/2026051112_avrg_f48_a03_2.png",
       "rasterBounds": {
         "south": 24.00016,
@@ -1161,6 +1208,7 @@
     {
       "id": "2026051112_pmmn_f48_a03_2",
       "url": "data/grids/2026051112_pmmn_f48_a03_2.json.gz",
+      "valueGridUrl": "data/value_grids/2026051112_pmmn_f48_a03_2.json.gz",
       "rasterUrl": "data/rasters/2026051112_pmmn_f48_a03_2.png",
       "rasterBounds": {
         "south": 24.00016,
