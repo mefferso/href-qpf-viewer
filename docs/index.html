@@ -347,7 +347,6 @@
 
       redraw() {
         if (!this._map || !this._canvas || !state.activeGrid) return;
-
         const size = this._map.getSize();
         const dpr = window.devicePixelRatio || 1;
         this._canvas.width = size.x * dpr;
@@ -357,7 +356,6 @@
         this._ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
         this._ctx.clearRect(0, 0, size.x, size.y);
         this._ctx.globalAlpha = state.opacity;
-
         const z = this._map.getZoom();
         const px = Math.max(2, Math.min(12, Math.round((z - 3) * 1.9)));
         const half = px / 2;
@@ -386,7 +384,8 @@
     }
 
     function layerLabel(layer) {
-      const valid = layer.validTimeUTC ? new Date(layer.validTimeUTC).toISOString().slice(0, 16).replace('T', ' ') + 'Z' : 'valid time unknown';
+      const valid = layer.validTimeUTC ?
+        new Date(layer.validTimeUTC).toISOString().slice(0, 16).replace('T', ' ') + 'Z' : 'valid time unknown';
       return `${layer.runLabel} • ${layer.productLabel} • ${layer.accumHours}h QPF • F${String(layer.forecastHour).padStart(2, '0')} • ${valid}`;
     }
 
@@ -550,6 +549,10 @@
         populateControls();
         drawLegend();
         fitToDomain();
+        setTimeout(() => {
+          map.invalidateSize();
+        }, 200);
+        // A small delay gives the DOM time to settle
         await setActiveLayer(catalog.defaultLayerId || catalog.layers[0].id);
       } catch (err) {
         console.error(err);
