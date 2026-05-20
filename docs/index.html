@@ -30,14 +30,18 @@
 <section class="legend"><div style="font-size:12px;font-weight:800;margin-bottom:8px">QPF Inches</div><div id="legendRows"></div></section>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
-const state={catalog:null,activeLayer:null,valueGrid:null,rasterLayer:null,maxMarker:null,contourCanvas:null,contoursOn:false,opacity:.74,lastLatLng:null};
+const state={catalog:null,activeLayer:null,valueGrid:null,rasterLayer:null,maxMarker:null,contourCanvas:null,stateOutlineLayer:null,contoursOn:false,opacity:.74,lastLatLng:null};
 const map=L.map('map').setView([30.1,-90.2],6);
+map.createPane('statePane');
+map.getPane('statePane').style.zIndex=520;
+map.getPane('statePane').style.pointerEvents='none';
 L.tileLayer('https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}.png',{maxZoom:18,subdomains:'abcd'}).addTo(map);
 const els={loading,status,timeSelect,opacitySlider,contourToggle,prevBtn,nextBtn,sampleValue,sampleDetail,maxValue,maxDetail,legendRows};
 function fmtUTC(iso){const d=new Date(iso);return `${d.getUTCMonth()+1}/${d.getUTCDate()} ${String(d.getUTCHours()).padStart(2,'0')}Z`;}
 function fillTimes(){els.timeSelect.innerHTML='';for(const l of state.catalog.layers){const o=document.createElement('option');o.value=l.id;o.textContent=`${l.periodLabel} ending ${fmtUTC(l.validTimeUTC)}`;els.timeSelect.appendChild(o)}}
 async function loadJson(url){const r=await fetch(url,{cache:'no-store'});if(!r.ok)throw new Error(`HTTP ${r.status} loading ${url}`);if(url.endsWith('.gz')){const ds=new DecompressionStream('gzip');return JSON.parse(await new Response(r.body.pipeThrough(ds)).text())}return await r.json()}
 function drawLegend(){els.legendRows.innerHTML='';for(const b of state.catalog.colorScale){const row=document.createElement('div');row.className='legend-row';row.innerHTML=`<div class="swatch" style="background:${b.color}"></div><div>${b.label}</div>`;els.legendRows.appendChild(row)}}
+async function loadStateOutlines(){try{const url='https://raw.githubusercontent.com/PublicaMundi/MappingAPI/master/data/geojson/us-states.json';const gj=await fetch(url,{cache:'force-cache'}).then(r=>{if(!r.ok)throw new Error(`HTTP ${r.status}`);return r.json()});const keep=new Set(['Louisiana','Mississippi','Alabama','Texas','Arkansas','Tennessee','Florida','Georgia']);state.stateOutlineLayer=L.geoJSON(gj,{pane:'statePane',interactive:false,filter:f=>keep.has(f?.properties?.name),style:{color:'rgba(5,10,18,.88)',weight:3.2,opacity:.9,fillOpacity:0,lineCap:'round',lineJoin:'round'}}).addTo(map)}catch(e){console.warn('State outline overlay failed:',e)}}
 async function setLayer(id){const layer=state.catalog.layers.find(x=>x.id===id);const grid=await loadJson(layer.valueGridUrl);state.activeLayer=layer;state.valueGrid=grid;if(state.rasterLayer)map.removeLayer(state.rasterLayer);const b=layer.rasterBounds;state.rasterLayer=L.imageOverlay(layer.rasterUrl,[[b.south,b.west],[b.north,b.east]],{opacity:state.opacity}).addTo(map);placeMaxMarker();drawContours();if(state.lastLatLng)sample(state.lastLatLng);}
 function overlayPoints(){const g=state.valueGrid;const layer=state.activeLayer;if(!g||!layer)return null;const b=layer.rasterBounds||g.bounds;const nw=map.latLngToLayerPoint([b.north,b.west]);const se=map.latLngToLayerPoint([b.south,b.east]);return {nw,se,width:se.x-nw.x,height:se.y-nw.y};}
 function rasterPixelForLatLng(latlng){const g=state.valueGrid;const pts=overlayPoints();if(!g||!pts)return null;const p=map.latLngToLayerPoint(latlng);const fx=(p.x-pts.nw.x)/pts.width;const fy=(p.y-pts.nw.y)/pts.height;if(fx<0||fx>1||fy<0||fy>1)return null;const x=Math.round(fx*(g.width-1));const y=Math.round(fy*(g.height-1));if(x<0||y<0||x>=g.width||y>=g.height)return null;return {x,y};}
@@ -59,7 +63,7 @@ els.contourToggle.addEventListener('change',()=>{state.contoursOn=els.contourTog
 els.opacitySlider.addEventListener('input',()=>{state.opacity=Number(els.opacitySlider.value);if(state.rasterLayer)state.rasterLayer.setOpacity(state.opacity)});
 function step(d){const layers=state.catalog.layers;const i=layers.findIndex(x=>x.id===state.activeLayer.id);const n=Math.max(0,Math.min(layers.length-1,i+d));setLayer(layers[n].id);els.timeSelect.value=layers[n].id}
 els.prevBtn.onclick=()=>step(-1);els.nextBtn.onclick=()=>step(1);
-(async()=>{try{const c=await fetch('data/catalog.json',{cache:'no-store'}).then(r=>{if(!r.ok)throw new Error(`HTTP ${r.status}`);return r.json()});state.catalog=c;fillTimes();drawLegend();await setLayer(c.defaultLayerId||c.layers[0].id);loading.classList.add('hidden');}catch(e){loading.classList.add('hidden');status.innerHTML=`<span style="color:var(--danger);font-weight:800">Failed to load data.</span><br>${e.message}`;console.error(e)}})();
+(async()=>{try{loadStateOutlines();const c=await fetch('data/catalog.json',{cache:'no-store'}).then(r=>{if(!r.ok)throw new Error(`HTTP ${r.status}`);return r.json()});state.catalog=c;fillTimes();drawLegend();await setLayer(c.defaultLayerId||c.layers[0].id);loading.classList.add('hidden');}catch(e){loading.classList.add('hidden');status.innerHTML=`<span style="color:var(--danger);font-weight:800">Failed to load data.</span><br>${e.message}`;console.error(e)}})();
 </script>
 </body>
 </html>
