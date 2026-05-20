@@ -37,6 +37,7 @@ GRID_DIR = DATA_DIR / "grids"
 VALUE_GRID_DIR = DATA_DIR / "value_grids"
 RASTER_DIR = DATA_DIR / "rasters"
 NOMADS_BASE = "https://nomads.ncep.noaa.gov/pub/data/nccf/com/href/prod"
+HIRESW_BASE = "https://nomads.ncep.noaa.gov/pub/data/nccf/com/hiresw/prod"
 HEADERS = {"User-Agent": "href-qpf-viewer/1.0"}
 COLOR_SCALE = [
     {"min": 0.001, "max": 0.10, "color": "#d7f9d0", "label": "Trace-0.10"},
@@ -98,6 +99,10 @@ def cycle_base_url(cycle: Cycle) -> str:
     return f"{NOMADS_BASE}/href.{cycle.yyyymmdd}"
 
 
+def hiresw_cycle_base_url(cycle: Cycle) -> str:
+    return f"{HIRESW_BASE}/hiresw.{cycle.yyyymmdd}"
+
+
 def url_exists(session: requests.Session, url: str) -> bool:
     try:
         r = session.get(url, headers={**HEADERS, "Range": "bytes=0-99"}, timeout=20, stream=True)
@@ -110,10 +115,28 @@ def list_grib_files(session: requests.Session, dir_url: str) -> List[str]:
     try:
         r = session.get(f"{dir_url}/", headers=HEADERS, timeout=30)
         if r.status_code != 200:
+            log(f"Directory check failed HTTP {r.status_code}: {dir_url}")
             return []
-    except Exception:
+    except Exception as e:
+        log(f"Directory check failed: {dir_url}: {e}")
         return []
-    return sorted(set(re.findall(r'href\.t\d{2}z\.conus\.[a-z0-9_]+\.f\d{2}\.grib2', r.text, flags=re.IGNORECASE)))
+    patterns = [
+        r'href\.t\d{2}z\.conus\.[a-z0-9_]+\.f\d{2}\.grib2',
+        r'hiresw\.t\d{2}z\.[^.]+\.f\d{2}\.conus\.grib2',
+    ]
+    found = set()
+    for pat in patterns:
+        found.update(re.findall(pat, r.text, flags=re.IGNORECASE))
+    return sorted(found)
+
+
+def forecast_hour_from_filename(name: str) -> Optional[int]:
+    m = re.search(r"\.f(\d{2})(?:\.|$)", name)
+    return int(m.group(1)) if m else None
+
+
+def replace_forecast_hour(name: str, new_fhour: int) -> str:
+    return re.sub(r"\.f\d{2}(?=\.)", f".f{new_fhour:02d}", name)
 
 
 def find_latest_cycle(session: requests.Session) -> Cycle:
@@ -127,12 +150,20 @@ def find_latest_cycle(session: requests.Session) -> Cycle:
 
 
 def find_member_directories(session: requests.Session, cycle: Cycle) -> List[str]:
-    base = cycle_base_url(cycle)
-    candidates = ["mem", "members", "member", "hiresw", ""]
+    href_base = cycle_base_url(cycle)
+    hiresw_base = hiresw_cycle_base_url(cycle)
+    candidates = [
+        f"{href_base}/ensprod",
+        f"{href_base}/mem",
+        f"{href_base}/members",
+        f"{href_base}/member",
+        href_base,
+        hiresw_base,
+    ]
     found: List[str] = []
-    for d in candidates:
-        url = f"{base}/{d}" if d else base
+    for url in candidates:
         files = list_grib_files(session, url)
+        log(f"Checked {url}: found {len(files)} GRIB2 filename(s)")
         if files:
             found.append(url)
     return found
@@ -141,17 +172,22 @@ def find_member_directories(session: requests.Session, cycle: Cycle) -> List[str
 def member_file_candidates(session: requests.Session, cycle: Cycle, fhour: int) -> List[str]:
     member_urls = find_member_directories(session, cycle)
     include = []
-    forecast_tag = f"f{fhour:02d}.grib2"
     stat_tokens = {"avrg", "mean", "eas", "lpmm", "pmmn", "sprd", "prob"}
     for base_url in member_urls:
-        for name in list_grib_files(session, base_url):
-            if not name.endswith(forecast_tag):
+        names = list_grib_files(session, base_url)
+        log(f"Candidate scan {base_url}: {len(names)} total GRIB2 filename(s)")
+        for name in names:
+            if forecast_hour_from_filename(name) != fhour:
                 continue
-            parts = name.split(".")
-            code = parts[4].lower() if len(parts) > 4 else ""
-            if code in stat_tokens:
-                continue
+            lower_name = name.lower()
+            if lower_name.startswith("href."):
+                parts = lower_name.split(".")
+                code = parts[4] if len(parts) > 4 else ""
+                if code in stat_tokens:
+                    continue
             include.append(f"{base_url}/{name}")
+    if not include:
+        log(f"F{fhour:02d}: no usable individual member files found after filtering.")
     return sorted(set(include))
 
 
@@ -519,7 +555,7 @@ def compute_member_6hr(session: requests.Session, cycle: Cycle, member_url: str,
         return curr["lats"], curr["lons"], vals, name
     if fhour < 6:
         return None
-    prev_name = re.sub(rf"\.f{fhour:02d}\.grib2$", f".f{fhour - 6:02d}.grib2", name)
+    prev_name = replace_forecast_hour(name, fhour - 6)
     prev_url = member_url.rsplit("/", 1)[0] + "/" + prev_name
     prev_local = CACHE_DIR / cycle.cycle_string / "members" / prev_name
     if not download_file(session, prev_url, prev_local):
