@@ -1,5 +1,5 @@
 {
-  "generatedUTC": "2026-05-20T15:14:46.594872+00:00",
+  "generatedUTC": "2026-05-20T15:26:09.591857+00:00",
   "domain": {
     "west": -95.0,
     "east": -83.0,
@@ -191,6 +191,44 @@
       "derived": true,
       "derivedFromProducts": [
         "Mean: F18-F21 + F21-F24"
+      ]
+    },
+    {
+      "id": "2026052012_max_f42_a06",
+      "url": "data/grids/2026052012_max_f42_a06.json.gz",
+      "valueGridUrl": "data/value_grids/2026052012_max_f42_a06.json.gz",
+      "rasterUrl": "data/rasters/2026052012_max_f42_a06.png",
+      "rasterBounds": {
+        "south": 24.00049,
+        "north": 33.99978,
+        "west": -94.9536,
+        "east": -83.00031
+      },
+      "maxPoint": {
+        "lat": 33.3192,
+        "lon": -93.0574,
+        "value": 2.459
+      },
+      "periodKey": "f42_a06_36_42",
+      "periodLabel": "F36-F42 (6-hr Max QPF)",
+      "stepStart": 36,
+      "stepEnd": 42,
+      "run": "2026052012",
+      "runLabel": "20260520 12Z",
+      "product": "max",
+      "productLabel": "Max",
+      "forecastHour": 42,
+      "accumHours": 6,
+      "units": "inches",
+      "startTimeUTC": "2026-05-22T00:00:00+00:00",
+      "validTimeUTC": "2026-05-22T06:00:00+00:00",
+      "stepRange": "36-42",
+      "name": "Derived true 6-hour maximum precipitation",
+      "maxValue": 2.46,
+      "pointCount": 10031,
+      "derived": true,
+      "derivedFromProducts": [
+        "Mean: F36-F39 + F39-F42"
       ]
     },
     {
