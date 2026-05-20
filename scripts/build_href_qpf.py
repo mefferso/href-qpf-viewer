@@ -1,11 +1,9 @@
 #!/usr/bin/env python3
-"""Build HREF 6-hour Max QPF data for the web viewer.
+"""Build HREF 6-hour Ensemble Max QPF data for the web viewer.
 
-Public NOMADS HREF ensprod does not expose a literal *.max.* GRIB2 product.
-The listing does expose *.eas.* at every forecast hour, which appears to be the
-SPC-style max-QPF source candidate. This script uses the ensprod EAS files for
-F06/F12/.../F48 and only publishes them as Max QPF if a precip/APCP message is
-actually present. If not, it fails loudly and prints the GRIB inventory.
+This script ingests HREF ensprod ``avrg`` GRIB2 files and publishes only
+APCP/total-precipitation messages that are explicitly marked as statistical
+maximum fields for 6-hour accumulation windows.
 """
 
 from __future__ import annotations
@@ -24,6 +22,7 @@ import numpy as np
 import pygrib
 import requests
 from PIL import Image
+from scipy.interpolate import griddata
 
 DOMAIN = {"west": -95.0, "east": -83.0, "south": 24.0, "north": 34.0}
 FORECAST_HOURS = [6, 12, 18, 24, 30, 36, 42, 48]
@@ -105,7 +104,7 @@ def url_exists(session: requests.Session, url: str) -> bool:
 
 def find_latest_cycle(session: requests.Session) -> Cycle:
     for cycle in candidate_cycles():
-        sentinel = product_url(cycle, "pmmn", 6)
+        sentinel = product_url(cycle, PRODUCT_CODE, 6)
         log(f"Checking {cycle.cycle_label}: {sentinel}")
         if url_exists(session, sentinel):
             log(f"Using HREF cycle {cycle.cycle_label}")
@@ -160,7 +159,11 @@ def grib_inventory(grib_path: Path, limit: int = 80) -> str:
             rows.append(
                 f"#{i}: shortName={safe_get(g, 'shortName', '')} | name={safe_get(g, 'name', '')} | "
                 f"param={safe_get(g, 'parameterName', '')} | units={safe_get(g, 'units', '')} | "
-                f"stepRange={safe_get(g, 'stepRange', '')} | length={safe_get(g, 'lengthOfTimeRange', '')}"
+                f"stepRange={safe_get(g, 'stepRange', '')} | stepType={safe_get(g, 'stepType', '')} | "
+                f"derivedForecast={safe_get(g, 'derivedForecast', '')} | "
+                f"typeOfStatisticalProcessing={safe_get(g, 'typeOfStatisticalProcessing', '')} | "
+                f"typeOfStatisticalProcessingOfOverallTimeInterval={safe_get(g, 'typeOfStatisticalProcessingOfOverallTimeInterval', '')} | "
+                f"length={safe_get(g, 'lengthOfTimeRange', '')}"
             )
         grbs.close()
     except Exception as e:
@@ -172,6 +175,32 @@ def message_is_precip(grb) -> bool:
     parts = [str(safe_get(grb, x, "")).lower() for x in ("shortName", "name", "parameterName")]
     text = " ".join(parts)
     return "apcp" in text or "total precipitation" in text or "total precip" in text or ("precipitation" in text and "probability" not in text)
+
+
+def message_is_maximum(grb) -> bool:
+    stat_raw = safe_get(grb, "typeOfStatisticalProcessing", None)
+    stat_overall_raw = safe_get(grb, "typeOfStatisticalProcessingOfOverallTimeInterval", None)
+    try:
+        stat = int(stat_raw) if stat_raw is not None else None
+    except Exception:
+        stat = None
+    try:
+        stat_overall = int(stat_overall_raw) if stat_overall_raw is not None else None
+    except Exception:
+        stat_overall = None
+    step_type = str(safe_get(grb, "stepType", "")).lower()
+    derived = str(safe_get(grb, "derivedForecast", "")).lower()
+    name = str(safe_get(grb, "name", "")).lower()
+    parameter_name = str(safe_get(grb, "parameterName", "")).lower()
+    if stat == 2 or stat_overall == 2:
+        return True
+    if step_type == "max":
+        return True
+    if "maximum" in derived:
+        return True
+    if "maximum" in name or "maximum" in parameter_name:
+        return True
+    return False
 
 
 def parse_step_range(step_range: str, fhour: int, accum: int) -> Tuple[int, int]:
@@ -288,6 +317,24 @@ def write_value_grid_and_raster(vals2d, mask2d, bounds: dict, value_path: Path, 
     Image.fromarray(rgba, mode="RGBA").save(raster_path, optimize=True)
 
 
+def reproject_to_regular_grid(lats2d, lons2d, vals2d, mask2d):
+    valid = mask2d & np.isfinite(vals2d)
+    if not np.any(valid):
+        raise RuntimeError("No valid points available for reprojection.")
+    src_points = np.column_stack((lons2d[valid], lats2d[valid]))
+    src_values = vals2d[valid]
+    ny, nx = vals2d.shape
+    lon_axis = np.linspace(float(np.nanmin(lons2d[valid])), float(np.nanmax(lons2d[valid])), nx)
+    lat_axis = np.linspace(float(np.nanmax(lats2d[valid])), float(np.nanmin(lats2d[valid])), ny)
+    lon_grid, lat_grid = np.meshgrid(lon_axis, lat_axis)
+    interp_vals = griddata(src_points, src_values, (lon_grid, lat_grid), method="linear")
+    if np.isnan(interp_vals).any():
+        nearest_vals = griddata(src_points, src_values, (lon_grid, lat_grid), method="nearest")
+        interp_vals = np.where(np.isnan(interp_vals), nearest_vals, interp_vals)
+    out_mask = np.isfinite(interp_vals)
+    return lat_grid, lon_grid, interp_vals, out_mask
+
+
 def iso_for_step(cycle: Cycle, hour: int) -> str:
     return (cycle.dt + timedelta(hours=hour)).isoformat()
 
@@ -299,13 +346,16 @@ def process_file(grib_path: Path, cycle: Cycle, fhour: int) -> Optional[dict]:
     except Exception as e:
         log(f"Could not open {grib_path.name}: {e}")
         return None
-    if not messages:
+    max_messages = [g for g in messages if message_is_maximum(g)]
+    if not max_messages:
         grbs.close()
-        log("No APCP/precip messages found. GRIB inventory follows:")
-        log(grib_inventory(grib_path))
-        return None
+        inventory = grib_inventory(grib_path)
+        raise RuntimeError(
+            f"No max APCP message found in {grib_path.name}.\n"
+            f"Detailed GRIB inventory:\n{inventory}"
+        )
     best = None
-    for grb in messages:
+    for grb in max_messages:
         accum = accum_hours_from_message(grb) or 6
         step_range = str(safe_get(grb, "stepRange", ""))
         step_start, step_end = parse_step_range(step_range, fhour, accum)
@@ -325,6 +375,7 @@ def process_file(grib_path: Path, cycle: Cycle, fhour: int) -> Optional[dict]:
         return None
     vals2d = np.where(vals2d < 0.001, 0.0, vals2d)
     lats2d, lons2d, vals2d, mask2d = orient_for_leaflet(lats2d, lons2d, vals2d, mask2d)
+    lats2d, lons2d, vals2d, mask2d = reproject_to_regular_grid(lats2d, lons2d, vals2d, mask2d)
     bounds = bounds_from_crop(lats2d, lons2d, mask2d)
     max_point = max_point_from_grid(lats2d, lons2d, vals2d, mask2d)
     pts_lat, pts_lon, pts_val = sample_points(lats2d, lons2d, vals2d, mask2d)
@@ -333,7 +384,7 @@ def process_file(grib_path: Path, cycle: Cycle, fhour: int) -> Optional[dict]:
     value_rel = f"data/value_grids/{layer_id}.json.gz"
     raster_rel = f"data/rasters/{layer_id}.png"
     filename = product_filename(cycle, PRODUCT_CODE, fhour)
-    period_label = f"F{step_start:02d}-F{step_end:02d} ({accum}-hr Max QPF)"
+    period_label = f"F{step_start:02d}-F{step_end:02d} ({accum}-hr Ensemble Max QPF)"
     start_iso, end_iso = iso_for_step(cycle, step_start), iso_for_step(cycle, step_end)
     write_json_gz({
         "metadata": {
@@ -346,7 +397,7 @@ def process_file(grib_path: Path, cycle: Cycle, fhour: int) -> Optional[dict]:
             "accumHours": accum,
             "periodLabel": period_label,
             "units": "inches",
-            "name": "HREF ensprod EAS Max QPF candidate",
+            "name": "HREF ensprod avrg Ensemble Max QPF",
             "stepRange": step_range,
             "startTimeUTC": start_iso,
             "validTimeUTC": end_iso,
@@ -380,11 +431,11 @@ def process_file(grib_path: Path, cycle: Cycle, fhour: int) -> Optional[dict]:
         "startTimeUTC": start_iso,
         "validTimeUTC": end_iso,
         "stepRange": step_range,
-        "name": "HREF ensprod EAS Max QPF candidate",
+        "name": "HREF ensprod avrg Ensemble Max QPF",
         "sourceFile": filename,
         "maxValue": round(max_val, 2),
         "pointCount": int(pts_val.size),
-        "native": True,
+        "native": False,
     }
 
 
@@ -413,19 +464,19 @@ def main() -> int:
             layers.append(layer)
         time.sleep(0.5)
     if not layers:
-        raise RuntimeError("No publishable QPF layers were built from ensprod EAS files. See GRIB inventory above; EAS may not be the SPC max-QPF source.")
+        raise RuntimeError("No publishable Ensemble Max QPF layers were built from ensprod avrg files.")
     layers.sort(key=lambda x: (x["run"], x["forecastHour"]))
     catalog = {
         "generatedUTC": datetime.now(timezone.utc).isoformat(),
         "domain": DOMAIN,
-        "source": "NCEP NOMADS HREF ensprod EAS GRIB2, used as Max QPF source candidate",
+        "source": "NCEP NOMADS HREF ensprod avrg GRIB2 Ensemble Max APCP fields",
         "defaultLayerId": layers[0]["id"],
         "colorScale": COLOR_SCALE,
         "layers": layers,
     }
     with (DATA_DIR / "catalog.json").open("w", encoding="utf-8") as f:
         json.dump(catalog, f, indent=2)
-    log(f"Wrote {DATA_DIR / 'catalog.json'} with {len(layers)} EAS/Max candidate layer(s)")
+    log(f"Wrote {DATA_DIR / 'catalog.json'} with {len(layers)} Ensemble Max layer(s)")
     return 0
 
 
