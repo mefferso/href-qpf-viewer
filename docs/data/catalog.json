@@ -1,12 +1,12 @@
 {
-  "generatedUTC": "2026-05-20T15:26:09.591857+00:00",
+  "generatedUTC": "2026-05-20T17:04:07.826542+00:00",
   "domain": {
     "west": -95.0,
     "east": -83.0,
     "south": 24.0,
     "north": 34.0
   },
-  "source": "NCEP NOMADS HREF CONUS ensprod GRIB2; true 6-hour Max-only catalog derived from available ensemble summary products",
+  "source": "NCEP NOMADS HREF ensprod EAS GRIB2, used as Max QPF source candidate",
   "defaultLayerId": "2026052012_max_f06_a06",
   "colorScale": [
     {
@@ -89,9 +89,9 @@
         "east": -83.00009
       },
       "maxPoint": {
-        "lat": 28.3803,
-        "lon": -94.952,
-        "value": 5.189
+        "lat": 28.6994,
+        "lon": -94.9519,
+        "value": 3.497
       },
       "periodKey": "f06_a06_00_06",
       "periodLabel": "F00-F06 (6-hr Max QPF)",
@@ -107,15 +107,11 @@
       "startTimeUTC": "2026-05-20T12:00:00+00:00",
       "validTimeUTC": "2026-05-20T18:00:00+00:00",
       "stepRange": "0-6",
-      "name": "Derived true 6-hour maximum precipitation",
-      "maxValue": 5.19,
-      "pointCount": 12537,
-      "derived": true,
-      "derivedFromProducts": [
-        "Mean: F00-F03 + F03-F06",
-        "PMM: F00-F03 + F03-F06",
-        "LPMM: F00-F03 + F03-F06"
-      ]
+      "name": "HREF ensprod EAS Max QPF candidate",
+      "sourceFile": "href.t12z.conus.eas.f06.grib2",
+      "maxValue": 3.5,
+      "pointCount": 12303,
+      "native": true
     },
     {
       "id": "2026052012_max_f12_a06",
@@ -129,9 +125,9 @@
         "east": -83.00009
       },
       "maxPoint": {
-        "lat": 30.0444,
-        "lon": -90.4306,
-        "value": 4.066
+        "lat": 30.2281,
+        "lon": -92.5297,
+        "value": 3.937
       },
       "periodKey": "f12_a06_06_12",
       "periodLabel": "F06-F12 (6-hr Max QPF)",
@@ -147,13 +143,47 @@
       "startTimeUTC": "2026-05-20T18:00:00+00:00",
       "validTimeUTC": "2026-05-21T00:00:00+00:00",
       "stepRange": "6-12",
-      "name": "Derived true 6-hour maximum precipitation",
-      "maxValue": 4.07,
+      "name": "HREF ensprod EAS Max QPF candidate",
+      "sourceFile": "href.t12z.conus.eas.f12.grib2",
+      "maxValue": 3.94,
+      "pointCount": 12487,
+      "native": true
+    },
+    {
+      "id": "2026052012_max_f18_a06",
+      "url": "data/grids/2026052012_max_f18_a06.json.gz",
+      "valueGridUrl": "data/value_grids/2026052012_max_f18_a06.json.gz",
+      "rasterUrl": "data/rasters/2026052012_max_f18_a06.png",
+      "rasterBounds": {
+        "south": 24.00016,
+        "north": 33.99978,
+        "west": -94.9536,
+        "east": -83.00009
+      },
+      "maxPoint": {
+        "lat": 33.9848,
+        "lon": -86.8405,
+        "value": 3.639
+      },
+      "periodKey": "f18_a06_12_18",
+      "periodLabel": "F12-F18 (6-hr Max QPF)",
+      "stepStart": 12,
+      "stepEnd": 18,
+      "run": "2026052012",
+      "runLabel": "20260520 12Z",
+      "product": "max",
+      "productLabel": "Max",
+      "forecastHour": 18,
+      "accumHours": 6,
+      "units": "inches",
+      "startTimeUTC": "2026-05-21T00:00:00+00:00",
+      "validTimeUTC": "2026-05-21T06:00:00+00:00",
+      "stepRange": "12-18",
+      "name": "HREF ensprod EAS Max QPF candidate",
+      "sourceFile": "href.t12z.conus.eas.f18.grib2",
+      "maxValue": 3.64,
       "pointCount": 12537,
-      "derived": true,
-      "derivedFromProducts": [
-        "Mean: F06-F09 + F09-F12"
-      ]
+      "native": true
     },
     {
       "id": "2026052012_max_f24_a06",
@@ -162,14 +192,14 @@
       "rasterUrl": "data/rasters/2026052012_max_f24_a06.png",
       "rasterBounds": {
         "south": 24.00016,
-        "north": 33.99962,
+        "north": 33.99978,
         "west": -94.9536,
-        "east": -83.00031
+        "east": -83.00009
       },
       "maxPoint": {
-        "lat": 29.735,
-        "lon": -93.0643,
-        "value": 1.264
+        "lat": 25.2521,
+        "lon": -87.1213,
+        "value": 2.901
       },
       "periodKey": "f24_a06_18_24",
       "periodLabel": "F18-F24 (6-hr Max QPF)",
@@ -185,13 +215,83 @@
       "startTimeUTC": "2026-05-21T06:00:00+00:00",
       "validTimeUTC": "2026-05-21T12:00:00+00:00",
       "stepRange": "18-24",
-      "name": "Derived true 6-hour maximum precipitation",
-      "maxValue": 1.26,
-      "pointCount": 9568,
-      "derived": true,
-      "derivedFromProducts": [
-        "Mean: F18-F21 + F21-F24"
-      ]
+      "name": "HREF ensprod EAS Max QPF candidate",
+      "sourceFile": "href.t12z.conus.eas.f24.grib2",
+      "maxValue": 2.9,
+      "pointCount": 12537,
+      "native": true
+    },
+    {
+      "id": "2026052012_max_f30_a06",
+      "url": "data/grids/2026052012_max_f30_a06.json.gz",
+      "valueGridUrl": "data/value_grids/2026052012_max_f30_a06.json.gz",
+      "rasterUrl": "data/rasters/2026052012_max_f30_a06.png",
+      "rasterBounds": {
+        "south": 24.00016,
+        "north": 33.99978,
+        "west": -94.9536,
+        "east": -83.00009
+      },
+      "maxPoint": {
+        "lat": 29.838,
+        "lon": -94.9514,
+        "value": 3.129
+      },
+      "periodKey": "f30_a06_24_30",
+      "periodLabel": "F24-F30 (6-hr Max QPF)",
+      "stepStart": 24,
+      "stepEnd": 30,
+      "run": "2026052012",
+      "runLabel": "20260520 12Z",
+      "product": "max",
+      "productLabel": "Max",
+      "forecastHour": 30,
+      "accumHours": 6,
+      "units": "inches",
+      "startTimeUTC": "2026-05-21T12:00:00+00:00",
+      "validTimeUTC": "2026-05-21T18:00:00+00:00",
+      "stepRange": "24-30",
+      "name": "HREF ensprod EAS Max QPF candidate",
+      "sourceFile": "href.t12z.conus.eas.f30.grib2",
+      "maxValue": 3.13,
+      "pointCount": 12537,
+      "native": true
+    },
+    {
+      "id": "2026052012_max_f36_a06",
+      "url": "data/grids/2026052012_max_f36_a06.json.gz",
+      "valueGridUrl": "data/value_grids/2026052012_max_f36_a06.json.gz",
+      "rasterUrl": "data/rasters/2026052012_max_f36_a06.png",
+      "rasterBounds": {
+        "south": 24.00016,
+        "north": 33.99978,
+        "west": -94.9536,
+        "east": -83.00009
+      },
+      "maxPoint": {
+        "lat": 30.6894,
+        "lon": -92.9957,
+        "value": 3.858
+      },
+      "periodKey": "f36_a06_30_36",
+      "periodLabel": "F30-F36 (6-hr Max QPF)",
+      "stepStart": 30,
+      "stepEnd": 36,
+      "run": "2026052012",
+      "runLabel": "20260520 12Z",
+      "product": "max",
+      "productLabel": "Max",
+      "forecastHour": 36,
+      "accumHours": 6,
+      "units": "inches",
+      "startTimeUTC": "2026-05-21T18:00:00+00:00",
+      "validTimeUTC": "2026-05-22T00:00:00+00:00",
+      "stepRange": "30-36",
+      "name": "HREF ensprod EAS Max QPF candidate",
+      "sourceFile": "href.t12z.conus.eas.f36.grib2",
+      "maxValue": 3.86,
+      "pointCount": 12537,
+      "native": true
     },
     {
       "id": "2026052012_max_f42_a06",
@@ -199,15 +299,15 @@
       "valueGridUrl": "data/value_grids/2026052012_max_f42_a06.json.gz",
       "rasterUrl": "data/rasters/2026052012_max_f42_a06.png",
       "rasterBounds": {
-        "south": 24.00049,
+        "south": 24.00016,
         "north": 33.99978,
         "west": -94.9536,
-        "east": -83.00031
+        "east": -83.00009
       },
       "maxPoint": {
-        "lat": 33.3192,
-        "lon": -93.0574,
-        "value": 2.459
+        "lat": 31.8924,
+        "lon": -91.6395,
+        "value": 3.81
       },
       "periodKey": "f42_a06_36_42",
       "periodLabel": "F36-F42 (6-hr Max QPF)",
@@ -223,13 +323,11 @@
       "startTimeUTC": "2026-05-22T00:00:00+00:00",
       "validTimeUTC": "2026-05-22T06:00:00+00:00",
       "stepRange": "36-42",
-      "name": "Derived true 6-hour maximum precipitation",
-      "maxValue": 2.46,
-      "pointCount": 10031,
-      "derived": true,
-      "derivedFromProducts": [
-        "Mean: F36-F39 + F39-F42"
-      ]
+      "name": "HREF ensprod EAS Max QPF candidate",
+      "sourceFile": "href.t12z.conus.eas.f42.grib2",
+      "maxValue": 3.81,
+      "pointCount": 12537,
+      "native": true
     },
     {
       "id": "2026052012_max_f48_a06",
@@ -240,12 +338,12 @@
         "south": 24.00016,
         "north": 33.99978,
         "west": -94.9536,
-        "east": -83.00009
+        "east": -83.00031
       },
       "maxPoint": {
-        "lat": 29.7002,
-        "lon": -94.3751,
-        "value": 3.137
+        "lat": 33.9996,
+        "lon": -88.147,
+        "value": 3.604
       },
       "periodKey": "f48_a06_42_48",
       "periodLabel": "F42-F48 (6-hr Max QPF)",
@@ -261,15 +359,11 @@
       "startTimeUTC": "2026-05-22T06:00:00+00:00",
       "validTimeUTC": "2026-05-22T12:00:00+00:00",
       "stepRange": "42-48",
-      "name": "Derived true 6-hour maximum precipitation",
-      "maxValue": 3.14,
-      "pointCount": 12537,
-      "derived": true,
-      "derivedFromProducts": [
-        "Mean: F42-F45 + F45-F48",
-        "PMM: F42-F45 + F45-F48",
-        "LPMM: F42-F45 + F45-F48"
-      ]
+      "name": "HREF ensprod EAS Max QPF candidate",
+      "sourceFile": "href.t12z.conus.eas.f48.grib2",
+      "maxValue": 3.6,
+      "pointCount": 12535,
+      "native": true
     }
   ]
 }
