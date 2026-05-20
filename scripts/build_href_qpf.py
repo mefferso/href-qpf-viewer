@@ -27,8 +27,8 @@ from PIL import Image
 
 DOMAIN = {"west": -95.0, "east": -83.0, "south": 24.0, "north": 34.0}
 FORECAST_HOURS = [6, 12, 18, 24, 30, 36, 42, 48]
-PRODUCT_CODE = "eas"
-PRODUCT_LABEL = "Max"
+PRODUCT_CODE = "avrg"
+PRODUCT_LABEL = "Ensemble Max"
 SAMPLE_STRIDE = 2
 RASTER_UPSCALE = 4
 MISSING_VALUE = -9999
