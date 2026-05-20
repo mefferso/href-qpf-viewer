@@ -1,13 +1,13 @@
 {
-  "generatedUTC": "2026-05-20T14:48:21.277532+00:00",
+  "generatedUTC": "2026-05-20T15:01:05.386738+00:00",
   "domain": {
     "west": -95.0,
     "east": -83.0,
     "south": 24.0,
     "north": 34.0
   },
-  "source": "NCEP NOMADS HREF CONUS ensprod GRIB2; Max-only catalog derived from available ensemble summary products",
-  "defaultLayerId": "2026052000_max_f06_a03_03_06",
+  "source": "NCEP NOMADS HREF CONUS ensprod GRIB2; true 6-hour Max-only catalog derived from available ensemble summary products",
+  "defaultLayerId": "2026052012_max_f06_a06",
   "colorScale": [
     {
       "min": 0.001,
@@ -78,10 +78,10 @@
   ],
   "layers": [
     {
-      "id": "2026052000_max_f06_a03_03_06",
-      "url": "data/grids/2026052000_max_f06_a03_03_06.json.gz",
-      "valueGridUrl": "data/value_grids/2026052000_max_f06_a03_03_06.json.gz",
-      "rasterUrl": "data/rasters/2026052000_max_f06_a03_03_06.png",
+      "id": "2026052012_max_f06_a06",
+      "url": "data/grids/2026052012_max_f06_a06.json.gz",
+      "valueGridUrl": "data/value_grids/2026052012_max_f06_a06.json.gz",
+      "rasterUrl": "data/rasters/2026052012_max_f06_a06.png",
       "rasterBounds": {
         "south": 24.00016,
         "north": 33.99978,
@@ -89,312 +89,69 @@
         "east": -83.00009
       },
       "maxPoint": {
-        "lat": 29.6637,
-        "lon": -93.9491,
-        "value": 8.735
+        "lat": 28.1978,
+        "lon": -94.7969,
+        "value": 3.636
       },
-      "periodKey": "f06_a03_03_06",
-      "periodLabel": "F03-F06 (3-hr Max QPF)",
-      "stepStart": 3,
+      "periodKey": "f06_a06_00_06",
+      "periodLabel": "F00-F06 (6-hr Max QPF)",
+      "stepStart": 0,
       "stepEnd": 6,
-      "run": "2026052000",
-      "runLabel": "20260520 00Z",
+      "run": "2026052012",
+      "runLabel": "20260520 12Z",
       "product": "max",
       "productLabel": "Max",
       "forecastHour": 6,
-      "accumHours": 3,
+      "accumHours": 6,
       "units": "inches",
-      "startTimeUTC": "2026-05-20T03:00:00+00:00",
-      "validTimeUTC": "2026-05-20T06:00:00+00:00",
-      "stepRange": "3-6",
-      "name": "Derived maximum precipitation",
-      "maxValue": 8.73,
+      "startTimeUTC": "2026-05-20T12:00:00+00:00",
+      "validTimeUTC": "2026-05-20T18:00:00+00:00",
+      "stepRange": "0-6",
+      "name": "Derived true 6-hour maximum precipitation",
+      "maxValue": 3.64,
       "pointCount": 12537,
       "derived": true,
       "derivedFromProducts": [
-        "Mean",
-        "PMM",
-        "LPMM"
+        "Mean: F00-F03 + F03-F06",
+        "LPMM: F00-F03 + F03-F06"
       ]
     },
     {
-      "id": "2026052000_max_f12_a03_09_12",
-      "url": "data/grids/2026052000_max_f12_a03_09_12.json.gz",
-      "valueGridUrl": "data/value_grids/2026052000_max_f12_a03_09_12.json.gz",
-      "rasterUrl": "data/rasters/2026052000_max_f12_a03_09_12.png",
+      "id": "2026052012_max_f12_a06",
+      "url": "data/grids/2026052012_max_f12_a06.json.gz",
+      "valueGridUrl": "data/value_grids/2026052012_max_f12_a06.json.gz",
+      "rasterUrl": "data/rasters/2026052012_max_f12_a06.png",
       "rasterBounds": {
         "south": 24.00016,
-        "north": 33.99962,
+        "north": 33.99978,
         "west": -94.9536,
         "east": -83.00009
       },
       "maxPoint": {
-        "lat": 29.3981,
-        "lon": -91.7392,
-        "value": 2.429
+        "lat": 30.0444,
+        "lon": -90.4306,
+        "value": 4.066
       },
-      "periodKey": "f12_a03_09_12",
-      "periodLabel": "F09-F12 (3-hr Max QPF)",
-      "stepStart": 9,
+      "periodKey": "f12_a06_06_12",
+      "periodLabel": "F06-F12 (6-hr Max QPF)",
+      "stepStart": 6,
       "stepEnd": 12,
-      "run": "2026052000",
-      "runLabel": "20260520 00Z",
+      "run": "2026052012",
+      "runLabel": "20260520 12Z",
       "product": "max",
       "productLabel": "Max",
       "forecastHour": 12,
-      "accumHours": 3,
+      "accumHours": 6,
       "units": "inches",
-      "startTimeUTC": "2026-05-20T09:00:00+00:00",
-      "validTimeUTC": "2026-05-20T12:00:00+00:00",
-      "stepRange": "9-12",
-      "name": "Derived maximum precipitation",
-      "maxValue": 2.43,
-      "pointCount": 12587,
-      "derived": true,
-      "derivedFromProducts": [
-        "Mean",
-        "PMM",
-        "LPMM"
-      ]
-    },
-    {
-      "id": "2026052000_max_f18_a03_15_18",
-      "url": "data/grids/2026052000_max_f18_a03_15_18.json.gz",
-      "valueGridUrl": "data/value_grids/2026052000_max_f18_a03_15_18.json.gz",
-      "rasterUrl": "data/rasters/2026052000_max_f18_a03_15_18.png",
-      "rasterBounds": {
-        "south": 24.00016,
-        "north": 33.99978,
-        "west": -94.95345,
-        "east": -83.00031
-      },
-      "maxPoint": {
-        "lat": 32.8051,
-        "lon": -89.4289,
-        "value": 3.001
-      },
-      "periodKey": "f18_a03_15_18",
-      "periodLabel": "F15-F18 (3-hr Max QPF)",
-      "stepStart": 15,
-      "stepEnd": 18,
-      "run": "2026052000",
-      "runLabel": "20260520 00Z",
-      "product": "max",
-      "productLabel": "Max",
-      "forecastHour": 18,
-      "accumHours": 3,
-      "units": "inches",
-      "startTimeUTC": "2026-05-20T15:00:00+00:00",
-      "validTimeUTC": "2026-05-20T18:00:00+00:00",
-      "stepRange": "15-18",
-      "name": "Derived maximum precipitation",
-      "maxValue": 3.0,
-      "pointCount": 7282,
-      "derived": true,
-      "derivedFromProducts": [
-        "Mean",
-        "PMM",
-        "LPMM"
-      ]
-    },
-    {
-      "id": "2026052000_max_f24_a03_21_24",
-      "url": "data/grids/2026052000_max_f24_a03_21_24.json.gz",
-      "valueGridUrl": "data/value_grids/2026052000_max_f24_a03_21_24.json.gz",
-      "rasterUrl": "data/rasters/2026052000_max_f24_a03_21_24.png",
-      "rasterBounds": {
-        "south": 24.00169,
-        "north": 33.99962,
-        "west": -94.95335,
-        "east": -83.00031
-      },
-      "maxPoint": {
-        "lat": 30.667,
-        "lon": -89.9603,
-        "value": 4.779
-      },
-      "periodKey": "f24_a03_21_24",
-      "periodLabel": "F21-F24 (3-hr Max QPF)",
-      "stepStart": 21,
-      "stepEnd": 24,
-      "run": "2026052000",
-      "runLabel": "20260520 00Z",
-      "product": "max",
-      "productLabel": "Max",
-      "forecastHour": 24,
-      "accumHours": 3,
-      "units": "inches",
-      "startTimeUTC": "2026-05-20T21:00:00+00:00",
+      "startTimeUTC": "2026-05-20T18:00:00+00:00",
       "validTimeUTC": "2026-05-21T00:00:00+00:00",
-      "stepRange": "21-24",
-      "name": "Derived maximum precipitation",
-      "maxValue": 4.78,
-      "pointCount": 7024,
+      "stepRange": "6-12",
+      "name": "Derived true 6-hour maximum precipitation",
+      "maxValue": 4.07,
+      "pointCount": 12537,
       "derived": true,
       "derivedFromProducts": [
-        "Mean",
-        "PMM",
-        "LPMM"
-      ]
-    },
-    {
-      "id": "2026052000_max_f30_a03_27_30",
-      "url": "data/grids/2026052000_max_f30_a03_27_30.json.gz",
-      "valueGridUrl": "data/value_grids/2026052000_max_f30_a03_27_30.json.gz",
-      "rasterUrl": "data/rasters/2026052000_max_f30_a03_27_30.png",
-      "rasterBounds": {
-        "south": 24.00016,
-        "north": 33.99978,
-        "west": -94.9536,
-        "east": -83.00064
-      },
-      "maxPoint": {
-        "lat": 30.4888,
-        "lon": -91.5385,
-        "value": 1.306
-      },
-      "periodKey": "f30_a03_27_30",
-      "periodLabel": "F27-F30 (3-hr Max QPF)",
-      "stepStart": 27,
-      "stepEnd": 30,
-      "run": "2026052000",
-      "runLabel": "20260520 00Z",
-      "product": "max",
-      "productLabel": "Max",
-      "forecastHour": 30,
-      "accumHours": 3,
-      "units": "inches",
-      "startTimeUTC": "2026-05-21T03:00:00+00:00",
-      "validTimeUTC": "2026-05-21T06:00:00+00:00",
-      "stepRange": "27-30",
-      "name": "Derived maximum precipitation",
-      "maxValue": 1.31,
-      "pointCount": 7755,
-      "derived": true,
-      "derivedFromProducts": [
-        "Mean",
-        "PMM",
-        "LPMM"
-      ]
-    },
-    {
-      "id": "2026052000_max_f36_a03_33_36",
-      "url": "data/grids/2026052000_max_f36_a03_33_36.json.gz",
-      "valueGridUrl": "data/value_grids/2026052000_max_f36_a03_33_36.json.gz",
-      "rasterUrl": "data/rasters/2026052000_max_f36_a03_33_36.png",
-      "rasterBounds": {
-        "south": 24.00016,
-        "north": 33.99962,
-        "west": -94.9531,
-        "east": -83.00031
-      },
-      "maxPoint": {
-        "lat": 30.8582,
-        "lon": -90.5336,
-        "value": 1.478
-      },
-      "periodKey": "f36_a03_33_36",
-      "periodLabel": "F33-F36 (3-hr Max QPF)",
-      "stepStart": 33,
-      "stepEnd": 36,
-      "run": "2026052000",
-      "runLabel": "20260520 00Z",
-      "product": "max",
-      "productLabel": "Max",
-      "forecastHour": 36,
-      "accumHours": 3,
-      "units": "inches",
-      "startTimeUTC": "2026-05-21T09:00:00+00:00",
-      "validTimeUTC": "2026-05-21T12:00:00+00:00",
-      "stepRange": "33-36",
-      "name": "Derived maximum precipitation",
-      "maxValue": 1.48,
-      "pointCount": 8108,
-      "derived": true,
-      "derivedFromProducts": [
-        "Mean",
-        "PMM",
-        "LPMM"
-      ]
-    },
-    {
-      "id": "2026052000_max_f42_a03_39_42",
-      "url": "data/grids/2026052000_max_f42_a03_39_42.json.gz",
-      "valueGridUrl": "data/value_grids/2026052000_max_f42_a03_39_42.json.gz",
-      "rasterUrl": "data/rasters/2026052000_max_f42_a03_39_42.png",
-      "rasterBounds": {
-        "south": 24.00049,
-        "north": 33.99962,
-        "west": -94.9536,
-        "east": -83.00031
-      },
-      "maxPoint": {
-        "lat": 29.2655,
-        "lon": -94.9536,
-        "value": 2.358
-      },
-      "periodKey": "f42_a03_39_42",
-      "periodLabel": "F39-F42 (3-hr Max QPF)",
-      "stepStart": 39,
-      "stepEnd": 42,
-      "run": "2026052000",
-      "runLabel": "20260520 00Z",
-      "product": "max",
-      "productLabel": "Max",
-      "forecastHour": 42,
-      "accumHours": 3,
-      "units": "inches",
-      "startTimeUTC": "2026-05-21T15:00:00+00:00",
-      "validTimeUTC": "2026-05-21T18:00:00+00:00",
-      "stepRange": "39-42",
-      "name": "Derived maximum precipitation",
-      "maxValue": 2.36,
-      "pointCount": 12476,
-      "derived": true,
-      "derivedFromProducts": [
-        "Mean",
-        "PMM",
-        "LPMM"
-      ]
-    },
-    {
-      "id": "2026052000_max_f48_a03_45_48",
-      "url": "data/grids/2026052000_max_f48_a03_45_48.json.gz",
-      "valueGridUrl": "data/value_grids/2026052000_max_f48_a03_45_48.json.gz",
-      "rasterUrl": "data/rasters/2026052000_max_f48_a03_45_48.png",
-      "rasterBounds": {
-        "south": 24.00016,
-        "north": 33.99978,
-        "west": -94.9536,
-        "east": -83.00009
-      },
-      "maxPoint": {
-        "lat": 32.3184,
-        "lon": -93.5975,
-        "value": 3.723
-      },
-      "periodKey": "f48_a03_45_48",
-      "periodLabel": "F45-F48 (3-hr Max QPF)",
-      "stepStart": 45,
-      "stepEnd": 48,
-      "run": "2026052000",
-      "runLabel": "20260520 00Z",
-      "product": "max",
-      "productLabel": "Max",
-      "forecastHour": 48,
-      "accumHours": 3,
-      "units": "inches",
-      "startTimeUTC": "2026-05-21T21:00:00+00:00",
-      "validTimeUTC": "2026-05-22T00:00:00+00:00",
-      "stepRange": "45-48",
-      "name": "Derived maximum precipitation",
-      "maxValue": 3.72,
-      "pointCount": 12563,
-      "derived": true,
-      "derivedFromProducts": [
-        "Mean",
-        "PMM",
-        "LPMM"
+        "Mean: F06-F09 + F09-F12"
       ]
     }
   ]
