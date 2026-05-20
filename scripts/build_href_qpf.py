@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
-"""Build HREF 6-hour Max QPF data for the web viewer.
+"""Build simple HREF Max QPF data for the web viewer.
 
-This uses actual HREF member GRIB2 files and computes a pointwise max for each
-6-hour accumulation period. The viewer catalog only exposes Max layers.
+The viewer only exposes Max layers at 6-hour forecast intervals. Member files are
+requested through NOMADS filter_href.pl first because raw /pub/data member GRIB
+URLs commonly return HTTP 403.
 """
 
 from __future__ import annotations
@@ -16,6 +17,7 @@ from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import List, Optional, Tuple
+from urllib.parse import urlencode
 
 import numpy as np
 import pygrib
@@ -24,7 +26,6 @@ from PIL import Image
 
 DOMAIN = {"west": -95.0, "east": -83.0, "south": 24.0, "north": 34.0}
 FORECAST_HOURS = [6, 12, 18, 24, 30, 36, 42, 48]
-TARGET_ACCUM_HOURS = 6
 SAMPLE_STRIDE = 2
 RASTER_UPSCALE = 4
 MISSING_VALUE = -9999
@@ -34,6 +35,7 @@ GRID_DIR = DATA_DIR / "grids"
 VALUE_GRID_DIR = DATA_DIR / "value_grids"
 RASTER_DIR = DATA_DIR / "rasters"
 NOMADS_BASE = "https://nomads.ncep.noaa.gov/pub/data/nccf/com/href/prod"
+NOMADS_FILTER = "https://nomads.ncep.noaa.gov/cgi-bin/filter_href.pl"
 HEADERS = {"User-Agent": "href-qpf-viewer/1.0"}
 MEMBERS = [
     ("arw", "ctl"), ("arw", "mem2"), ("arw", "mem3"), ("arw", "mem4"), ("arw", "mem5"),
@@ -91,23 +93,42 @@ def candidate_cycles(now: Optional[datetime] = None) -> List[Cycle]:
     return sorted(out, key=lambda c: c.cycle_string, reverse=True)
 
 
-def member_url(cycle: Cycle, core: str, member: str, fhour: int) -> str:
-    return f"{NOMADS_BASE}/href.{cycle.yyyymmdd}/{core}/href.t{cycle.hour:02d}z.{core}.t{cycle.hour:02d}z.{member}.f{fhour:02d}.conus.grib2"
+def member_filenames(cycle: Cycle, core: str, member: str, fhour: int) -> List[str]:
+    return [
+        f"href.t{cycle.hour:02d}z.{core}.t{cycle.hour:02d}z.{member}.f{fhour:02d}.conus.grib2",
+        f"href.t{cycle.hour:02d}z.{core}.{member}.f{fhour:02d}.conus.grib2",
+    ]
 
 
-def fallback_member_url(cycle: Cycle, core: str, member: str, fhour: int) -> str:
-    return f"{NOMADS_BASE}/href.{cycle.yyyymmdd}/{core}/href.t{cycle.hour:02d}z.{core}.{member}.f{fhour:02d}.conus.grib2"
+def filter_url(cycle: Cycle, subdir: str, filename: str) -> str:
+    query = urlencode({
+        "file": filename,
+        "lev_surface": "on",
+        "var_APCP": "on",
+        "dir": f"/href.{cycle.yyyymmdd}/{subdir}",
+    })
+    return f"{NOMADS_FILTER}?{query}"
+
+
+def raw_member_url(cycle: Cycle, core: str, filename: str) -> str:
+    return f"{NOMADS_BASE}/href.{cycle.yyyymmdd}/{core}/{filename}"
 
 
 def ensprod_url(cycle: Cycle, product_code: str, fhour: int) -> str:
     return f"{NOMADS_BASE}/href.{cycle.yyyymmdd}/ensprod/href.t{cycle.hour:02d}z.conus.{product_code}.f{fhour:02d}.grib2"
 
 
+def member_candidate_urls(cycle: Cycle, core: str, member: str, fhour: int) -> List[str]:
+    urls: List[str] = []
+    for filename in member_filenames(cycle, core, member, fhour):
+        urls.append(filter_url(cycle, core, filename))
+    for filename in member_filenames(cycle, core, member, fhour):
+        urls.append(raw_member_url(cycle, core, filename))
+    return urls
+
+
 def url_exists(session: requests.Session, url: str) -> bool:
     try:
-        r = session.head(url, headers=HEADERS, timeout=20, allow_redirects=True)
-        if r.status_code == 200:
-            return True
         r = session.get(url, headers={**HEADERS, "Range": "bytes=0-99"}, timeout=20, stream=True)
         return r.status_code in (200, 206)
     except Exception:
@@ -116,7 +137,7 @@ def url_exists(session: requests.Session, url: str) -> bool:
 
 def find_latest_cycle(session: requests.Session) -> Cycle:
     for cycle in candidate_cycles():
-        tests = [member_url(cycle, "arw", "ctl", 6), fallback_member_url(cycle, "arw", "ctl", 6), ensprod_url(cycle, "pmmn", 6)]
+        tests = member_candidate_urls(cycle, "arw", "ctl", 6)[:2] + [ensprod_url(cycle, "pmmn", 6)]
         log(f"Checking {cycle.cycle_label}")
         if any(url_exists(session, u) for u in tests):
             log(f"Using HREF cycle {cycle.cycle_label}")
@@ -137,12 +158,17 @@ def download_file(session: requests.Session, urls: List[str], out_path: Path) ->
                 if r.status_code != 200:
                     log(f"  Skip: HTTP {r.status_code}")
                     continue
+                ctype = r.headers.get("content-type", "").lower()
                 with tmp_path.open("wb") as f:
                     for chunk in r.iter_content(chunk_size=1024 * 1024):
                         if chunk:
                             f.write(chunk)
             if tmp_path.stat().st_size < 10_000:
                 log("  Skip: downloaded file is too small")
+                tmp_path.unlink(missing_ok=True)
+                continue
+            if "text/html" in ctype:
+                log("  Skip: filter returned HTML instead of GRIB")
                 tmp_path.unlink(missing_ok=True)
                 continue
             tmp_path.replace(out_path)
@@ -176,17 +202,17 @@ def parse_step_range(step_range: str, fhour: int, accum: int) -> Tuple[int, int]
     return max(0, end - accum), end
 
 
-def accum_hours_from_message(grb) -> Optional[int]:
+def accum_hours_from_message(grb, fhour: int) -> int:
     val = safe_get(grb, "lengthOfTimeRange", None)
     try:
         if val is not None and int(val) > 0:
             return int(val)
     except Exception:
         pass
-    start, end = parse_step_range(str(safe_get(grb, "stepRange", "")), 0, 0)
+    start, end = parse_step_range(str(safe_get(grb, "stepRange", "")), fhour, fhour)
     if end > start:
         return end - start
-    return None
+    return fhour
 
 
 def value_units_to_inches(values: np.ndarray, units: str) -> np.ndarray:
@@ -217,35 +243,44 @@ def orient_for_leaflet(lats2d, lons2d, vals2d, mask2d):
     return out_lats, out_lons, out_vals, out_mask
 
 
-def extract_6hr_grid(grib_path: Path, fhour: int) -> Optional[dict]:
+def extract_best_precip_grid(grib_path: Path, fhour: int) -> Optional[dict]:
     try:
         grbs = pygrib.open(str(grib_path))
         messages = [g for g in grbs if message_is_precip(g)]
     except Exception as e:
         log(f"Could not read {grib_path.name}: {e}")
         return None
+    candidates = []
     for grb in messages:
-        accum = accum_hours_from_message(grb) or fhour
+        accum = accum_hours_from_message(grb, fhour)
         step_range = str(safe_get(grb, "stepRange", ""))
         step_start, step_end = parse_step_range(step_range, fhour, accum)
-        if accum != TARGET_ACCUM_HOURS or step_end != fhour:
+        if step_end != fhour:
             continue
-        units = str(safe_get(grb, "units", ""))
-        vals_raw = grb.values
-        if np.ma.isMaskedArray(vals_raw):
-            vals_raw = vals_raw.filled(np.nan)
-        vals_in = value_units_to_inches(np.array(vals_raw, dtype=float), units)
-        vals_in[vals_in < 0] = np.nan
-        lats, lons = grb.latlons()
-        lats2d, lons2d, vals2d, mask2d = crop_2d(lats, lons, vals_in)
+        # Prefer 6-hr fields when present. If unavailable, use the field ending at
+        # this 6-hour forecast time so the viewer still has one clean Max layer.
+        score = (0 if accum == 6 else 1, abs(accum - 6), -accum)
+        candidates.append((score, grb, accum, step_start, step_end, step_range))
+    if not candidates:
         grbs.close()
-        if vals2d.size == 0:
-            return None
-        vals2d = np.where(vals2d < 0.001, 0.0, vals2d)
-        lats2d, lons2d, vals2d, mask2d = orient_for_leaflet(lats2d, lons2d, vals2d, mask2d)
-        return {"lats2d": lats2d, "lons2d": lons2d, "vals2d": vals2d, "mask2d": mask2d, "stepStart": step_start, "stepEnd": step_end, "stepRange": step_range}
+        return None
+    candidates.sort(key=lambda x: x[0])
+    _, grb, accum, step_start, step_end, step_range = candidates[0]
+    units = str(safe_get(grb, "units", ""))
+    vals_raw = grb.values
+    if np.ma.isMaskedArray(vals_raw):
+        vals_raw = vals_raw.filled(np.nan)
+    vals_in = value_units_to_inches(np.array(vals_raw, dtype=float), units)
+    vals_in[vals_in < 0] = np.nan
+    lats, lons = grb.latlons()
     grbs.close()
-    return None
+    lats2d, lons2d, vals2d, mask2d = crop_2d(lats, lons, vals_in)
+    if vals2d.size == 0:
+        return None
+    vals2d = np.where(vals2d < 0.001, 0.0, vals2d)
+    lats2d, lons2d, vals2d, mask2d = orient_for_leaflet(lats2d, lons2d, vals2d, mask2d)
+    log(f"  Using APCP {grib_path.name}: F{step_start:02d}-F{step_end:02d} ({accum}-hr)")
+    return {"lats2d": lats2d, "lons2d": lons2d, "vals2d": vals2d, "mask2d": mask2d, "accumHours": accum, "stepStart": step_start, "stepEnd": step_end, "stepRange": step_range}
 
 
 def sample_points(lats2d, lons2d, vals2d, mask2d):
@@ -321,6 +356,7 @@ def write_max_layer(cycle: Cycle, fhour: int, source_grids: List[dict], source_n
     vals_stack, masks = [], []
     for src in source_grids:
         if src["vals2d"].shape != base["vals2d"].shape:
+            log("  Skip source with grid shape mismatch")
             continue
         vals_stack.append(np.where(src["mask2d"] & np.isfinite(src["vals2d"]), src["vals2d"], np.nan))
         masks.append(src["mask2d"] & np.isfinite(src["vals2d"]))
@@ -332,8 +368,9 @@ def write_max_layer(cycle: Cycle, fhour: int, source_grids: List[dict], source_n
         return None
     lats2d, lons2d = base["lats2d"], base["lons2d"]
     step_start, step_end = base["stepStart"], base["stepEnd"]
-    layer_id = f"{cycle.cycle_string}_max_f{fhour:02d}_a06"
-    period_label = f"F{step_start:02d}-F{step_end:02d} (6-hr Max QPF)"
+    accum = int(base.get("accumHours", 6))
+    layer_id = f"{cycle.cycle_string}_max_f{fhour:02d}"
+    period_label = f"F{step_start:02d}-F{step_end:02d} ({accum}-hr Max QPF)"
     grid_rel = f"data/grids/{layer_id}.json.gz"
     value_grid_rel = f"data/value_grids/{layer_id}.json.gz"
     raster_rel = f"data/rasters/{layer_id}.png"
@@ -342,13 +379,13 @@ def write_max_layer(cycle: Cycle, fhour: int, source_grids: List[dict], source_n
     pts_lat, pts_lon, pts_val = sample_points(lats2d, lons2d, vals2d, mask2d)
     start_time_utc = iso_for_step(cycle, step_start)
     valid_time_utc = iso_for_step(cycle, step_end)
-    payload = {"metadata": {"id": layer_id, "run": cycle.cycle_string, "runLabel": cycle.cycle_label, "product": "max", "productLabel": "Max", "forecastHour": fhour, "accumHours": 6, "periodLabel": period_label, "units": "inches", "name": "6-hour maximum precipitation across HREF members", "stepRange": base.get("stepRange", ""), "startTimeUTC": start_time_utc, "validTimeUTC": valid_time_utc, "domain": DOMAIN, "sampleStride": SAMPLE_STRIDE, "rasterUpscale": RASTER_UPSCALE, "derivedFromMembers": source_names}, "lat": round_list(pts_lat, 4), "lon": round_list(pts_lon, 4), "value": round_list(pts_val, 3)}
+    payload = {"metadata": {"id": layer_id, "run": cycle.cycle_string, "runLabel": cycle.cycle_label, "product": "max", "productLabel": "Max", "forecastHour": fhour, "accumHours": accum, "periodLabel": period_label, "units": "inches", "name": "Maximum precipitation across HREF members", "stepRange": base.get("stepRange", ""), "startTimeUTC": start_time_utc, "validTimeUTC": valid_time_utc, "domain": DOMAIN, "sampleStride": SAMPLE_STRIDE, "rasterUpscale": RASTER_UPSCALE, "derivedFromMembers": source_names}, "lat": round_list(pts_lat, 4), "lon": round_list(pts_lon, 4), "value": round_list(pts_val, 3)}
     write_json_gz(payload, Path("docs") / grid_rel)
     write_value_grid(vals2d, mask2d, bounds, Path("docs") / value_grid_rel)
     make_raster_png(vals2d, mask2d, Path("docs") / raster_rel)
     max_val = float(max_point["value"] or 0.0)
     log(f"  Wrote {layer_id}: {period_label}; max {max_val:.2f} in from {len(source_names)} members")
-    return {"id": layer_id, "url": grid_rel, "valueGridUrl": value_grid_rel, "rasterUrl": raster_rel, "rasterBounds": bounds, "maxPoint": max_point, "periodLabel": period_label, "stepStart": step_start, "stepEnd": step_end, "run": cycle.cycle_string, "runLabel": cycle.cycle_label, "product": "max", "productLabel": "Max", "forecastHour": fhour, "accumHours": 6, "units": "inches", "startTimeUTC": start_time_utc, "validTimeUTC": valid_time_utc, "stepRange": base.get("stepRange", ""), "name": "6-hour maximum precipitation across HREF members", "maxValue": round(max_val, 2), "pointCount": int(pts_val.size), "derived": True, "derivedFromMembers": source_names}
+    return {"id": layer_id, "url": grid_rel, "valueGridUrl": value_grid_rel, "rasterUrl": raster_rel, "rasterBounds": bounds, "maxPoint": max_point, "periodLabel": period_label, "stepStart": step_start, "stepEnd": step_end, "run": cycle.cycle_string, "runLabel": cycle.cycle_label, "product": "max", "productLabel": "Max", "forecastHour": fhour, "accumHours": accum, "units": "inches", "startTimeUTC": start_time_utc, "validTimeUTC": valid_time_utc, "stepRange": base.get("stepRange", ""), "name": "Maximum precipitation across HREF members", "maxValue": round(max_val, 2), "pointCount": int(pts_val.size), "derived": True, "derivedFromMembers": source_names}
 
 
 def clean_old_data() -> None:
@@ -368,11 +405,11 @@ def main() -> int:
     for fhour in FORECAST_HOURS:
         grids, names = [], []
         for core, member in MEMBERS:
-            urls = [member_url(cycle, core, member, fhour), fallback_member_url(cycle, core, member, fhour)]
+            urls = member_candidate_urls(cycle, core, member, fhour)
             local = CACHE_DIR / cycle.cycle_string / f"href.{core}.{member}.f{fhour:02d}.grib2"
             if not download_file(session, urls, local):
                 continue
-            grid = extract_6hr_grid(local, fhour)
+            grid = extract_best_precip_grid(local, fhour)
             if grid:
                 grids.append(grid)
                 names.append(f"{core}.{member}")
@@ -381,12 +418,12 @@ def main() -> int:
         if layer:
             all_layers.append(layer)
     if not all_layers:
-        raise RuntimeError("No HREF 6-hour Max QPF layers were generated. Check NOMADS member file paths and GRIB message metadata.")
+        raise RuntimeError("No HREF Max QPF layers were generated. NOMADS filter paths or member file names changed; check logs above for HTTP codes.")
     all_layers.sort(key=lambda x: (x["run"], x["stepEnd"], x["forecastHour"]))
-    catalog = {"generatedUTC": datetime.now(timezone.utc).isoformat(), "domain": DOMAIN, "source": "NCEP NOMADS HREF member GRIB2; pointwise 6-hour max across members", "defaultLayerId": all_layers[0]["id"], "colorScale": COLOR_SCALE, "layers": all_layers}
+    catalog = {"generatedUTC": datetime.now(timezone.utc).isoformat(), "domain": DOMAIN, "source": "NCEP NOMADS HREF member GRIB2 via filter_href.pl; pointwise max across members at 6-hour forecast intervals", "defaultLayerId": all_layers[0]["id"], "colorScale": COLOR_SCALE, "layers": all_layers}
     with (DATA_DIR / "catalog.json").open("w", encoding="utf-8") as f:
         json.dump(catalog, f, indent=2)
-    log(f"Wrote {DATA_DIR / 'catalog.json'} with {len(all_layers)} 6-hour Max layer(s)")
+    log(f"Wrote {DATA_DIR / 'catalog.json'} with {len(all_layers)} Max layer(s)")
     return 0
 
 
