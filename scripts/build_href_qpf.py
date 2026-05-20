@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Build HREF QPF data for the web viewer."""
+"""Build HREF 6-hour Max QPF data for the web viewer."""
 
 from __future__ import annotations
 
@@ -20,12 +20,8 @@ from PIL import Image
 
 DOMAIN = {"west": -95.0, "east": -83.0, "south": 24.0, "north": 34.0}
 FORECAST_HOURS = [6, 12, 18, 24, 30, 36, 42, 48]
-PRODUCTS = [
-    {"file_code": "avrg", "label": "Mean"},
-    {"file_code": "max", "label": "Max"},
-    {"file_code": "pmmn", "label": "PMM"},
-    {"file_code": "lpmm", "label": "LPMM"},
-]
+PRODUCT = {"file_code": "max", "label": "Max"}
+TARGET_ACCUM_HOURS = 6
 SAMPLE_STRIDE = 2
 RASTER_UPSCALE = 4
 MISSING_VALUE = -9999
@@ -107,12 +103,12 @@ def url_exists(session: requests.Session, url: str) -> bool:
 
 def find_latest_cycle(session: requests.Session) -> Cycle:
     for cycle in candidate_cycles():
-        test_url = grib_url(cycle, "pmmn", 6)
+        test_url = grib_url(cycle, PRODUCT["file_code"], 6)
         log(f"Checking {cycle.cycle_label}: {test_url}")
         if url_exists(session, test_url):
             log(f"Using HREF cycle {cycle.cycle_label}")
             return cycle
-    raise RuntimeError("Could not find a recent HREF cycle on NOMADS.")
+    raise RuntimeError("Could not find a recent HREF Max cycle on NOMADS.")
 
 
 def download_file(session: requests.Session, url: str, out_path: Path) -> bool:
@@ -225,11 +221,6 @@ def write_json_gz(obj: dict, path: Path) -> None:
         json.dump(obj, f, separators=(",", ":"))
 
 
-def read_json_gz(path: Path) -> dict:
-    with gzip.open(path, "rt", encoding="utf-8") as f:
-        return json.load(f)
-
-
 def resize_float_grid(values: np.ndarray, out_size: Tuple[int, int]) -> np.ndarray:
     arr = np.nan_to_num(values.astype(np.float32), nan=0.0)
     img = Image.fromarray(arr, mode="F")
@@ -311,7 +302,10 @@ def process_grib_file(grib_path: Path, cycle: Cycle, product_code: str, product_
             name = str(safe_get(grb, "name", "Total precipitation"))
             step_range = str(safe_get(grb, "stepRange", ""))
             step_start, step_end = parse_step_range(step_range, fhour, accum)
-            period_label = f"F{step_start:02d}-F{step_end:02d} ({accum}-hr QPF)"
+            if accum != TARGET_ACCUM_HOURS:
+                log(f"  Skip message {idx}: {accum}-hr accumulation, not {TARGET_ACCUM_HOURS}-hr")
+                continue
+            period_label = f"F{step_start:02d}-F{step_end:02d} ({accum}-hr Max QPF)"
             period_key = f"f{fhour:02d}_a{accum:02d}_{step_start:02d}_{step_end:02d}_{idx}"
             valid_time_utc = iso_for_step(cycle, step_end)
             start_time_utc = iso_for_step(cycle, step_start)
@@ -350,98 +344,6 @@ def process_grib_file(grib_path: Path, cycle: Cycle, product_code: str, product_
     return layers
 
 
-def sample_regular_value_grid(grid: dict, lat: float, lon: float) -> float:
-    b = grid["bounds"]
-    if lat < b["south"] or lat > b["north"] or lon < b["west"] or lon > b["east"]:
-        return np.nan
-    width = int(grid["width"])
-    height = int(grid["height"])
-    x = round((lon - b["west"]) / (b["east"] - b["west"]) * (width - 1))
-    y = round((b["north"] - lat) / (b["north"] - b["south"]) * (height - 1))
-    if x < 0 or y < 0 or x >= width or y >= height:
-        return np.nan
-    v = float(grid["values"][int(y) * width + int(x)])
-    if v == grid.get("missing", MISSING_VALUE) or v < -1000:
-        return np.nan
-    return v
-
-
-def derive_missing_max_layers(all_layers: List[dict]) -> List[dict]:
-    """Create a fallback Max layer when NOMADS does not provide href.*.max.* files.
-
-    This is a pointwise max of the available HREF ensemble products already generated
-    for the same forecast period, usually Mean/PMM/LPMM. If a true max file exists,
-    no fallback is produced for that period.
-    """
-    derived: List[dict] = []
-    groups = {}
-    for layer in all_layers:
-        key = (layer["run"], layer["forecastHour"], layer["accumHours"], layer["stepStart"], layer["stepEnd"])
-        groups.setdefault(key, []).append(layer)
-
-    for key, layers in groups.items():
-        if any(l["product"] == "max" for l in layers):
-            continue
-        source_layers = [l for l in layers if l["product"] in {"avrg", "pmmn", "lpmm"}]
-        if len(source_layers) < 2:
-            continue
-
-        grids = []
-        for layer in source_layers:
-            path = Path("docs") / layer["valueGridUrl"]
-            if path.exists():
-                grids.append((layer, read_json_gz(path)))
-        if len(grids) < 2:
-            continue
-
-        base_layer, base_grid = max(grids, key=lambda item: int(item[1]["width"]) * int(item[1]["height"]))
-        width = int(base_grid["width"])
-        height = int(base_grid["height"])
-        b = base_grid["bounds"]
-        lons_1d = np.linspace(b["west"], b["east"], width)
-        lats_1d = np.linspace(b["north"], b["south"], height)
-        lons2d, lats2d = np.meshgrid(lons_1d, lats_1d)
-        vals2d = np.full((height, width), np.nan, dtype=float)
-
-        for r in range(height):
-            for c in range(width):
-                lat = float(lats2d[r, c])
-                lon = float(lons2d[r, c])
-                values = [sample_regular_value_grid(g, lat, lon) for _, g in grids]
-                finite = [v for v in values if np.isfinite(v)]
-                if finite:
-                    vals2d[r, c] = max(finite)
-
-        mask2d = np.isfinite(vals2d)
-        if not np.any(mask2d):
-            continue
-        vals2d = np.where(vals2d < 0.001, 0.0, vals2d)
-        pts_lat, pts_lon, pts_val = sample_points(lats2d, lons2d, vals2d, mask2d)
-        run, fhour, accum, step_start, step_end = key
-        idx = 1
-        layer_id = f"{run}_max_f{fhour:02d}_a{accum:02d}_{step_start:02d}_{step_end:02d}"
-        grid_rel = f"data/grids/{layer_id}.json.gz"
-        value_grid_rel = f"data/value_grids/{layer_id}.json.gz"
-        raster_rel = f"data/rasters/{layer_id}.png"
-        bounds = base_grid["bounds"]
-        max_point = max_point_from_grid(lats2d, lons2d, vals2d, mask2d)
-        period_label = base_layer["periodLabel"]
-        period_key = f"f{fhour:02d}_a{accum:02d}_{step_start:02d}_{step_end:02d}_{idx}"
-        payload = {
-            "metadata": {"id": layer_id, "run": run, "runLabel": base_layer["runLabel"], "product": "max", "productLabel": "Max", "forecastHour": fhour, "accumHours": accum, "periodLabel": period_label, "periodKey": period_key, "units": "inches", "name": "Derived maximum precipitation", "stepRange": base_layer.get("stepRange", ""), "startTimeUTC": base_layer.get("startTimeUTC"), "validTimeUTC": base_layer.get("validTimeUTC"), "domain": DOMAIN, "sampleStride": SAMPLE_STRIDE, "rasterUpscale": RASTER_UPSCALE, "derivedFromProducts": [l["productLabel"] for l, _ in grids]},
-            "lat": round_list(pts_lat, 4), "lon": round_list(pts_lon, 4), "value": round_list(pts_val, 3),
-        }
-        write_json_gz(payload, Path("docs") / grid_rel)
-        write_value_grid(vals2d, mask2d, bounds, Path("docs") / value_grid_rel)
-        make_raster_png(vals2d, mask2d, Path("docs") / raster_rel)
-        max_val = float(max_point["value"] or 0.0)
-        layer_record = {"id": layer_id, "url": grid_rel, "valueGridUrl": value_grid_rel, "rasterUrl": raster_rel, "rasterBounds": bounds, "maxPoint": max_point, "periodKey": period_key, "periodLabel": period_label, "stepStart": step_start, "stepEnd": step_end, "run": run, "runLabel": base_layer["runLabel"], "product": "max", "productLabel": "Max", "forecastHour": fhour, "accumHours": accum, "units": "inches", "startTimeUTC": base_layer.get("startTimeUTC"), "validTimeUTC": base_layer.get("validTimeUTC"), "stepRange": base_layer.get("stepRange", ""), "name": "Derived maximum precipitation", "maxValue": round(max_val, 2), "pointCount": int(pts_val.size), "derived": True, "derivedFromProducts": [l["productLabel"] for l, _ in grids]}
-        derived.append(layer_record)
-        log(f"  Derived fallback Max {layer_id}: {period_label}; max {max_val:.2f} in")
-
-    return derived
-
-
 def clean_old_data() -> None:
     for p in (GRID_DIR, VALUE_GRID_DIR, RASTER_DIR):
         if p.exists():
@@ -456,24 +358,22 @@ def main() -> int:
     session = requests.Session()
     cycle = find_latest_cycle(session)
     all_layers: List[dict] = []
+    code = PRODUCT["file_code"]
+    label = PRODUCT["label"]
     for fhour in FORECAST_HOURS:
-        for product in PRODUCTS:
-            code = product["file_code"]
-            label = product["label"]
-            url = grib_url(cycle, code, fhour)
-            local_path = CACHE_DIR / cycle.cycle_string / f"href.t{cycle.hour:02d}z.conus.{code}.f{fhour:02d}.grib2"
-            if not download_file(session, url, local_path):
-                continue
-            all_layers.extend(process_grib_file(local_path, cycle, code, label, fhour))
-            time.sleep(1.0)
+        url = grib_url(cycle, code, fhour)
+        local_path = CACHE_DIR / cycle.cycle_string / f"href.t{cycle.hour:02d}z.conus.{code}.f{fhour:02d}.grib2"
+        if not download_file(session, url, local_path):
+            continue
+        all_layers.extend(process_grib_file(local_path, cycle, code, label, fhour))
+        time.sleep(1.0)
     if not all_layers:
-        raise RuntimeError("No HREF QPF layers were generated.")
-    all_layers.extend(derive_missing_max_layers(all_layers))
-    all_layers.sort(key=lambda x: (x["run"], x["forecastHour"], x["accumHours"], x["productLabel"]))
-    catalog = {"generatedUTC": datetime.now(timezone.utc).isoformat(), "domain": DOMAIN, "source": "NCEP NOMADS HREF CONUS ensprod GRIB2", "defaultLayerId": all_layers[0]["id"], "colorScale": COLOR_SCALE, "layers": all_layers}
+        raise RuntimeError("No HREF 6-hour Max QPF layers were generated.")
+    all_layers.sort(key=lambda x: (x["run"], x["stepEnd"], x["forecastHour"]))
+    catalog = {"generatedUTC": datetime.now(timezone.utc).isoformat(), "domain": DOMAIN, "source": "NCEP NOMADS HREF CONUS ensprod Max GRIB2", "defaultLayerId": all_layers[0]["id"], "colorScale": COLOR_SCALE, "layers": all_layers}
     with (DATA_DIR / "catalog.json").open("w", encoding="utf-8") as f:
         json.dump(catalog, f, indent=2)
-    log(f"Wrote {DATA_DIR / 'catalog.json'} with {len(all_layers)} layer(s)")
+    log(f"Wrote {DATA_DIR / 'catalog.json'} with {len(all_layers)} 6-hour Max layer(s)")
     return 0
 
 
