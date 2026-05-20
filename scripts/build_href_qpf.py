@@ -1,15 +1,16 @@
 #!/usr/bin/env python3
 """Build HREF 6-hour Max QPF data for the web viewer.
 
-Important: this script will only publish a native HREF Max QPF product. It does
-not derive Max from Mean/PMM/LPMM. If NOMADS does not expose native Max GRIB2
-files in ensprod, it fails loudly and prints the available ensprod filenames.
+Public NOMADS HREF ensprod does not expose a literal *.max.* GRIB2 product.
+The listing does expose *.eas.* at every forecast hour, which appears to be the
+SPC-style max-QPF source candidate. This script uses the ensprod EAS files for
+F06/F12/.../F48 and only publishes them as Max QPF if a precip/APCP message is
+actually present. If not, it fails loudly and prints the GRIB inventory.
 """
 
 from __future__ import annotations
 
 import gzip
-import html
 import json
 import re
 import shutil
@@ -18,7 +19,6 @@ from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import List, Optional, Tuple
-from urllib.parse import parse_qs, unquote, urlencode, urlparse
 
 import numpy as np
 import pygrib
@@ -27,6 +27,8 @@ from PIL import Image
 
 DOMAIN = {"west": -95.0, "east": -83.0, "south": 24.0, "north": 34.0}
 FORECAST_HOURS = [6, 12, 18, 24, 30, 36, 42, 48]
+PRODUCT_CODE = "eas"
+PRODUCT_LABEL = "Max"
 SAMPLE_STRIDE = 2
 RASTER_UPSCALE = 4
 MISSING_VALUE = -9999
@@ -36,7 +38,6 @@ GRID_DIR = DATA_DIR / "grids"
 VALUE_GRID_DIR = DATA_DIR / "value_grids"
 RASTER_DIR = DATA_DIR / "rasters"
 NOMADS_BASE = "https://nomads.ncep.noaa.gov/pub/data/nccf/com/href/prod"
-NOMADS_FILTER = "https://nomads.ncep.noaa.gov/cgi-bin/filter_href.pl"
 HEADERS = {"User-Agent": "href-qpf-viewer/1.0"}
 COLOR_SCALE = [
     {"min": 0.001, "max": 0.10, "color": "#d7f9d0", "label": "Trace-0.10"},
@@ -71,37 +72,27 @@ class Cycle:
         return datetime.strptime(self.cycle_string, "%Y%m%d%H").replace(tzinfo=timezone.utc)
 
 
-@dataclass(frozen=True)
-class ProductFile:
-    filename: str
-    fhour: int
-
-
 def log(msg: str) -> None:
     print(f"[{datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%SZ')}] {msg}", flush=True)
 
 
 def candidate_cycles(now: Optional[datetime] = None) -> List[Cycle]:
     now = now or datetime.now(timezone.utc)
-    cycles: List[Cycle] = []
+    out: List[Cycle] = []
     for day_offset in range(3):
         day = now - timedelta(days=day_offset)
         for hour in (12, 0):
             if datetime(day.year, day.month, day.day, hour, tzinfo=timezone.utc) <= now:
-                cycles.append(Cycle(day.strftime("%Y%m%d"), hour))
-    return sorted(cycles, key=lambda c: c.cycle_string, reverse=True)
+                out.append(Cycle(day.strftime("%Y%m%d"), hour))
+    return sorted(out, key=lambda c: c.cycle_string, reverse=True)
 
 
-def ensprod_url(cycle: Cycle, filename: str) -> str:
-    return f"{NOMADS_BASE}/href.{cycle.yyyymmdd}/ensprod/{filename}"
+def product_filename(cycle: Cycle, code: str, fhour: int) -> str:
+    return f"href.t{cycle.hour:02d}z.conus.{code}.f{fhour:02d}.grib2"
 
 
-def known_product_url(cycle: Cycle, product_code: str, fhour: int) -> str:
-    return f"{NOMADS_BASE}/href.{cycle.yyyymmdd}/ensprod/href.t{cycle.hour:02d}z.conus.{product_code}.f{fhour:02d}.grib2"
-
-
-def filter_url(cycle: Cycle, filename: str) -> str:
-    return f"{NOMADS_FILTER}?{urlencode({'file': filename, 'dir': f'/href.{cycle.yyyymmdd}/ensprod'})}"
+def product_url(cycle: Cycle, code: str, fhour: int) -> str:
+    return f"{NOMADS_BASE}/href.{cycle.yyyymmdd}/ensprod/{product_filename(cycle, code, fhour)}"
 
 
 def url_exists(session: requests.Session, url: str) -> bool:
@@ -114,7 +105,7 @@ def url_exists(session: requests.Session, url: str) -> bool:
 
 def find_latest_cycle(session: requests.Session) -> Cycle:
     for cycle in candidate_cycles():
-        sentinel = known_product_url(cycle, "pmmn", 6)
+        sentinel = product_url(cycle, "pmmn", 6)
         log(f"Checking {cycle.cycle_label}: {sentinel}")
         if url_exists(session, sentinel):
             log(f"Using HREF cycle {cycle.cycle_label}")
@@ -122,112 +113,33 @@ def find_latest_cycle(session: requests.Session) -> Cycle:
     raise RuntimeError("Could not find a recent HREF cycle on NOMADS.")
 
 
-def parse_listing(text: str) -> List[str]:
-    files: List[str] = []
-    for raw in re.findall(r'href=["\']([^"\']+)["\']', text, flags=re.I):
-        href = html.unescape(raw)
-        if href.startswith("?"):
-            qs = parse_qs(urlparse(href).query)
-            if "file" in qs:
-                name = unquote(qs["file"][0]).split("/")[-1]
-                if name.endswith(".grib2"):
-                    files.append(name)
-            continue
-        name = unquote(urlparse(href).path or href).strip("/").split("/")[-1]
-        if name.endswith(".grib2"):
-            files.append(name)
-    for raw in re.findall(r'name=["\']file["\'][^>]*value=["\']([^"\']+)["\']', text, flags=re.I):
-        name = html.unescape(raw).split("/")[-1]
-        if name.endswith(".grib2"):
-            files.append(name)
-    return sorted(set(files))
-
-
-def list_ensprod_files(session: requests.Session, cycle: Cycle) -> List[str]:
-    urls = [
-        f"{NOMADS_BASE}/href.{cycle.yyyymmdd}/ensprod/",
-        f"{NOMADS_FILTER}?{urlencode({'dir': f'/href.{cycle.yyyymmdd}/ensprod'})}",
-    ]
-    for url in urls:
-        try:
-            r = session.get(url, headers=HEADERS, timeout=30)
-            if r.status_code != 200:
-                log(f"Ensprod listing failed {r.status_code}: {url}")
-                continue
-            files = parse_listing(r.text)
-            log(f"Listed ensprod: {len(files)} grib2 file(s)")
-            if files:
-                for f in files[:60]:
-                    log(f"  ensprod file: {f}")
-                if len(files) > 60:
-                    log(f"  ...and {len(files) - 60} more")
-                return files
-        except Exception as e:
-            log(f"Ensprod listing error for {url}: {e}")
-    return []
-
-
-def fhour_from_filename(filename: str) -> Optional[int]:
-    m = re.search(r"\.f(\d{2,3})(?:\.|_).*\.grib2$", filename, flags=re.I)
-    if not m:
-        m = re.search(r"f(\d{2,3}).*\.grib2$", filename, flags=re.I)
-    return int(m.group(1)) if m else None
-
-
-def looks_like_native_max_qpf(filename: str, cycle: Cycle) -> bool:
-    low = filename.lower()
-    if f"t{cycle.hour:02d}z" not in low or not low.endswith(".grib2"):
-        return False
-    if any(token in low for token in ["avrg", "mean", "pmm", "pmmn", "lpmm", "prob", "stamp", "paintball"]):
-        return False
-    if "max" not in low:
-        return False
-    return any(token in low for token in ["qpf", "apcp", ".max.", "_max_", "max."])
-
-
-def discover_native_max_files(session: requests.Session, cycle: Cycle) -> Tuple[List[ProductFile], List[str]]:
-    files = list_ensprod_files(session, cycle)
-    candidates: List[ProductFile] = []
-    for filename in files:
-        fhour = fhour_from_filename(filename)
-        if fhour not in FORECAST_HOURS:
-            continue
-        if looks_like_native_max_qpf(filename, cycle):
-            candidates.append(ProductFile(filename, fhour))
-    candidates.sort(key=lambda x: x.fhour)
-    for c in candidates:
-        log(f"Native Max candidate F{c.fhour:02d}: {c.filename}")
-    return candidates, files
-
-
-def download_file(session: requests.Session, cycle: Cycle, filename: str, out_path: Path) -> bool:
+def download_file(session: requests.Session, url: str, out_path: Path) -> bool:
     out_path.parent.mkdir(parents=True, exist_ok=True)
     if out_path.exists() and out_path.stat().st_size > 10_000:
         return True
     tmp = out_path.with_suffix(out_path.suffix + ".tmp")
     tmp.unlink(missing_ok=True)
-    for url in (ensprod_url(cycle, filename), filter_url(cycle, filename)):
-        log(f"Downloading {url}")
-        try:
-            with session.get(url, headers=HEADERS, timeout=90, stream=True) as r:
-                if r.status_code != 200:
-                    log(f"  Skip: HTTP {r.status_code}")
-                    continue
-                ctype = r.headers.get("content-type", "").lower()
-                with tmp.open("wb") as f:
-                    for chunk in r.iter_content(1024 * 1024):
-                        if chunk:
-                            f.write(chunk)
-            if tmp.stat().st_size < 10_000 or "text/html" in ctype:
-                log("  Skip: response was not a usable GRIB")
-                tmp.unlink(missing_ok=True)
-                continue
-            tmp.replace(out_path)
-            return True
-        except Exception as e:
-            log(f"  Download failed: {e}")
+    log(f"Downloading {url}")
+    try:
+        with session.get(url, headers=HEADERS, timeout=90, stream=True) as r:
+            if r.status_code != 200:
+                log(f"  Skip: HTTP {r.status_code}")
+                return False
+            ctype = r.headers.get("content-type", "").lower()
+            with tmp.open("wb") as f:
+                for chunk in r.iter_content(1024 * 1024):
+                    if chunk:
+                        f.write(chunk)
+        if tmp.stat().st_size < 10_000 or "text/html" in ctype:
+            log("  Skip: response was not a usable GRIB")
             tmp.unlink(missing_ok=True)
-    return False
+            return False
+        tmp.replace(out_path)
+        return True
+    except Exception as e:
+        log(f"  Download failed: {e}")
+        tmp.unlink(missing_ok=True)
+        return False
 
 
 def safe_get(grb, attr: str, default=None):
@@ -235,6 +147,25 @@ def safe_get(grb, attr: str, default=None):
         return getattr(grb, attr)
     except Exception:
         return default
+
+
+def grib_inventory(grib_path: Path, limit: int = 80) -> str:
+    rows: List[str] = []
+    try:
+        grbs = pygrib.open(str(grib_path))
+        for i, g in enumerate(grbs, start=1):
+            if i > limit:
+                rows.append(f"...and more messages after {limit}")
+                break
+            rows.append(
+                f"#{i}: shortName={safe_get(g, 'shortName', '')} | name={safe_get(g, 'name', '')} | "
+                f"param={safe_get(g, 'parameterName', '')} | units={safe_get(g, 'units', '')} | "
+                f"stepRange={safe_get(g, 'stepRange', '')} | length={safe_get(g, 'lengthOfTimeRange', '')}"
+            )
+        grbs.close()
+    except Exception as e:
+        rows.append(f"Could not inventory GRIB: {e}")
+    return "\n".join(rows)
 
 
 def message_is_precip(grb) -> bool:
@@ -276,7 +207,7 @@ def crop_2d(lats: np.ndarray, lons: np.ndarray, vals: np.ndarray):
         empty = np.array([])
         return empty, empty, empty, empty
     rmin, rmax, cmin, cmax = rows.min(), rows.max(), cols.min(), cols.max()
-    return lats[rmin:rmax+1, cmin:cmax+1], lons[rmin:rmax+1, cmin:cmax+1], vals[rmin:rmax+1, cmin:cmax+1], mask[rmin:rmax+1, cmin:cmax+1]
+    return lats[rmin:rmax + 1, cmin:cmax + 1], lons[rmin:rmax + 1, cmin:cmax + 1], vals[rmin:rmax + 1, cmin:cmax + 1], mask[rmin:rmax + 1, cmin:cmax + 1]
 
 
 def orient_for_leaflet(lats2d, lons2d, vals2d, mask2d):
@@ -288,7 +219,12 @@ def orient_for_leaflet(lats2d, lons2d, vals2d, mask2d):
 
 
 def bounds_from_crop(lats2d, lons2d, mask2d) -> dict:
-    return {"south": round(float(np.nanmin(lats2d[mask2d])), 5), "north": round(float(np.nanmax(lats2d[mask2d])), 5), "west": round(float(np.nanmin(lons2d[mask2d])), 5), "east": round(float(np.nanmax(lons2d[mask2d])), 5)}
+    return {
+        "south": round(float(np.nanmin(lats2d[mask2d])), 5),
+        "north": round(float(np.nanmax(lats2d[mask2d])), 5),
+        "west": round(float(np.nanmin(lons2d[mask2d])), 5),
+        "east": round(float(np.nanmax(lons2d[mask2d])), 5),
+    }
 
 
 def max_point_from_grid(lats2d, lons2d, vals2d, mask2d) -> dict:
@@ -335,7 +271,14 @@ def write_value_grid_and_raster(vals2d, mask2d, bounds: dict, value_path: Path, 
     vals_hi = resize_float_grid(vals2d, out_size)
     mask_hi = resize_mask(mask2d, out_size)
     grid = np.where(mask_hi & np.isfinite(vals_hi), vals_hi, MISSING_VALUE)
-    write_json_gz({"bounds": bounds, "width": int(grid.shape[1]), "height": int(grid.shape[0]), "missing": MISSING_VALUE, "units": "inches", "values": [round(float(v), 3) for v in grid.ravel()]}, value_path)
+    write_json_gz({
+        "bounds": bounds,
+        "width": int(grid.shape[1]),
+        "height": int(grid.shape[0]),
+        "missing": MISSING_VALUE,
+        "units": "inches",
+        "values": [round(float(v), 3) for v in grid.ravel()],
+    }, value_path)
     rgba = np.zeros((out_size[1], out_size[0], 4), dtype=np.uint8)
     visible = mask_hi & np.isfinite(vals_hi) & (vals_hi >= 0.001)
     for b in COLOR_SCALE:
@@ -349,24 +292,26 @@ def iso_for_step(cycle: Cycle, hour: int) -> str:
     return (cycle.dt + timedelta(hours=hour)).isoformat()
 
 
-def process_file(grib_path: Path, cycle: Cycle, product_file: ProductFile) -> Optional[dict]:
+def process_file(grib_path: Path, cycle: Cycle, fhour: int) -> Optional[dict]:
     try:
         grbs = pygrib.open(str(grib_path))
         messages = [g for g in grbs if message_is_precip(g)]
     except Exception as e:
         log(f"Could not open {grib_path.name}: {e}")
         return None
+    if not messages:
+        grbs.close()
+        log("No APCP/precip messages found. GRIB inventory follows:")
+        log(grib_inventory(grib_path))
+        return None
     best = None
     for grb in messages:
         accum = accum_hours_from_message(grb) or 6
         step_range = str(safe_get(grb, "stepRange", ""))
-        step_start, step_end = parse_step_range(step_range, product_file.fhour, accum)
-        score = (1 if accum == 6 else 0, 1 if step_end == product_file.fhour else 0, -abs(accum - 6))
+        step_start, step_end = parse_step_range(step_range, fhour, accum)
+        score = (1 if accum == 6 else 0, 1 if step_end == fhour else 0, -abs(accum - 6))
         if best is None or score > best[0]:
             best = (score, grb, accum, step_start, step_end, step_range)
-    if best is None:
-        grbs.close()
-        return None
     _, grb, accum, step_start, step_end, step_range = best
     vals_raw = grb.values
     if np.ma.isMaskedArray(vals_raw):
@@ -383,17 +328,64 @@ def process_file(grib_path: Path, cycle: Cycle, product_file: ProductFile) -> Op
     bounds = bounds_from_crop(lats2d, lons2d, mask2d)
     max_point = max_point_from_grid(lats2d, lons2d, vals2d, mask2d)
     pts_lat, pts_lon, pts_val = sample_points(lats2d, lons2d, vals2d, mask2d)
-    layer_id = f"{cycle.cycle_string}_max_f{product_file.fhour:02d}_a06"
+    layer_id = f"{cycle.cycle_string}_max_f{fhour:02d}_a06"
     grid_rel = f"data/grids/{layer_id}.json.gz"
     value_rel = f"data/value_grids/{layer_id}.json.gz"
     raster_rel = f"data/rasters/{layer_id}.png"
+    filename = product_filename(cycle, PRODUCT_CODE, fhour)
     period_label = f"F{step_start:02d}-F{step_end:02d} ({accum}-hr Max QPF)"
     start_iso, end_iso = iso_for_step(cycle, step_start), iso_for_step(cycle, step_end)
-    write_json_gz({"metadata": {"id": layer_id, "run": cycle.cycle_string, "runLabel": cycle.cycle_label, "product": "max", "productLabel": "Max", "forecastHour": product_file.fhour, "accumHours": accum, "periodLabel": period_label, "units": "inches", "name": "Native HREF ensemble maximum precipitation", "stepRange": step_range, "startTimeUTC": start_iso, "validTimeUTC": end_iso, "sourceFile": product_file.filename}, "lat": round_list(pts_lat, 4), "lon": round_list(pts_lon, 4), "value": round_list(pts_val, 3)}, Path("docs") / grid_rel)
+    write_json_gz({
+        "metadata": {
+            "id": layer_id,
+            "run": cycle.cycle_string,
+            "runLabel": cycle.cycle_label,
+            "product": "max",
+            "productLabel": PRODUCT_LABEL,
+            "forecastHour": fhour,
+            "accumHours": accum,
+            "periodLabel": period_label,
+            "units": "inches",
+            "name": "HREF ensprod EAS Max QPF candidate",
+            "stepRange": step_range,
+            "startTimeUTC": start_iso,
+            "validTimeUTC": end_iso,
+            "sourceFile": filename,
+        },
+        "lat": round_list(pts_lat, 4),
+        "lon": round_list(pts_lon, 4),
+        "value": round_list(pts_val, 3),
+    }, Path("docs") / grid_rel)
     write_value_grid_and_raster(vals2d, mask2d, bounds, Path("docs") / value_rel, Path("docs") / raster_rel)
     max_val = float(max_point["value"] or 0.0)
-    log(f"  Wrote native Max F{product_file.fhour:02d}: {period_label}; max {max_val:.2f} in")
-    return {"id": layer_id, "url": grid_rel, "valueGridUrl": value_rel, "rasterUrl": raster_rel, "rasterBounds": bounds, "maxPoint": max_point, "periodKey": f"f{product_file.fhour:02d}_a{accum:02d}_{step_start:02d}_{step_end:02d}", "periodLabel": period_label, "stepStart": step_start, "stepEnd": step_end, "run": cycle.cycle_string, "runLabel": cycle.cycle_label, "product": "max", "productLabel": "Max", "forecastHour": product_file.fhour, "accumHours": accum, "units": "inches", "startTimeUTC": start_iso, "validTimeUTC": end_iso, "stepRange": step_range, "name": "Native HREF ensemble maximum precipitation", "sourceFile": product_file.filename, "maxValue": round(max_val, 2), "pointCount": int(pts_val.size), "native": True}
+    log(f"  Wrote {filename}: {period_label}; max {max_val:.2f} in")
+    return {
+        "id": layer_id,
+        "url": grid_rel,
+        "valueGridUrl": value_rel,
+        "rasterUrl": raster_rel,
+        "rasterBounds": bounds,
+        "maxPoint": max_point,
+        "periodKey": f"f{fhour:02d}_a{accum:02d}_{step_start:02d}_{step_end:02d}",
+        "periodLabel": period_label,
+        "stepStart": step_start,
+        "stepEnd": step_end,
+        "run": cycle.cycle_string,
+        "runLabel": cycle.cycle_label,
+        "product": "max",
+        "productLabel": PRODUCT_LABEL,
+        "forecastHour": fhour,
+        "accumHours": accum,
+        "units": "inches",
+        "startTimeUTC": start_iso,
+        "validTimeUTC": end_iso,
+        "stepRange": step_range,
+        "name": "HREF ensprod EAS Max QPF candidate",
+        "sourceFile": filename,
+        "maxValue": round(max_val, 2),
+        "pointCount": int(pts_val.size),
+        "native": True,
+    }
 
 
 def clean_old_data() -> None:
@@ -409,26 +401,31 @@ def main() -> int:
     clean_old_data()
     session = requests.Session()
     cycle = find_latest_cycle(session)
-    native_files, all_files = discover_native_max_files(session, cycle)
-    if not native_files:
-        preview = "\n".join(all_files[:120]) if all_files else "<no grib2 files listed>"
-        raise RuntimeError("No native Max QPF files were found in NOMADS ensprod. Refusing to publish fake Max from Mean/PMM/LPMM. First listed ensprod files:\n" + preview)
     layers: List[dict] = []
-    for pf in native_files:
-        local = CACHE_DIR / cycle.cycle_string / pf.filename
-        if not download_file(session, cycle, pf.filename, local):
+    for fhour in FORECAST_HOURS:
+        filename = product_filename(cycle, PRODUCT_CODE, fhour)
+        url = product_url(cycle, PRODUCT_CODE, fhour)
+        local = CACHE_DIR / cycle.cycle_string / filename
+        if not download_file(session, url, local):
             continue
-        layer = process_file(local, cycle, pf)
+        layer = process_file(local, cycle, fhour)
         if layer:
             layers.append(layer)
         time.sleep(0.5)
     if not layers:
-        raise RuntimeError("Native Max QPF files were found but no publishable precip layers could be built.")
+        raise RuntimeError("No publishable QPF layers were built from ensprod EAS files. See GRIB inventory above; EAS may not be the SPC max-QPF source.")
     layers.sort(key=lambda x: (x["run"], x["forecastHour"]))
-    catalog = {"generatedUTC": datetime.now(timezone.utc).isoformat(), "domain": DOMAIN, "source": "NCEP NOMADS HREF ensprod native Max QPF GRIB2", "defaultLayerId": layers[0]["id"], "colorScale": COLOR_SCALE, "layers": layers}
+    catalog = {
+        "generatedUTC": datetime.now(timezone.utc).isoformat(),
+        "domain": DOMAIN,
+        "source": "NCEP NOMADS HREF ensprod EAS GRIB2, used as Max QPF source candidate",
+        "defaultLayerId": layers[0]["id"],
+        "colorScale": COLOR_SCALE,
+        "layers": layers,
+    }
     with (DATA_DIR / "catalog.json").open("w", encoding="utf-8") as f:
         json.dump(catalog, f, indent=2)
-    log(f"Wrote {DATA_DIR / 'catalog.json'} with {len(layers)} native Max layer(s)")
+    log(f"Wrote {DATA_DIR / 'catalog.json'} with {len(layers)} EAS/Max candidate layer(s)")
     return 0
 
 
