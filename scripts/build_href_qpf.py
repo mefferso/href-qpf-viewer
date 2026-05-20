@@ -172,7 +172,7 @@ def find_member_directories(session: requests.Session, cycle: Cycle) -> List[str
 def member_file_candidates(session: requests.Session, cycle: Cycle, fhour: int) -> List[str]:
     member_urls = find_member_directories(session, cycle)
     include = []
-    stat_tokens = {"avrg", "mean", "eas", "lpmm", "pmmn", "sprd", "prob"}
+    stat_tokens = {"avrg", "mean", "eas", "lpmm", "pmmn", "sprd", "prob", "ffri"}
     for base_url in member_urls:
         names = list_grib_files(session, base_url)
         log(f"Candidate scan {base_url}: {len(names)} total GRIB2 filename(s)")
@@ -182,10 +182,14 @@ def member_file_candidates(session: requests.Session, cycle: Cycle, fhour: int) 
             lower_name = name.lower()
             if lower_name.startswith("href."):
                 parts = lower_name.split(".")
-                code = parts[4] if len(parts) > 4 else ""
+                code = parts[3] if len(parts) > 3 else ""
                 if code in stat_tokens:
                     continue
-            include.append(f"{base_url}/{name}")
+                log(f"Unexpected HREF ensprod candidate retained: {name}")
+                # Safety behavior: HREF ensprod products are not individual members.
+                continue
+            if lower_name.startswith("hiresw."):
+                include.append(f"{base_url}/{name}")
     if not include:
         log(f"F{fhour:02d}: no usable individual member files found after filtering.")
     return sorted(set(include))
