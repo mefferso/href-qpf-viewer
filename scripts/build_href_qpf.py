@@ -19,8 +19,8 @@ from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
 from functools import lru_cache
 from pathlib import Path
-from typing import Dict, Iterable, List, Optional, Tuple
-from urllib.parse import parse_qs, quote, unquote, urlencode, urljoin, urlparse
+from typing import Dict, List, Optional, Tuple
+from urllib.parse import parse_qs, unquote, urlencode, urlparse
 
 import numpy as np
 import pygrib
@@ -72,7 +72,7 @@ class Cycle:
 
     @property
     def dt(self) -> datetime:
-        return datetime.strptime(f"{self.cycle_string}", "%Y%m%d%H").replace(tzinfo=timezone.utc)
+        return datetime.strptime(self.cycle_string, "%Y%m%d%H").replace(tzinfo=timezone.utc)
 
 
 @dataclass(frozen=True)
@@ -128,37 +128,80 @@ def listing_urls(dir_path: str) -> List[str]:
     ]
 
 
-def parse_listing(text: str) -> Tuple[List[str], List[str]]:
+def normalize_href_to_cycle_path(href: str, cycle_root: str, current_dir: str) -> Optional[str]:
+    """Return a relative path under href.YYYYMMDD, or None if href is noise.
+
+    NOMADS directory pages often contain absolute links like
+    /pub/data/nccf/com/href/prod/href.YYYYMMDD/ensprod/. The previous crawler
+    treated those as child folders and built nonsense paths. This trims those
+    absolute links back to href.YYYYMMDD-relative paths.
+    """
+    href = html.unescape(href).strip()
+    if not href or href in ("/", "../") or href.startswith("#"):
+        return None
+    if href.startswith("?"):
+        qs = parse_qs(urlparse(href).query)
+        if "file" in qs:
+            return unquote(qs["file"][0]).split("/")[-1]
+        if "dir" in qs:
+            d = unquote(qs["dir"][0]).strip("/")
+            marker = cycle_root + "/"
+            if d == cycle_root:
+                return ""
+            if marker in d:
+                return d.split(marker, 1)[1].strip("/")
+        return None
+    parsed = urlparse(href)
+    path = unquote(parsed.path or href).strip()
+    if not path or path in ("/", "../"):
+        return None
+    if path.startswith("../"):
+        return None
+    path = path.strip("/")
+    marker = cycle_root + "/"
+    if path == cycle_root:
+        return ""
+    if marker in path:
+        return path.split(marker, 1)[1].strip("/")
+    if path.startswith(current_dir.strip("/") + "/"):
+        return path[len(current_dir.strip("/")) + 1:].strip("/")
+    if "/" in path:
+        # Absolute or unrelated nested link outside this directory. Ignore it.
+        return None
+    return path
+
+
+def parse_listing(text: str, cycle_root: str, current_dir: str) -> Tuple[List[str], List[str]]:
     subdirs: List[str] = []
     files: List[str] = []
     for raw in re.findall(r'href=["\']([^"\']+)["\']', text, flags=re.I):
-        href = html.unescape(raw)
-        if href.startswith("?"):
-            qs = parse_qs(urlparse(href).query)
-            if "file" in qs:
-                files.append(unquote(qs["file"][0]))
+        rel = normalize_href_to_cycle_path(raw, cycle_root, current_dir)
+        if rel is None or rel == "":
             continue
-        name = unquote(href.split("?")[0]).strip()
-        if name in ("", "/", "../"):
-            continue
-        if name.endswith("/"):
-            subdirs.append(name.strip("/"))
-        elif name.endswith(".grib2"):
-            files.append(name.split("/")[-1])
+        if rel.endswith(".grib2"):
+            files.append(rel.split("/")[-1])
+        else:
+            # Only follow the first child below the current directory.
+            child = rel.strip("/").split("/")[0]
+            if child and child not in ("..", "."):
+                subdirs.append(child)
     for raw in re.findall(r'name=["\']file["\'][^>]*value=["\']([^"\']+)["\']', text, flags=re.I):
-        files.append(html.unescape(raw))
+        name = html.unescape(raw).strip().split("/")[-1]
+        if name.endswith(".grib2"):
+            files.append(name)
     return sorted(set(subdirs)), sorted(set(files))
 
 
-def list_dir(session: requests.Session, dir_path: str) -> Tuple[List[str], List[str]]:
+def list_dir(session: requests.Session, dir_path: str, cycle_root: str) -> Tuple[List[str], List[str]]:
     for url in listing_urls(dir_path):
         try:
             r = session.get(url, headers=HEADERS, timeout=25)
             if r.status_code != 200:
                 log(f"  Directory listing failed {r.status_code}: {url}")
                 continue
-            subdirs, files = parse_listing(r.text)
+            subdirs, files = parse_listing(r.text, cycle_root, dir_path)
             if subdirs or files:
+                log(f"  Listed /{dir_path}: {len(subdirs)} subdir(s), {len(files)} grib2 file(s)")
                 return subdirs, files
         except Exception as e:
             log(f"  Directory listing error for {url}: {e}")
@@ -188,7 +231,7 @@ def discover_member_files(session: requests.Session, cycle: Cycle) -> List[Candi
     log("Discovering HREF member GRIB2 files")
     while queue:
         dir_path, depth = queue.pop(0)
-        subdirs, files = list_dir(session, dir_path)
+        subdirs, files = list_dir(session, dir_path, root)
         low_dir = dir_path.lower()
         for filename in files:
             low = filename.lower()
@@ -206,6 +249,9 @@ def discover_member_files(session: requests.Session, cycle: Cycle) -> List[Candi
         if depth >= 4:
             continue
         for sub in subdirs:
+            # Do not crawl ensemble summary directory when looking for members.
+            if sub.lower() == "ensprod":
+                continue
             next_path = f"{dir_path.rstrip('/')}/{sub}"
             if next_path not in seen:
                 seen.add(next_path)
@@ -369,6 +415,7 @@ def choose_exact_cover(layers: List[dict], start: int, end: int) -> Optional[Lis
                 if best is None or len(cover) < len(best):
                     best = cover
         return best
+
     ans = solve(start)
     return list(ans) if ans else None
 
@@ -443,6 +490,11 @@ def resize_mask(mask: np.ndarray, out_size: Tuple[int, int]) -> np.ndarray:
     return np.array(Image.fromarray((mask.astype(np.uint8) * 255), mode="L").resize(out_size, resample=Image.Resampling.NEAREST)) > 0
 
 
+def hex_to_rgba(hex_color: str, alpha: int = 215):
+    h = hex_color.lstrip("#")
+    return int(h[0:2], 16), int(h[2:4], 16), int(h[4:6], 16), alpha
+
+
 def write_value_grid_and_raster(vals2d, mask2d, bounds: dict, value_path: Path, raster_path: Path) -> None:
     h, w = vals2d.shape
     out_size = (max(1, w * RASTER_UPSCALE), max(1, h * RASTER_UPSCALE))
@@ -457,11 +509,6 @@ def write_value_grid_and_raster(vals2d, mask2d, bounds: dict, value_path: Path, 
         rgba[m] = hex_to_rgba(b["color"], 215)
     raster_path.parent.mkdir(parents=True, exist_ok=True)
     Image.fromarray(rgba, mode="RGBA").save(raster_path, optimize=True)
-
-
-def hex_to_rgba(hex_color: str, alpha: int = 215):
-    h = hex_color.lstrip("#")
-    return int(h[0:2], 16), int(h[2:4], 16), int(h[4:6], 16), alpha
 
 
 def iso_for_step(cycle: Cycle, hour: int) -> str:
