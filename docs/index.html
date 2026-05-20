@@ -6,7 +6,7 @@
 <title>HREF 6-Hour Max QPF Viewer</title>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 <style>
-:root{--panel:rgba(13,17,23,.92);--panel2:rgba(22,27,34,.94);--text:#e6edf3;--muted:#9aa4b2;--line:rgba(255,255,255,.13);--danger:#ff7b72}html,body,#map{height:100%;width:100%;margin:0;padding:0;overflow:hidden}body{font-family:system-ui,-apple-system,sans-serif;background:#dde5ea;color:var(--text)}#map{position:fixed;inset:0}.top-panel,.readout,.legend,.loading,.maxbox{position:fixed;z-index:1000;background:var(--panel);border:1px solid var(--line);border-radius:16px}.top-panel{top:14px;left:14px;width:min(420px,calc(100vw - 28px))}.controls{display:grid;grid-template-columns:1fr;gap:10px;padding:12px 16px 14px}.header{padding:14px 16px 10px;border-bottom:1px solid var(--line)}.title{font-size:18px;font-weight:800}.subtitle{margin-top:4px;color:var(--muted);font-size:12px}.readout{right:14px;top:14px;width:min(320px,calc(100vw - 28px))}.readout .box,.maxbox .box{padding:13px 15px}.big-number{font-size:34px;font-weight:900}.maxbox{left:14px;bottom:24px;width:min(320px,calc(100vw - 28px))}.legend{right:14px;bottom:24px;width:min(300px,calc(100vw - 28px));padding:12px 14px}.legend-row{display:grid;grid-template-columns:22px 1fr;align-items:center;gap:8px;font-size:12px;margin:4px 0}.swatch{height:13px;border-radius:4px}.loading{left:50%;top:50%;transform:translate(-50%,-50%);padding:14px 18px;font-weight:800}.hidden{display:none}
+:root{--panel:rgba(13,17,23,.92);--panel2:rgba(22,27,34,.94);--text:#e6edf3;--muted:#9aa4b2;--line:rgba(255,255,255,.13);--danger:#ff7b72}html,body,#map{height:100%;width:100%;margin:0;padding:0;overflow:hidden}body{font-family:system-ui,-apple-system,sans-serif;background:#dde5ea;color:var(--text)}#map{position:fixed;inset:0}.top-panel,.readout,.legend,.loading,.maxbox{position:fixed;z-index:1000;background:var(--panel);border:1px solid var(--line);border-radius:16px}.top-panel{top:14px;left:14px;width:min(420px,calc(100vw - 28px))}.controls{display:grid;grid-template-columns:1fr;gap:10px;padding:12px 16px 14px}.header{padding:14px 16px 10px;border-bottom:1px solid var(--line)}.title{font-size:18px;font-weight:800}.subtitle{margin-top:4px;color:var(--muted);font-size:12px}.readout{right:14px;top:14px;width:min(320px,calc(100vw - 28px))}.readout .box,.maxbox .box{padding:13px 15px}.big-number{font-size:34px;font-weight:900}.maxbox{left:14px;bottom:24px;width:min(320px,calc(100vw - 28px))}.legend{right:14px;bottom:24px;width:min(300px,calc(100vw - 28px));padding:12px 14px}.legend-row{display:grid;grid-template-columns:22px 1fr;align-items:center;gap:8px;font-size:12px;margin:4px 0}.swatch{height:13px;border-radius:4px}.loading{left:50%;top:50%;transform:translate(-50%,-50%);padding:14px 18px;font-weight:800}.hidden{display:none}select,input,button{width:100%;box-sizing:border-box;background:var(--panel2);color:var(--text);border:1px solid var(--line);border-radius:10px;padding:8px}button{margin-top:4px;font-weight:800;cursor:pointer}label{display:block;color:var(--muted);font-size:11px;font-weight:800;text-transform:uppercase;margin-bottom:4px}
 </style>
 </head>
 <body>
@@ -15,21 +15,12 @@
 <section class="top-panel">
 <div class="header">
 <div class="title">HREF 6-Hour Max QPF Viewer</div>
-<div class="subtitle">Simple mode. Just the Max product every 6 hours. No mean/LPMM/PMM bullshit clutter.</div>
+<div class="subtitle">True 6-hour Max QPF ending every 6 forecast hours.</div>
 </div>
 <div class="controls">
-<div>
-<label for="timeSelect">Forecast Period</label>
-<select id="timeSelect"></select>
-</div>
-<div>
-<label for="opacitySlider">QPF Opacity</label>
-<input id="opacitySlider" type="range" min="0" max="1" step="0.05" value="0.74" />
-</div>
-<div>
-<button id="prevBtn">◀ Previous</button>
-<button id="nextBtn">Next ▶</button>
-</div>
+<div><label for="timeSelect">Forecast Period</label><select id="timeSelect"></select></div>
+<div><label for="opacitySlider">QPF Opacity</label><input id="opacitySlider" type="range" min="0" max="1" step="0.05" value="0.74" /></div>
+<div><button id="prevBtn">◀ Previous</button><button id="nextBtn">Next ▶</button></div>
 </div>
 <div id="status" style="padding:10px 16px;color:var(--muted)">Loading catalog...</div>
 </section>
@@ -38,22 +29,22 @@
 <section class="legend"><div style="font-size:12px;font-weight:800;margin-bottom:8px">QPF Inches</div><div id="legendRows"></div></section>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
-const state={catalog:null,activeLayer:null,valueGrid:null,rasterLayer:null,opacity:.74};
+const state={catalog:null,activeLayer:null,valueGrid:null,rasterLayer:null,opacity:.74,lastLatLng:null};
 const map=L.map('map').setView([30.1,-90.2],6);
 L.tileLayer('https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}.png',{maxZoom:18,subdomains:'abcd'}).addTo(map);
 const els={loading,status,timeSelect,opacitySlider,prevBtn,nextBtn,sampleValue,sampleDetail,maxValue,maxDetail,legendRows};
 function fmtUTC(iso){const d=new Date(iso);return `${d.getUTCMonth()+1}/${d.getUTCDate()} ${String(d.getUTCHours()).padStart(2,'0')}Z`;}
 function fillTimes(){els.timeSelect.innerHTML='';for(const l of state.catalog.layers){const o=document.createElement('option');o.value=l.id;o.textContent=`${l.periodLabel} ending ${fmtUTC(l.validTimeUTC)}`;els.timeSelect.appendChild(o)}}
-async function loadJson(url){const r=await fetch(url);if(url.endsWith('.gz')){const ds=new DecompressionStream('gzip');return JSON.parse(await new Response(r.body.pipeThrough(ds)).text())}return await r.json()}
-function drawLegend(){for(const b of state.catalog.colorScale){const row=document.createElement('div');row.className='legend-row';row.innerHTML=`<div class="swatch" style="background:${b.color}"></div><div>${b.label}</div>`;els.legendRows.appendChild(row)}}
-async function setLayer(id){const layer=state.catalog.layers.find(x=>x.id===id);const grid=await loadJson(layer.valueGridUrl);state.activeLayer=layer;state.valueGrid=grid;if(state.rasterLayer)map.removeLayer(state.rasterLayer);const b=layer.rasterBounds;state.rasterLayer=L.imageOverlay(layer.rasterUrl,[[b.south,b.west],[b.north,b.east]],{opacity:state.opacity}).addTo(map);els.maxValue.textContent=`${layer.maxValue.toFixed(2)} in`;els.maxDetail.innerHTML=`${layer.periodLabel}<br>Ending ${fmtUTC(layer.validTimeUTC)}`;els.status.innerHTML=`Run ${layer.runLabel} | ${layer.periodLabel}`;}
-function sample(latlng){const g=state.valueGrid;if(!g)return;const b=g.bounds;const x=Math.round((latlng.lng-b.west)/(b.east-b.west)*(g.width-1));const y=Math.round((b.north-latlng.lat)/(b.north-b.south)*(g.height-1));if(x<0||y<0||x>=g.width||y>=g.height)return;const v=g.values[y*g.width+x];els.sampleValue.textContent=`${Number(v).toFixed(2)} in`;els.sampleDetail.textContent=`${latlng.lat.toFixed(2)}, ${latlng.lng.toFixed(2)}`;}
+async function loadJson(url){const r=await fetch(url,{cache:'no-store'});if(!r.ok)throw new Error(`HTTP ${r.status} loading ${url}`);if(url.endsWith('.gz')){const ds=new DecompressionStream('gzip');return JSON.parse(await new Response(r.body.pipeThrough(ds)).text())}return await r.json()}
+function drawLegend(){els.legendRows.innerHTML='';for(const b of state.catalog.colorScale){const row=document.createElement('div');row.className='legend-row';row.innerHTML=`<div class="swatch" style="background:${b.color}"></div><div>${b.label}</div>`;els.legendRows.appendChild(row)}}
+async function setLayer(id){const layer=state.catalog.layers.find(x=>x.id===id);const grid=await loadJson(layer.valueGridUrl);state.activeLayer=layer;state.valueGrid=grid;if(state.rasterLayer)map.removeLayer(state.rasterLayer);const b=layer.rasterBounds;state.rasterLayer=L.imageOverlay(layer.rasterUrl,[[b.south,b.west],[b.north,b.east]],{opacity:state.opacity}).addTo(map);els.maxValue.textContent=`${layer.maxValue.toFixed(2)} in`;els.maxDetail.innerHTML=`${layer.periodLabel}<br>Ending ${fmtUTC(layer.validTimeUTC)}`;els.status.innerHTML=`Run ${layer.runLabel} | ${layer.periodLabel}`;if(state.lastLatLng)sample(state.lastLatLng);}
+function sample(latlng){state.lastLatLng=latlng;const g=state.valueGrid;if(!g||!g.bounds)return;const b=g.bounds;if(latlng.lat<b.south||latlng.lat>b.north||latlng.lng<b.west||latlng.lng>b.east){els.sampleValue.textContent='-';els.sampleDetail.textContent='Outside QPF raster';return}const x=Math.round((latlng.lng-b.west)/(b.east-b.west)*(g.width-1));const y=Math.round((b.north-latlng.lat)/(b.north-b.south)*(g.height-1));if(x<0||y<0||x>=g.width||y>=g.height)return;const raw=g.values[y*g.width+x];if(raw===g.missing||raw<-1000){els.sampleValue.textContent='-';els.sampleDetail.textContent='No data at cursor';return}const v=Number(raw);els.sampleValue.textContent=`${v.toFixed(2)} in`;els.sampleDetail.innerHTML=`Display-grid sample<br>${latlng.lat.toFixed(3)}, ${latlng.lng.toFixed(3)}<br>pixel ${x}, ${y}`;}
 map.on('mousemove',e=>sample(e.latlng));
 els.timeSelect.addEventListener('change',()=>setLayer(els.timeSelect.value));
 els.opacitySlider.addEventListener('input',()=>{state.opacity=Number(els.opacitySlider.value);if(state.rasterLayer)state.rasterLayer.setOpacity(state.opacity)});
 function step(d){const layers=state.catalog.layers;const i=layers.findIndex(x=>x.id===state.activeLayer.id);const n=Math.max(0,Math.min(layers.length-1,i+d));setLayer(layers[n].id);els.timeSelect.value=layers[n].id}
 els.prevBtn.onclick=()=>step(-1);els.nextBtn.onclick=()=>step(1);
-(async()=>{const c=await fetch('data/catalog.json').then(r=>r.json());state.catalog=c;fillTimes();drawLegend();await setLayer(c.layers[0].id);loading.classList.add('hidden');})();
+(async()=>{try{const c=await fetch('data/catalog.json',{cache:'no-store'}).then(r=>{if(!r.ok)throw new Error(`HTTP ${r.status}`);return r.json()});state.catalog=c;fillTimes();drawLegend();await setLayer(c.defaultLayerId||c.layers[0].id);loading.classList.add('hidden');}catch(e){loading.classList.add('hidden');status.innerHTML=`<span style="color:var(--danger);font-weight:800">Failed to load data.</span><br>${e.message}`;console.error(e)}})();
 </script>
 </body>
 </html>
