@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>HREF QPF: Computed vs SPC Official</title>
+<style>
+:root{--bg:#0d1117;--panel:#161b22;--panel2:#1f2630;--text:#e6edf3;--muted:#9aa4b2;--line:rgba(255,255,255,.14);--accent:#58a6ff;--warn:#f2cc60}
+html,body{margin:0;min-height:100%;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,sans-serif}
+a{color:var(--accent)}
+.header{padding:16px 18px;border-bottom:1px solid var(--line);background:linear-gradient(135deg,#111827,#0d1117)}
+.title{font-size:22px;font-weight:900}.sub{color:var(--muted);font-size:13px;margin-top:4px;max-width:1050px}.toolbar{display:grid;grid-template-columns:repeat(4,minmax(160px,1fr));gap:10px;padding:14px 18px;background:var(--panel);border-bottom:1px solid var(--line)}
+label{font-size:11px;text-transform:uppercase;font-weight:900;color:var(--muted);display:block;margin-bottom:4px}select,button{width:100%;box-sizing:border-box;border:1px solid var(--line);border-radius:10px;padding:9px;background:var(--panel2);color:var(--text);font-weight:800}button{cursor:pointer}.note{padding:10px 18px;color:var(--muted);font-size:13px;border-bottom:1px solid var(--line)}.note b{color:var(--warn)}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:12px;height:calc(100vh - 205px);box-sizing:border-box}.pane{background:var(--panel);border:1px solid var(--line);border-radius:14px;overflow:hidden;display:flex;flex-direction:column;min-height:360px}.pane-title{padding:10px 12px;font-weight:900;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;gap:8px}.pane-title span{color:var(--muted);font-size:12px;font-weight:700}.frame-wrap{position:relative;flex:1;background:#f4f6f8}.frame-wrap iframe{position:absolute;inset:0;width:100%;height:100%;border:0}.fallback{padding:18px;color:#111;background:#f4f6f8;min-height:100%;box-sizing:border-box}.fallback h3{margin-top:0}.pill{display:inline-block;background:#263142;border:1px solid var(--line);border-radius:999px;padding:4px 8px;color:var(--muted);font-size:12px;margin-left:8px}.small{font-size:12px;color:var(--muted);line-height:1.45}.hidden{display:none}@media(max-width:1000px){.toolbar{grid-template-columns:1fr 1fr}.grid{grid-template-columns:1fr;height:auto}.pane{height:620px}}@media(max-width:620px){.toolbar{grid-template-columns:1fr}.pane{height:520px}}
+</style>
+</head>
+<body>
+<header class="header">
+  <div class="title">HREF QPF Comparison</div>
+  <div class="sub">Experimental sidecar page: keeps the existing interactive grid intact while giving us a safe place to test SPC official imagery/viewer integration.</div>
+</header>
+<section class="toolbar">
+  <div><label for="modeSelect">Left Pane</label><select id="modeSelect"><option value="computed">Computed Interactive Grid</option><option value="spc">SPC Official Viewer</option></select></div>
+  <div><label for="sectorSelect">SPC Sector</label><select id="sectorSelect"><option value="se">Southeast</option><option value="sp">Southern Plains</option><option value="conus">CONUS</option><option value="cp">Central Plains</option><option value="mw">Midwest</option></select></div>
+  <div><label for="productSelect">SPC Product</label><select id="productSelect"><option value="qpf_006h_max">6-hr QPF Max</option></select></div>
+  <div><label>&nbsp;</label><button id="openSpcBtn">Open SPC in New Tab</button></div>
+</section>
+<div class="note"><b>Safety setup:</b> this page does not replace the live viewer and does not change the current scheduled workflow. If SPC blocks iframe embedding or changes their page, the computed viewer still works.</div>
+<main class="grid">
+  <section class="pane">
+    <div class="pane-title">Selected Mode <span id="leftLabel">Computed Interactive Grid</span></div>
+    <div id="leftWrap" class="frame-wrap"><iframe id="leftFrame" src="index.html" title="Selected HREF view"></iframe></div>
+  </section>
+  <section class="pane">
+    <div class="pane-title">Reference <span>Other view</span></div>
+    <div id="rightWrap" class="frame-wrap"><iframe id="rightFrame" title="Reference HREF view"></iframe></div>
+  </section>
+</main>
+<script>
+const $=id=>document.getElementById(id);
+const modeSelect=$('modeSelect'), sectorSelect=$('sectorSelect'), productSelect=$('productSelect');
+const leftFrame=$('leftFrame'), rightFrame=$('rightFrame'), leftLabel=$('leftLabel');
+function spcUrl(){return `https://www.spc.noaa.gov/exper/href/?model=href&product=${encodeURIComponent(productSelect.value)}&sector=${encodeURIComponent(sectorSelect.value)}`}
+function setFrame(frame,url){frame.src=url}
+function refresh(){const spc=spcUrl();if(modeSelect.value==='computed'){leftLabel.textContent='Computed Interactive Grid';setFrame(leftFrame,'index.html');setFrame(rightFrame,spc)}else{leftLabel.textContent='SPC Official Viewer';setFrame(leftFrame,spc);setFrame(rightFrame,'index.html')}}
+$('openSpcBtn').onclick=()=>window.open(spcUrl(),'_blank','noopener,noreferrer');
+modeSelect.onchange=refresh;sectorSelect.onchange=refresh;productSelect.onchange=refresh;refresh();
+</script>
+</body>
+</html>

@@ -1,0 +1,35 @@
+name: Discover SPC HREF Official Product URLs
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  discover:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install discovery dependencies
+        run: python -m pip install requests
+
+      - name: Probe SPC HREF viewer
+        run: python scripts/discover_spc_href.py
+
+      - name: Commit discovery output
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add docs/data/spc_official_discovery.json
+          git diff --cached --quiet && echo "No discovery changes to commit" || git commit -m "Update SPC HREF discovery output"
+          git push
