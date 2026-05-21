@@ -45,7 +45,7 @@ jobs:
           HREF_MAX_RUNTIME_SECONDS: '2100'
           HREF_CONNECT_TIMEOUT_SECONDS: '10'
           HREF_READ_TIMEOUT_SECONDS: '60'
-        run: python scripts/build_href_qpf_fast.py
+        run: python scripts/build_href_qpf_spc.py
 
       - name: Commit updated website/data
         run: |
