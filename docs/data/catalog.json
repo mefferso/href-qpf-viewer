@@ -1,5 +1,5 @@
 {
-  "generatedUTC": "2026-06-14T12:28:12.327944+00:00",
+  "generatedUTC": "2026-06-14T14:59:25.241192+00:00",
   "domain": {
     "west": -95.0,
     "east": -83.0,
@@ -150,7 +150,7 @@
       "validTimeUTC": "2026-06-14T06:00:00+00:00",
       "stepRange": "0-6",
       "name": "HREF member-computed Ensemble Max QPF",
-      "sourceFile": "4 member APCP slices",
+      "sourceFile": "8 member APCP slices",
       "maxValue": 6.15,
       "pointCount": 55200,
       "native": false
@@ -167,9 +167,9 @@
         "east": -83.00002
       },
       "maxPoint": {
-        "lat": 33.8908,
-        "lon": -88.7606,
-        "value": 2.072
+        "lat": 31.1179,
+        "lon": -94.8968,
+        "value": 6.73
       },
       "periodKey": "f12_a06_06_12",
       "periodLabel": "F06-F12 (6-hr Ensemble Max QPF)",
@@ -186,8 +186,8 @@
       "validTimeUTC": "2026-06-14T12:00:00+00:00",
       "stepRange": "6-12",
       "name": "HREF member-computed Ensemble Max QPF",
-      "sourceFile": "4 member APCP slices",
-      "maxValue": 2.07,
+      "sourceFile": "8 member APCP slices",
+      "maxValue": 6.73,
       "pointCount": 55200,
       "native": false
     },
@@ -203,9 +203,9 @@
         "east": -83.00002
       },
       "maxPoint": {
-        "lat": 33.8472,
-        "lon": -94.0954,
-        "value": 3.494
+        "lat": 30.6157,
+        "lon": -94.997,
+        "value": 6.969
       },
       "periodKey": "f18_a06_12_18",
       "periodLabel": "F12-F18 (6-hr Ensemble Max QPF)",
@@ -222,8 +222,8 @@
       "validTimeUTC": "2026-06-14T18:00:00+00:00",
       "stepRange": "12-18",
       "name": "HREF member-computed Ensemble Max QPF",
-      "sourceFile": "4 member APCP slices",
-      "maxValue": 3.49,
+      "sourceFile": "8 member APCP slices",
+      "maxValue": 6.97,
       "pointCount": 55200,
       "native": false
     },
@@ -239,9 +239,9 @@
         "east": -83.00002
       },
       "maxPoint": {
-        "lat": 30.3319,
-        "lon": -94.2957,
-        "value": 5.399
+        "lat": 31.2271,
+        "lon": -90.9145,
+        "value": 7.992
       },
       "periodKey": "f24_a06_18_24",
       "periodLabel": "F18-F24 (6-hr Ensemble Max QPF)",
@@ -258,8 +258,8 @@
       "validTimeUTC": "2026-06-15T00:00:00+00:00",
       "stepRange": "18-24",
       "name": "HREF member-computed Ensemble Max QPF",
-      "sourceFile": "4 member APCP slices",
-      "maxValue": 5.4,
+      "sourceFile": "8 member APCP slices",
+      "maxValue": 7.99,
       "pointCount": 55200,
       "native": false
     },
@@ -275,9 +275,9 @@
         "east": -83.00002
       },
       "maxPoint": {
-        "lat": 31.1179,
-        "lon": -83.0,
-        "value": 5.679
+        "lat": 30.9651,
+        "lon": -94.0954,
+        "value": 7.742
       },
       "periodKey": "f30_a06_24_30",
       "periodLabel": "F24-F30 (6-hr Ensemble Max QPF)",
@@ -294,8 +294,8 @@
       "validTimeUTC": "2026-06-15T06:00:00+00:00",
       "stepRange": "24-30",
       "name": "HREF member-computed Ensemble Max QPF",
-      "sourceFile": "4 member APCP slices",
-      "maxValue": 5.68,
+      "sourceFile": "8 member APCP slices",
+      "maxValue": 7.74,
       "pointCount": 55200,
       "native": false
     },
@@ -330,7 +330,7 @@
       "validTimeUTC": "2026-06-15T12:00:00+00:00",
       "stepRange": "30-36",
       "name": "HREF member-computed Ensemble Max QPF",
-      "sourceFile": "4 member APCP slices",
+      "sourceFile": "8 member APCP slices",
       "maxValue": 8.74,
       "pointCount": 55200,
       "native": false
@@ -366,7 +366,7 @@
       "validTimeUTC": "2026-06-15T18:00:00+00:00",
       "stepRange": "36-42",
       "name": "HREF member-computed Ensemble Max QPF",
-      "sourceFile": "4 member APCP slices",
+      "sourceFile": "6 member APCP slices",
       "maxValue": 9.14,
       "pointCount": 55200,
       "native": false
@@ -402,7 +402,7 @@
       "validTimeUTC": "2026-06-16T00:00:00+00:00",
       "stepRange": "42-48",
       "name": "HREF member-computed Ensemble Max QPF",
-      "sourceFile": "4 member APCP slices",
+      "sourceFile": "6 member APCP slices",
       "maxValue": 7.16,
       "pointCount": 55200,
       "native": false
