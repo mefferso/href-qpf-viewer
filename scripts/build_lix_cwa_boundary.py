@@ -1,12 +1,9 @@
 #!/usr/bin/env python3
-"""Build a web-ready LIX CWA boundary GeoJSON from the NWS CWA shapefile.
+"""Build a web-ready land-only LIX CWA boundary GeoJSON.
 
-This mirrors the boundary source/style used by the lix_precip repo:
-- download the national NWS CWA shapefile if missing
-- extract it under data/shapes/cwa/
-- filter CWA == "LIX"
-- reproject to EPSG:4326 for Leaflet/web map rendering
-- write docs/data/lix_cwa_boundary.geojson
+This keeps the same CWA source used by the lix_precip repo, but removes the
+marine/offshore CWA segments by intersecting the LIX CWA polygon with the LIX
+county/parish zone polygons before the web map draws the outline.
 """
 
 from __future__ import annotations
@@ -19,6 +16,7 @@ from typing import Optional
 
 import geopandas as gpd
 import requests
+from shapely.ops import unary_union
 
 CWA_SHAPE_URL = "https://www.weather.gov/source/gis/Shapefiles/WSOM/w_16ap26.zip"
 CWA_SHAPE_DIR = Path("data/shapes/cwa")
@@ -26,6 +24,14 @@ CWA_SHAPE_ZIP = CWA_SHAPE_DIR / "w_16ap26.zip"
 CWA_SHAPE_PATH = CWA_SHAPE_DIR / "w_16ap26.shp"
 LIX_CWA_GEOJSON = Path("docs/data/lix_cwa_boundary.geojson")
 HEADERS = {"User-Agent": "href-qpf-viewer/1.0"}
+
+LIX_COUNTY_ZONE_AREAS = ("LA", "MS")
+LIX_COUNTY_ZONE_IDS = {
+    "LAC005", "LAC007", "LAC033", "LAC037", "LAC047", "LAC051", "LAC057", "LAC063",
+    "LAC071", "LAC075", "LAC077", "LAC087", "LAC089", "LAC091", "LAC093", "LAC095",
+    "LAC103", "LAC105", "LAC109", "LAC117", "LAC121", "LAC125",
+    "MSC005", "MSC045", "MSC047", "MSC059", "MSC109", "MSC113", "MSC147", "MSC157",
+}
 
 
 def log(msg: str) -> None:
@@ -93,29 +99,78 @@ def ensure_cwa_shapefile(session: Optional[requests.Session] = None) -> Path:
     return copy_shapefile_sidecars(matches[0], CWA_SHAPE_DIR)
 
 
+def zone_id_from_feature(feature: dict) -> str:
+    props = feature.get("properties") or {}
+    raw = str(props.get("id") or props.get("zoneId") or props.get("ugc") or "").upper()
+    return raw.rsplit("/", 1)[-1]
+
+
+def fetch_lix_land_zones(session: requests.Session) -> gpd.GeoDataFrame:
+    features = []
+    for area in LIX_COUNTY_ZONE_AREAS:
+        url = f"https://api.weather.gov/zones?type=county&area={area}"
+        log(f"Downloading NWS county zones for land mask: {area}")
+        response = session.get(url, headers={**HEADERS, "Accept": "application/geo+json, application/json"}, timeout=60)
+        response.raise_for_status()
+        collection = response.json()
+        for feature in collection.get("features", []):
+            if feature.get("geometry") and zone_id_from_feature(feature) in LIX_COUNTY_ZONE_IDS:
+                features.append(feature)
+
+    if not features:
+        raise RuntimeError("No LIX county/parish zones were found for land-only CWA clipping.")
+
+    land = gpd.GeoDataFrame.from_features(features, crs="EPSG:4326")
+    land = land[land.geometry.notna()].copy()
+    land["geometry"] = land.geometry.buffer(0)
+    if land.empty:
+        raise RuntimeError("LIX county/parish zone land mask is empty after geometry cleanup.")
+    return land
+
+
 def build_lix_cwa_boundary(session: Optional[requests.Session] = None) -> Path:
-    shp_path = ensure_cwa_shapefile(session)
-    log(f"Reading CWA shapefile: {shp_path}")
-    cwa = gpd.read_file(shp_path)
-    if "CWA" not in cwa.columns:
-        raise RuntimeError(f"Expected CWA field not found. Available fields: {', '.join(cwa.columns)}")
+    close_session = False
+    if session is None:
+        session = requests.Session()
+        close_session = True
 
-    lix = cwa[cwa["CWA"].astype(str).str.upper() == "LIX"].copy()
-    if lix.empty:
-        raise RuntimeError("CWA shapefile loaded, but CWA == 'LIX' returned no features.")
+    try:
+        shp_path = ensure_cwa_shapefile(session)
+        log(f"Reading CWA shapefile: {shp_path}")
+        cwa = gpd.read_file(shp_path)
+        if "CWA" not in cwa.columns:
+            raise RuntimeError(f"Expected CWA field not found. Available fields: {', '.join(cwa.columns)}")
 
-    if lix.crs is None:
-        # NWS WSOM shapefiles are geographic NAD83. EPSG:4269 is explicit here;
-        # converting to EPSG:4326 below keeps the web map coordinate order clean.
-        lix = lix.set_crs("EPSG:4269", allow_override=True)
+        lix = cwa[cwa["CWA"].astype(str).str.upper() == "LIX"].copy()
+        if lix.empty:
+            raise RuntimeError("CWA shapefile loaded, but CWA == 'LIX' returned no features.")
 
-    # The Leaflet viewer and QPF rasters use geographic lon/lat bounds, so export WGS84.
-    lix = lix.to_crs("EPSG:4326")
+        if lix.crs is None:
+            # NWS WSOM shapefiles are geographic NAD83. EPSG:4269 is explicit here;
+            # converting to EPSG:4326 below keeps the web map coordinate order clean.
+            lix = lix.set_crs("EPSG:4269", allow_override=True)
 
-    LIX_CWA_GEOJSON.parent.mkdir(parents=True, exist_ok=True)
-    LIX_CWA_GEOJSON.write_text(lix.to_json(drop_id=True), encoding="utf-8")
-    log(f"Wrote LIX CWA boundary: {LIX_CWA_GEOJSON}")
-    return LIX_CWA_GEOJSON
+        land = fetch_lix_land_zones(session).to_crs(lix.crs)
+        land_geom = unary_union(land.geometry)
+        lix_geom = unary_union(lix.geometry)
+        land_only_geom = land_geom.intersection(lix_geom)
+        if land_only_geom.is_empty:
+            raise RuntimeError("Land-only LIX CWA intersection is empty.")
+
+        # The Leaflet viewer and QPF rasters use geographic lon/lat bounds, so export WGS84.
+        out = gpd.GeoDataFrame(
+            {"CWA": ["LIX"], "boundary": ["land_only"], "marine_removed": [True]},
+            geometry=[land_only_geom],
+            crs=lix.crs,
+        ).to_crs("EPSG:4326")
+
+        LIX_CWA_GEOJSON.parent.mkdir(parents=True, exist_ok=True)
+        LIX_CWA_GEOJSON.write_text(out.to_json(drop_id=True), encoding="utf-8")
+        log(f"Wrote land-only LIX CWA boundary: {LIX_CWA_GEOJSON}")
+        return LIX_CWA_GEOJSON
+    finally:
+        if close_session:
+            session.close()
 
 
 def refresh_lix_cwa_boundary_safely(session: Optional[requests.Session] = None) -> Optional[Path]:
