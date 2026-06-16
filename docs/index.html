@@ -76,8 +76,7 @@
     const map=L.map('map').setView([30.1,-90.2],6);
     L.tileLayer('https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}.png',{maxZoom:18,subdomains:'abcd'}).addTo(map);
 
-    const LIX_COUNTY_ZONE_AREAS=['LA','MS'];
-    const LIX_COUNTY_ZONE_IDS=new Set(['LAC005','LAC007','LAC033','LAC037','LAC047','LAC051','LAC057','LAC063','LAC071','LAC075','LAC077','LAC087','LAC089','LAC091','LAC093','LAC095','LAC103','LAC105','LAC109','LAC117','LAC121','LAC125','MSC005','MSC045','MSC047','MSC059','MSC109','MSC113','MSC147','MSC157']);
+    const COUNTY_BOUNDARY_URL="https://tigerweb.geo.census.gov/arcgis/rest/services/TIGERweb/State_County/MapServer/1/query?where=STATE%20IN%20(%2701%27%2C%2722%27%2C%2728%27)&outFields=STATE%2CCOUNTY%2CNAME&returnGeometry=true&outSR=4326&f=geojson";
     const STATE_BOUNDARY_URL="https://tigerweb.geo.census.gov/arcgis/rest/services/TIGERweb/State_County/MapServer/0/query?where=STATE%20IN%20(%2701%27%2C%2722%27%2C%2728%27)&outFields=STATE%2CNAME&returnGeometry=true&outSR=4326&f=geojson";
 
     function setupBoundaryPane(name,zIndex){
@@ -93,41 +92,19 @@
       return response.json();
     }
 
-    function zoneIdFromFeature(feature){
-      const p=feature?.properties||{};
-      const raw=String(p.id||p.zoneId||p.ugc||'').toUpperCase();
-      return raw.split('/').pop();
-    }
-
-    function isLixCountyZone(feature){
-      const p=feature?.properties||{};
-      const zoneId=zoneIdFromFeature(feature);
-      if(LIX_COUNTY_ZONE_IDS.has(zoneId))return true;
-      const cwa=p.cwa||p.forecastOffice||p.forecastOffices||p.office;
-      if(Array.isArray(cwa))return cwa.map(x=>String(x).toUpperCase()).includes('LIX');
-      if(typeof cwa==='string'){
-        const value=cwa.toUpperCase();
-        return value.split(/[^A-Z0-9]+/).includes('LIX')||value.endsWith('/LIX');
-      }
-      return false;
-    }
-
     async function loadBoundaryLayers(){
       setupBoundaryPane('countyLinePane',560);
       setupBoundaryPane('stateLinePane',570);
 
       try{
-        const collections=await Promise.all(LIX_COUNTY_ZONE_AREAS.map(area=>fetchBoundaryJson(`https://api.weather.gov/zones?type=county&area=${area}`)));
-        const features=collections.flatMap(fc=>fc.features||[]).filter(f=>f.geometry&&isLixCountyZone(f));
-        if(features.length){
-          L.geoJSON({type:'FeatureCollection',features},{
-            pane:'countyLinePane',
-            interactive:false,
-            style:()=>({color:'#000',weight:1.25,opacity:.92,fill:false,fillOpacity:0})
-          }).addTo(map);
-        }
+        const counties=await fetchBoundaryJson(COUNTY_BOUNDARY_URL);
+        L.geoJSON(counties,{
+          pane:'countyLinePane',
+          interactive:false,
+          style:()=>({color:'#000',weight:.85,opacity:.82,fill:false,fillOpacity:0,smoothFactor:.2})
+        }).addTo(map);
       }catch(err){
-        console.warn('Could not load WFO LIX county/parish boundaries',err);
+        console.warn('Could not load county/parish boundaries',err);
       }
 
       try{
@@ -135,7 +112,7 @@
         L.geoJSON(states,{
           pane:'stateLinePane',
           interactive:false,
-          style:()=>({color:'#000',weight:2.2,opacity:.95,fill:false,fillOpacity:0})
+          style:()=>({color:'#000',weight:2,opacity:.95,fill:false,fillOpacity:0,smoothFactor:.2})
         }).addTo(map);
       }catch(err){
         console.warn('Could not load state boundaries',err);
