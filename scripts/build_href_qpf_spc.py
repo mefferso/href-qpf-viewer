@@ -5,7 +5,6 @@ from __future__ import annotations
 
 import build_href_qpf as base
 import build_href_qpf_fast as fast
-import build_lix_cwa_boundary
 
 # Color bins sampled/approximated from the SPC-style QPF legend provided by the
 # user. These colors are used by generated rasters, the web legend, and the
@@ -32,9 +31,18 @@ SPC_LIKE_QPF_COLOR_SCALE = [
 ]
 
 
+def refresh_lix_cwa_boundary() -> None:
+    try:
+        import build_lix_cwa_boundary
+
+        build_lix_cwa_boundary.refresh_lix_cwa_boundary_safely()
+    except Exception as exc:
+        base.log(f"WARNING: LIX CWA boundary setup failed before HREF build: {exc}")
+
+
 def main() -> int:
     base.COLOR_SCALE = SPC_LIKE_QPF_COLOR_SCALE
-    build_lix_cwa_boundary.refresh_lix_cwa_boundary_safely()
+    refresh_lix_cwa_boundary()
     return fast.main()
 
 
