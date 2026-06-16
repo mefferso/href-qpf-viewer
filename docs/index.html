@@ -78,6 +78,7 @@
 
     const COUNTY_BOUNDARY_URL="https://tigerweb.geo.census.gov/arcgis/rest/services/TIGERweb/State_County/MapServer/1/query?where=STATE%20IN%20(%2701%27%2C%2722%27%2C%2728%27)&outFields=STATE%2CCOUNTY%2CNAME&returnGeometry=true&outSR=4326&f=geojson";
     const STATE_BOUNDARY_URL="https://tigerweb.geo.census.gov/arcgis/rest/services/TIGERweb/State_County/MapServer/0/query?where=STATE%20IN%20(%2701%27%2C%2722%27%2C%2728%27)&outFields=STATE%2CNAME&returnGeometry=true&outSR=4326&f=geojson";
+    const LIX_CWA_BOUNDARY_URL='data/lix_cwa_boundary.geojson';
 
     function setupBoundaryPane(name,zIndex){
       if(!map.getPane(name))map.createPane(name);
@@ -95,6 +96,7 @@
     async function loadBoundaryLayers(){
       setupBoundaryPane('countyLinePane',560);
       setupBoundaryPane('stateLinePane',570);
+      setupBoundaryPane('lixCwaPane',590);
 
       try{
         const counties=await fetchBoundaryJson(COUNTY_BOUNDARY_URL);
@@ -116,6 +118,17 @@
         }).addTo(map);
       }catch(err){
         console.warn('Could not load state boundaries',err);
+      }
+
+      try{
+        const lixCwa=await fetchBoundaryJson(LIX_CWA_BOUNDARY_URL);
+        L.geoJSON(lixCwa,{
+          pane:'lixCwaPane',
+          interactive:false,
+          style:()=>({color:'#000',weight:2.2,opacity:1,fill:false,fillOpacity:0,smoothFactor:.05,lineCap:'round',lineJoin:'round'})
+        }).addTo(map);
+      }catch(err){
+        console.warn('Could not load LIX CWA boundary',err);
       }
     }
     loadBoundaryLayers();
