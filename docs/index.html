@@ -28,18 +28,18 @@
     .check input{width:auto}
     .check span{font-size:13px;font-weight:900}
     .status{padding:10px 16px;color:var(--m);font-size:12px;border-top:1px solid var(--l)}
-    .readout{right:14px;top:14px;width:min(320px,calc(100vw - 28px))}
-    .readout .box,.maxbox .box{padding:13px 15px}
-    .big{font-size:34px;font-weight:950}
-    .maxbox{left:14px;bottom:24px;width:min(320px,calc(100vw - 28px))}
-    .legend{right:14px;bottom:24px;width:min(300px,calc(100vw - 28px));padding:12px 14px}
-    .lr{display:grid;grid-template-columns:22px 1fr;align-items:center;gap:8px;font-size:12px;margin:4px 0}
+    .readout{right:14px;top:14px;width:max-content;min-width:145px;max-width:calc(100vw - 28px)}
+    .readout .box,.maxbox .box{padding:12px 15px}
+    .big{font-size:34px;font-weight:950;line-height:1.05;white-space:nowrap}
+    .maxbox{left:14px;bottom:24px;width:max-content;min-width:150px;max-width:calc(100vw - 28px)}
+    .legend{right:14px;bottom:24px;width:max-content;min-width:142px;max-width:calc(100vw - 28px);padding:12px 14px}
+    .lr{display:grid;grid-template-columns:22px max-content;align-items:center;gap:8px;font-size:12px;margin:4px 0}
     .sw{height:13px;border-radius:4px}
     .loading{left:50%;top:50%;transform:translate(-50%,-50%);padding:14px 18px;font-weight:900}
     .hidden{display:none}
     .cc{position:absolute;pointer-events:none;z-index:450}
     .max-dot-label{font-weight:900}
-    @media(max-width:700px){.readout{display:none}.meta{grid-template-columns:1fr}.legend{width:min(250px,calc(100vw - 28px))}}
+    @media(max-width:700px){.readout{display:none}.meta{grid-template-columns:1fr}.legend{max-width:calc(100vw - 28px)}}
   </style>
 </head>
 <body>
@@ -145,18 +145,20 @@
     function fmtUTC(iso){if(!iso)return '-';const d=new Date(iso);if(isNaN(d))return '-';return `${d.getUTCMonth()+1}/${d.getUTCDate()} ${String(d.getUTCHours()).padStart(2,'0')}Z`}
     function fmtGen(iso){if(!iso)return '-';const d=new Date(iso);if(isNaN(d))return '-';return `${d.getUTCMonth()+1}/${d.getUTCDate()} ${String(d.getUTCHours()).padStart(2,'0')}:${String(d.getUTCMinutes()).padStart(2,'0')}Z`}
     function fmtRun(l){if(!l)return '-';const r=String(l.run||'');return /^\d{10}$/.test(r)?`${r.slice(0,4)}-${r.slice(4,6)}-${r.slice(6,8)} ${r.slice(8,10)}Z`:(l.runLabel||r||'-')}
+    function trimNumber(value){const n=Number(value);return Number.isFinite(n)?String(parseFloat(n.toFixed(3))):String(value)}
+    function legendLabel(bin){const min=trimNumber(bin.min),max=trimNumber(bin.max);return Number(bin.max)>=999?`>${min}`:`${min}-${max}`}
     function updateMeta(){const l=state.activeLayer;els.runValue.textContent=fmtRun(l);els.validValue.textContent=l?fmtUTC(l.validTimeUTC):'-';els.periodValue.textContent=l?.periodLabel||'-';els.generatedValue.textContent=fmtGen(state.catalog?.generatedUTC);if(state.catalog&&l)els.status.textContent=`Loaded ${state.catalog.layers.length} periods • ${l.name||l.productLabel||'HREF Max QPF'}`}
     function fillTimes(){els.timeSelect.innerHTML='';for(const l of state.catalog.layers){const o=document.createElement('option');o.value=l.id;o.textContent=`${l.periodLabel} ending ${fmtUTC(l.validTimeUTC)}`;els.timeSelect.appendChild(o)}}
     async function loadJson(url){const r=await fetch(url,{cache:'no-store'});if(!r.ok)throw new Error(`HTTP ${r.status} loading ${url}`);if(url.endsWith('.gz')){if(!('DecompressionStream'in window))throw new Error('Browser lacks gzip stream support');const ds=new DecompressionStream('gzip');return JSON.parse(await new Response(r.body.pipeThrough(ds)).text())}return r.json()}
-    function drawLegend(){els.legendRows.innerHTML='';for(const b of state.catalog.colorScale){const row=document.createElement('div');row.className='lr';row.innerHTML=`<div class="sw" style="background:${b.color}"></div><div>${b.label}</div>`;els.legendRows.appendChild(row)}}
+    function drawLegend(){els.legendRows.innerHTML='';for(const b of state.catalog.colorScale){const row=document.createElement('div');row.className='lr';row.innerHTML=`<div class="sw" style="background:${b.color}"></div><div>${legendLabel(b)}</div>`;els.legendRows.appendChild(row)}}
     async function setLayer(id){const layer=state.catalog.layers.find(x=>x.id===id);if(!layer)throw new Error(`Layer not found: ${id}`);const grid=await loadJson(layer.valueGridUrl);state.activeLayer=layer;state.valueGrid=grid;els.timeSelect.value=layer.id;if(state.rasterLayer)map.removeLayer(state.rasterLayer);const b=layer.rasterBounds;state.rasterLayer=L.imageOverlay(layer.rasterUrl,[[b.south,b.west],[b.north,b.east]],{opacity:state.opacity}).addTo(map);updateMeta();placeMaxMarker();drawContours();if(state.lastLatLng)sample(state.lastLatLng)}
     function overlayPoints(){const g=state.valueGrid,l=state.activeLayer;if(!g||!l)return null;const b=l.rasterBounds||g.bounds,nw=map.latLngToLayerPoint([b.north,b.west]),se=map.latLngToLayerPoint([b.south,b.east]);return{nw,se,width:se.x-nw.x,height:se.y-nw.y}}
     function rasterPixelForLatLng(ll){const g=state.valueGrid,p=overlayPoints();if(!g||!p)return null;const q=map.latLngToLayerPoint(ll),fx=(q.x-p.nw.x)/p.width,fy=(q.y-p.nw.y)/p.height;if(fx<0||fx>1||fy<0||fy>1)return null;const x=Math.round(fx*(g.width-1)),y=Math.round(fy*(g.height-1));return x<0||y<0||x>=g.width||y>=g.height?null:{x,y}}
     function latLngForRasterPixel(x,y){const g=state.valueGrid,p=overlayPoints();if(!g||!p)return null;return map.layerPointToLatLng(L.point(p.nw.x+x/(g.width-1)*p.width,p.nw.y+y/(g.height-1)*p.height))}
     function gridValueAt(x,y){const g=state.valueGrid;if(!g)return NaN;const raw=g.values[y*g.width+x];return raw===g.missing||raw<-1000?NaN:Number(raw)}
     function displayGridMax(){const g=state.valueGrid;if(!g)return null;let best=-Infinity,bx=0,by=0;for(let y=0;y<g.height;y++){const off=y*g.width;for(let x=0;x<g.width;x++){const raw=g.values[off+x];if(raw===g.missing||raw<-1000)continue;const v=Number(raw);if(isFinite(v)&&v>best){best=v;bx=x;by=y}}}return isFinite(best)?{value:best,x:bx,y:by}:null}
-    function placeMaxMarker(){if(state.maxMarker){map.removeLayer(state.maxMarker);state.maxMarker=null}const m=displayGridMax();if(!m)return;const ll=latLngForRasterPixel(m.x,m.y);if(!ll)return;state.maxMarker=L.circleMarker(ll,{radius:7,color:'#111',weight:3,fillColor:'#fff',fillOpacity:1}).addTo(map).bindTooltip(`Max ${m.value.toFixed(2)} in`,{className:'max-dot-label',direction:'top'});els.maxValue.textContent=`${m.value.toFixed(2)} in`;els.maxDetail.innerHTML=`Run ${fmtRun(state.activeLayer)}<br>${state.activeLayer.periodLabel}<br>Ending ${fmtUTC(state.activeLayer.validTimeUTC)}<br>${ll.lat.toFixed(3)}, ${ll.lng.toFixed(3)}`}
-    function sample(ll){state.lastLatLng=ll;const g=state.valueGrid;if(!g||!g.bounds)return;const pix=rasterPixelForLatLng(ll);if(!pix){els.sampleValue.textContent='-';els.sampleDetail.textContent='Outside QPF raster';return}const v=gridValueAt(pix.x,pix.y);if(!isFinite(v)){els.sampleValue.textContent='-';els.sampleDetail.textContent='No data at cursor';return}els.sampleValue.textContent=`${v.toFixed(2)} in`;els.sampleDetail.innerHTML=`Overlay-pixel sample<br>${ll.lat.toFixed(3)}, ${ll.lng.toFixed(3)}<br>pixel ${pix.x}, ${pix.y}`}
+    function placeMaxMarker(){if(state.maxMarker){map.removeLayer(state.maxMarker);state.maxMarker=null}const m=displayGridMax();if(!m)return;const ll=latLngForRasterPixel(m.x,m.y);if(!ll)return;state.maxMarker=L.circleMarker(ll,{radius:7,color:'#111',weight:3,fillColor:'#fff',fillOpacity:1}).addTo(map).bindTooltip(`Max ${m.value.toFixed(2)} in`,{className:'max-dot-label',direction:'top'});els.maxValue.textContent=`${m.value.toFixed(2)} in`;els.maxDetail.textContent=''}
+    function sample(ll){state.lastLatLng=ll;const g=state.valueGrid;if(!g||!g.bounds)return;const pix=rasterPixelForLatLng(ll);if(!pix){els.sampleValue.textContent='-';els.sampleDetail.textContent='Outside QPF raster';return}const v=gridValueAt(pix.x,pix.y);if(!isFinite(v)){els.sampleValue.textContent='-';els.sampleDetail.textContent='No data at cursor';return}els.sampleValue.textContent=`${v.toFixed(2)} in`;els.sampleDetail.textContent=`${ll.lat.toFixed(3)}, ${ll.lng.toFixed(3)}`}
     function ensureContourCanvas(){if(state.contourCanvas)return state.contourCanvas;const c=L.DomUtil.create('canvas','cc');map.getPanes().overlayPane.appendChild(c);state.contourCanvas=c;return c}
     function contourLevels(){return(state.catalog.colorScale||[]).slice(1).map(b=>({value:Number(b.min),color:b.color})).filter(x=>isFinite(x.value)&&x.value>0)}
     function drawSeg(ctx,a,b,sx,sy,color){ctx.beginPath();ctx.moveTo(a.x*sx,a.y*sy);ctx.lineTo(b.x*sx,b.y*sy);ctx.strokeStyle='rgba(0,0,0,.72)';ctx.lineWidth=3.2;ctx.stroke();ctx.beginPath();ctx.moveTo(a.x*sx,a.y*sy);ctx.lineTo(b.x*sx,b.y*sy);ctx.strokeStyle=color;ctx.lineWidth=1.6;ctx.stroke()}
