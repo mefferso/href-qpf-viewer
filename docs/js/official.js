@@ -3,7 +3,7 @@ const map=L.map('map').setView([30.1,-90.2],6);
 L.tileLayer('https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}.png',{maxZoom:18,subdomains:'abcd'}).addTo(map);
 
 const COUNTY_BOUNDARY_URL="https://tigerweb.geo.census.gov/arcgis/rest/services/TIGERweb/State_County/MapServer/1/query?where=STATE%20IN%20(%2701%27%2C%2722%27%2C%2728%27)&outFields=STATE%2CCOUNTY%2CNAME&returnGeometry=true&outSR=4326&f=geojson";
-const STATE_BOUNDARY_URL="https://tigerweb.geo.census.gov/arcgis/rest/services/TIGERweb/State_County/MapServer/0/query?where=STATE%20IN%20(%2701%27%2C%2722%27%2C%2728%27)&outFields=STATE%2CNAME&returnGeometry=true&outSR=4326&f=geojson";
+const GR2_STATE_BORDER_LINES_URL='data/gr2_state_borders_lix.json';
 
 function setupBoundaryPane(name,zIndex){
   if(!map.getPane(name))map.createPane(name);
@@ -34,14 +34,19 @@ async function loadBoundaryLayers(){
   }
 
   try{
-    const states=await fetchBoundaryJson(STATE_BOUNDARY_URL);
-    L.geoJSON(states,{
+    const lines=await fetchBoundaryJson(GR2_STATE_BORDER_LINES_URL);
+    L.layerGroup(lines.filter(line=>Array.isArray(line)&&line.length>1).map(line=>L.polyline(line,{
       pane:'stateLinePane',
       interactive:false,
-      style:()=>({color:'#000',weight:2,opacity:.95,fill:false,fillOpacity:0,smoothFactor:.2})
-    }).addTo(map);
+      color:'#000',
+      weight:2,
+      opacity:1,
+      smoothFactor:.2,
+      lineCap:'round',
+      lineJoin:'round'
+    }))).addTo(map);
   }catch(err){
-    console.warn('Could not load state boundaries',err);
+    console.warn('Could not load GR2 state borders',err);
   }
 }
 loadBoundaryLayers();
