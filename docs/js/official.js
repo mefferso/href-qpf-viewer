@@ -2,7 +2,7 @@ const bounds={se:[[22.5,-98.5],[38.5,-72.5]],sp:[[20.5,-110.5],[40.5,-84.5]]};
 const map=L.map('map').setView([30.1,-90.2],6);
 L.tileLayer('https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}.png',{maxZoom:18,subdomains:'abcd'}).addTo(map);
 
-const COUNTY_BOUNDARY_URL="https://tigerweb.geo.census.gov/arcgis/rest/services/TIGERweb/State_County/MapServer/1/query?where=STATE%20IN%20(%2701%27%2C%2722%27%2C%2728%27)&outFields=STATE%2CCOUNTY%2CNAME&returnGeometry=true&outSR=4326&f=geojson";
+const COUNTY_ZONE_AREAS=['LA','MS','AL'];
 const STATE_BOUNDARY_URL="https://tigerweb.geo.census.gov/arcgis/rest/services/TIGERweb/State_County/MapServer/0/query?where=STATE%20IN%20(%2701%27%2C%2722%27%2C%2728%27)&outFields=STATE%2CNAME&returnGeometry=true&outSR=4326&f=geojson";
 const LIX_CWA_BOUNDARY_URL='data/lix_cwa_boundary.geojson';
 
@@ -19,20 +19,28 @@ async function fetchBoundaryJson(url){
   return response.json();
 }
 
+async function fetchCountyZoneBoundaries(){
+  const collections=await Promise.all(COUNTY_ZONE_AREAS.map(area=>fetchBoundaryJson(`https://api.weather.gov/zones?type=county&area=${area}`)));
+  return {
+    type:'FeatureCollection',
+    features:collections.flatMap(collection=>(collection.features||[]).filter(feature=>feature.geometry))
+  };
+}
+
 async function loadBoundaryLayers(){
   setupBoundaryPane('countyLinePane',560);
   setupBoundaryPane('stateLinePane',570);
   setupBoundaryPane('lixCwaPane',590);
 
   try{
-    const counties=await fetchBoundaryJson(COUNTY_BOUNDARY_URL);
+    const counties=await fetchCountyZoneBoundaries();
     L.geoJSON(counties,{
       pane:'countyLinePane',
       interactive:false,
       style:()=>({color:'#000',weight:.75,opacity:.78,fill:false,fillOpacity:0,smoothFactor:.15,lineCap:'round',lineJoin:'round'})
     }).addTo(map);
   }catch(err){
-    console.warn('Could not load county/parish boundaries',err);
+    console.warn('Could not load land county/parish boundaries',err);
   }
 
   try{
