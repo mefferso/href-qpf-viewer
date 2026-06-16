@@ -1,1 +1,195 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>HREF 6-Hour Max QPF Viewer</title><link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"><style>:root{--p:rgba(13,17,23,.92);--p2:rgba(22,27,34,.94);--t:#e6edf3;--m:#9aa4b2;--l:rgba(255,255,255,.13);--a:#58a6ff;--d:#ff7b72}html,body,#map{height:100%;width:100%;margin:0;overflow:hidden}body{font-family:system-ui,-apple-system,sans-serif;background:#dde5ea;color:var(--t)}#map{position:fixed;inset:0}.top,.readout,.legend,.loading,.maxbox{position:fixed;z-index:1000;background:var(--p);border:1px solid var(--l);border-radius:16px;box-shadow:0 8px 24px #0003}.top{top:14px;left:14px;width:min(430px,calc(100vw - 28px))}.hdr{padding:14px 16px 10px;border-bottom:1px solid var(--l)}.title{font-size:18px;font-weight:900}.sub{margin-top:4px;color:var(--m);font-size:12px}.meta{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:10px 16px;border-bottom:1px solid var(--l);background:#ffffff08}.card{background:var(--p2);border:1px solid var(--l);border-radius:10px;padding:8px 10px;min-width:0}.ml{font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:.05em;color:var(--m);margin-bottom:3px}.mv{font-size:13px;font-weight:900;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.mv.run{color:var(--a)}.ctrl{display:grid;gap:10px;padding:12px 16px 14px}label{display:block;color:var(--m);font-size:11px;font-weight:900;text-transform:uppercase;margin-bottom:4px}select,input,button{width:100%;box-sizing:border-box;background:var(--p2);color:var(--t);border:1px solid var(--l);border-radius:10px;padding:8px}button{margin-top:4px;font-weight:900;cursor:pointer}.check{display:flex;align-items:center;gap:9px;background:var(--p2);border:1px solid var(--l);border-radius:10px;padding:8px 10px}.check input{width:auto}.check span{font-size:13px;font-weight:900}.status{padding:10px 16px;color:var(--m);font-size:12px;border-top:1px solid var(--l)}.readout{right:14px;top:14px;width:min(320px,calc(100vw - 28px))}.readout .box,.maxbox .box{padding:13px 15px}.big{font-size:34px;font-weight:950}.maxbox{left:14px;bottom:24px;width:min(320px,calc(100vw - 28px))}.legend{right:14px;bottom:24px;width:min(300px,calc(100vw - 28px));padding:12px 14px}.lr{display:grid;grid-template-columns:22px 1fr;align-items:center;gap:8px;font-size:12px;margin:4px 0}.sw{height:13px;border-radius:4px}.loading{left:50%;top:50%;transform:translate(-50%,-50%);padding:14px 18px;font-weight:900}.hidden{display:none}.cc{position:absolute;pointer-events:none;z-index:450}.max-dot-label{font-weight:900}@media(max-width:700px){.readout{display:none}.meta{grid-template-columns:1fr}.legend{width:min(250px,calc(100vw - 28px))}}</style></head><body><div id="map"></div><div id="loading" class="loading">Loading HREF Max QPF...</div><section class="top"><div class="hdr"><div class="title">HREF 6-Hour Max QPF Viewer</div><div class="sub">True 6-hour Max QPF ending every 6 forecast hours.</div></div><div class="meta"><div class="card"><div class="ml">Model Run</div><div id="runValue" class="mv run">Loading...</div></div><div class="card"><div class="ml">Valid Time</div><div id="validValue" class="mv">Loading...</div></div><div class="card"><div class="ml">Forecast Period</div><div id="periodValue" class="mv">Loading...</div></div><div class="card"><div class="ml">Catalog Updated</div><div id="generatedValue" class="mv">Loading...</div></div></div><div class="ctrl"><div><label for="timeSelect">Forecast Period</label><select id="timeSelect"></select></div><div><label for="opacitySlider">QPF Opacity</label><input id="opacitySlider" type="range" min="0" max="1" step="0.05" value="0.74"></div><label class="check"><input id="contourToggle" type="checkbox"><span>Show legend-matched contours</span></label><div><button id="prevBtn">◀ Previous</button><button id="nextBtn">Next ▶</button></div></div><div id="status" class="status">Loading catalog...</div></section><section class="readout"><div class="box"><div class="big" id="sampleValue">-</div><div id="sampleDetail">Move over the map for QPF.</div></div></section><section class="maxbox"><div class="box"><div style="color:var(--m);font-size:11px;font-weight:900">Layer Max</div><div id="maxValue" class="big">-</div><div id="maxDetail"></div></div></section><section class="legend"><div style="font-size:12px;font-weight:900;margin-bottom:8px">QPF Inches</div><div id="legendRows"></div></section><script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script><script>const state={catalog:null,activeLayer:null,valueGrid:null,rasterLayer:null,maxMarker:null,contourCanvas:null,contoursOn:false,opacity:.74,lastLatLng:null};const map=L.map('map').setView([30.1,-90.2],6);L.tileLayer('https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}.png',{maxZoom:18,subdomains:'abcd'}).addTo(map);const $=id=>document.getElementById(id);const els={loading:$('loading'),status:$('status'),timeSelect:$('timeSelect'),opacitySlider:$('opacitySlider'),contourToggle:$('contourToggle'),prevBtn:$('prevBtn'),nextBtn:$('nextBtn'),sampleValue:$('sampleValue'),sampleDetail:$('sampleDetail'),maxValue:$('maxValue'),maxDetail:$('maxDetail'),legendRows:$('legendRows'),runValue:$('runValue'),validValue:$('validValue'),periodValue:$('periodValue'),generatedValue:$('generatedValue')};function fmtUTC(iso){if(!iso)return '-';const d=new Date(iso);if(isNaN(d))return '-';return `${d.getUTCMonth()+1}/${d.getUTCDate()} ${String(d.getUTCHours()).padStart(2,'0')}Z`}function fmtGen(iso){if(!iso)return '-';const d=new Date(iso);if(isNaN(d))return '-';return `${d.getUTCMonth()+1}/${d.getUTCDate()} ${String(d.getUTCHours()).padStart(2,'0')}:${String(d.getUTCMinutes()).padStart(2,'0')}Z`}function fmtRun(l){if(!l)return '-';const r=String(l.run||'');return /^\d{10}$/.test(r)?`${r.slice(0,4)}-${r.slice(4,6)}-${r.slice(6,8)} ${r.slice(8,10)}Z`:(l.runLabel||r||'-')}function updateMeta(){const l=state.activeLayer;els.runValue.textContent=fmtRun(l);els.validValue.textContent=l?fmtUTC(l.validTimeUTC):'-';els.periodValue.textContent=l?.periodLabel||'-';els.generatedValue.textContent=fmtGen(state.catalog?.generatedUTC);if(state.catalog&&l)els.status.textContent=`Loaded ${state.catalog.layers.length} periods • ${l.name||l.productLabel||'HREF Max QPF'}`}function fillTimes(){els.timeSelect.innerHTML='';for(const l of state.catalog.layers){const o=document.createElement('option');o.value=l.id;o.textContent=`${l.periodLabel} ending ${fmtUTC(l.validTimeUTC)}`;els.timeSelect.appendChild(o)}}async function loadJson(url){const r=await fetch(url,{cache:'no-store'});if(!r.ok)throw new Error(`HTTP ${r.status} loading ${url}`);if(url.endsWith('.gz')){if(!('DecompressionStream'in window))throw new Error('Browser lacks gzip stream support');const ds=new DecompressionStream('gzip');return JSON.parse(await new Response(r.body.pipeThrough(ds)).text())}return r.json()}function drawLegend(){els.legendRows.innerHTML='';for(const b of state.catalog.colorScale){const row=document.createElement('div');row.className='lr';row.innerHTML=`<div class="sw" style="background:${b.color}"></div><div>${b.label}</div>`;els.legendRows.appendChild(row)}}async function setLayer(id){const layer=state.catalog.layers.find(x=>x.id===id);if(!layer)throw new Error(`Layer not found: ${id}`);const grid=await loadJson(layer.valueGridUrl);state.activeLayer=layer;state.valueGrid=grid;els.timeSelect.value=layer.id;if(state.rasterLayer)map.removeLayer(state.rasterLayer);const b=layer.rasterBounds;state.rasterLayer=L.imageOverlay(layer.rasterUrl,[[b.south,b.west],[b.north,b.east]],{opacity:state.opacity}).addTo(map);updateMeta();placeMaxMarker();drawContours();if(state.lastLatLng)sample(state.lastLatLng)}function overlayPoints(){const g=state.valueGrid,l=state.activeLayer;if(!g||!l)return null;const b=l.rasterBounds||g.bounds,nw=map.latLngToLayerPoint([b.north,b.west]),se=map.latLngToLayerPoint([b.south,b.east]);return{nw,se,width:se.x-nw.x,height:se.y-nw.y}}function rasterPixelForLatLng(ll){const g=state.valueGrid,p=overlayPoints();if(!g||!p)return null;const q=map.latLngToLayerPoint(ll),fx=(q.x-p.nw.x)/p.width,fy=(q.y-p.nw.y)/p.height;if(fx<0||fx>1||fy<0||fy>1)return null;const x=Math.round(fx*(g.width-1)),y=Math.round(fy*(g.height-1));return x<0||y<0||x>=g.width||y>=g.height?null:{x,y}}function latLngForRasterPixel(x,y){const g=state.valueGrid,p=overlayPoints();if(!g||!p)return null;return map.layerPointToLatLng(L.point(p.nw.x+x/(g.width-1)*p.width,p.nw.y+y/(g.height-1)*p.height))}function gridValueAt(x,y){const g=state.valueGrid;if(!g)return NaN;const raw=g.values[y*g.width+x];return raw===g.missing||raw<-1000?NaN:Number(raw)}function displayGridMax(){const g=state.valueGrid;if(!g)return null;let best=-Infinity,bx=0,by=0;for(let y=0;y<g.height;y++){const off=y*g.width;for(let x=0;x<g.width;x++){const raw=g.values[off+x];if(raw===g.missing||raw<-1000)continue;const v=Number(raw);if(isFinite(v)&&v>best){best=v;bx=x;by=y}}}return isFinite(best)?{value:best,x:bx,y:by}:null}function placeMaxMarker(){if(state.maxMarker){map.removeLayer(state.maxMarker);state.maxMarker=null}const m=displayGridMax();if(!m)return;const ll=latLngForRasterPixel(m.x,m.y);if(!ll)return;state.maxMarker=L.circleMarker(ll,{radius:7,color:'#111',weight:3,fillColor:'#fff',fillOpacity:1}).addTo(map).bindTooltip(`Max ${m.value.toFixed(2)} in`,{className:'max-dot-label',direction:'top'});els.maxValue.textContent=`${m.value.toFixed(2)} in`;els.maxDetail.innerHTML=`Run ${fmtRun(state.activeLayer)}<br>${state.activeLayer.periodLabel}<br>Ending ${fmtUTC(state.activeLayer.validTimeUTC)}<br>${ll.lat.toFixed(3)}, ${ll.lng.toFixed(3)}`}function sample(ll){state.lastLatLng=ll;const g=state.valueGrid;if(!g||!g.bounds)return;const pix=rasterPixelForLatLng(ll);if(!pix){els.sampleValue.textContent='-';els.sampleDetail.textContent='Outside QPF raster';return}const v=gridValueAt(pix.x,pix.y);if(!isFinite(v)){els.sampleValue.textContent='-';els.sampleDetail.textContent='No data at cursor';return}els.sampleValue.textContent=`${v.toFixed(2)} in`;els.sampleDetail.innerHTML=`Overlay-pixel sample<br>${ll.lat.toFixed(3)}, ${ll.lng.toFixed(3)}<br>pixel ${pix.x}, ${pix.y}`}function ensureContourCanvas(){if(state.contourCanvas)return state.contourCanvas;const c=L.DomUtil.create('canvas','cc');map.getPanes().overlayPane.appendChild(c);state.contourCanvas=c;return c}function contourLevels(){return(state.catalog.colorScale||[]).slice(1).map(b=>({value:Number(b.min),color:b.color})).filter(x=>isFinite(x.value)&&x.value>0)}function drawSeg(ctx,a,b,sx,sy,color){ctx.beginPath();ctx.moveTo(a.x*sx,a.y*sy);ctx.lineTo(b.x*sx,b.y*sy);ctx.strokeStyle='rgba(0,0,0,.72)';ctx.lineWidth=3.2;ctx.stroke();ctx.beginPath();ctx.moveTo(a.x*sx,a.y*sy);ctx.lineTo(b.x*sx,b.y*sy);ctx.strokeStyle=color;ctx.lineWidth=1.6;ctx.stroke()}function ept(e,x,y,v00,v10,v11,v01,t){const f=(a,b)=>Math.abs(b-a)<1e-9?.5:(t-a)/(b-a);if(e==='top')return{x:x+f(v00,v10),y};if(e==='right')return{x:x+1,y:y+f(v10,v11)};if(e==='bottom')return{x:x+f(v01,v11),y:y+1};return{x,y:y+f(v00,v01)}}function drawContours(){const c=ensureContourCanvas();if(!state.contoursOn||!state.valueGrid||!state.activeLayer){c.style.display='none';return}const g=state.valueGrid,p=overlayPoints();if(!p){c.style.display='none';return}const w=Math.max(1,Math.round(p.width)),h=Math.max(1,Math.round(p.height));c.style.display='block';c.width=w;c.height=h;c.style.width=w+'px';c.style.height=h+'px';L.DomUtil.setPosition(c,p.nw);const ctx=c.getContext('2d');ctx.clearRect(0,0,w,h);ctx.lineCap='round';ctx.lineJoin='round';const sx=w/(g.width-1),sy=h/(g.height-1),vals=g.values,miss=g.missing;for(const lev of contourLevels()){const t=lev.value;for(let y=0;y<g.height-1;y++){const row=y*g.width,next=(y+1)*g.width;for(let x=0;x<g.width-1;x++){const v00=Number(vals[row+x]),v10=Number(vals[row+x+1]),v01=Number(vals[next+x]),v11=Number(vals[next+x+1]);if(v00===miss||v10===miss||v01===miss||v11===miss||v00<-1000||v10<-1000||v01<-1000||v11<-1000)continue;const ed=[];if((v00<t)!=(v10<t))ed.push('top');if((v10<t)!=(v11<t))ed.push('right');if((v01<t)!=(v11<t))ed.push('bottom');if((v00<t)!=(v01<t))ed.push('left');if(ed.length<2)continue;const ps=ed.map(e=>ept(e,x,y,v00,v10,v11,v01,t));if(ps.length===2)drawSeg(ctx,ps[0],ps[1],sx,sy,lev.color);else if(ps.length===4){drawSeg(ctx,ps[0],ps[1],sx,sy,lev.color);drawSeg(ctx,ps[2],ps[3],sx,sy,lev.color)}}}}}map.on('mousemove',e=>sample(e.latlng));map.on('zoomend moveend resize',()=>{placeMaxMarker();drawContours();if(state.lastLatLng)sample(state.lastLatLng)});els.timeSelect.addEventListener('change',()=>setLayer(els.timeSelect.value));els.contourToggle.addEventListener('change',()=>{state.contoursOn=els.contourToggle.checked;drawContours()});els.opacitySlider.addEventListener('input',()=>{state.opacity=Number(els.opacitySlider.value);if(state.rasterLayer)state.rasterLayer.setOpacity(state.opacity)});function step(d){const ls=state.catalog.layers,i=ls.findIndex(x=>x.id===state.activeLayer.id),n=Math.max(0,Math.min(ls.length-1,i+d));setLayer(ls[n].id)}els.prevBtn.onclick=()=>step(-1);els.nextBtn.onclick=()=>step(1);(async()=>{try{const c=await fetch('data/catalog.json',{cache:'no-store'}).then(r=>{if(!r.ok)throw new Error(`HTTP ${r.status}`);return r.json()});state.catalog=c;fillTimes();drawLegend();await setLayer(c.defaultLayerId||c.layers[0].id);els.loading.classList.add('hidden')}catch(e){els.loading.classList.add('hidden');els.status.innerHTML=`<span style="color:var(--d);font-weight:900">Failed to load data.</span><br>${e.message}`;console.error(e)}})();</script></body></html>
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>HREF 6-Hour Max QPF Viewer</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+  <style>
+    :root{--p:rgba(13,17,23,.92);--p2:rgba(22,27,34,.94);--t:#e6edf3;--m:#9aa4b2;--l:rgba(255,255,255,.13);--a:#58a6ff;--d:#ff7b72}
+    html,body,#map{height:100%;width:100%;margin:0;overflow:hidden}
+    body{font-family:system-ui,-apple-system,sans-serif;background:#dde5ea;color:var(--t)}
+    #map{position:fixed;inset:0}
+    .top,.readout,.legend,.loading,.maxbox{position:fixed;z-index:1000;background:var(--p);border:1px solid var(--l);border-radius:16px;box-shadow:0 8px 24px #0003}
+    .top{top:14px;left:14px;width:min(430px,calc(100vw - 28px))}
+    .hdr{padding:14px 16px 10px;border-bottom:1px solid var(--l)}
+    .title{font-size:18px;font-weight:900}
+    .sub{margin-top:4px;color:var(--m);font-size:12px}
+    .meta{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:10px 16px;border-bottom:1px solid var(--l);background:#ffffff08}
+    .card{background:var(--p2);border:1px solid var(--l);border-radius:10px;padding:8px 10px;min-width:0}
+    .ml{font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:.05em;color:var(--m);margin-bottom:3px}
+    .mv{font-size:13px;font-weight:900;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .mv.run{color:var(--a)}
+    .ctrl{display:grid;gap:10px;padding:12px 16px 14px}
+    label{display:block;color:var(--m);font-size:11px;font-weight:900;text-transform:uppercase;margin-bottom:4px}
+    select,input,button{width:100%;box-sizing:border-box;background:var(--p2);color:var(--t);border:1px solid var(--l);border-radius:10px;padding:8px}
+    button{margin-top:4px;font-weight:900;cursor:pointer}
+    .check{display:flex;align-items:center;gap:9px;background:var(--p2);border:1px solid var(--l);border-radius:10px;padding:8px 10px}
+    .check input{width:auto}
+    .check span{font-size:13px;font-weight:900}
+    .status{padding:10px 16px;color:var(--m);font-size:12px;border-top:1px solid var(--l)}
+    .readout{right:14px;top:14px;width:min(320px,calc(100vw - 28px))}
+    .readout .box,.maxbox .box{padding:13px 15px}
+    .big{font-size:34px;font-weight:950}
+    .maxbox{left:14px;bottom:24px;width:min(320px,calc(100vw - 28px))}
+    .legend{right:14px;bottom:24px;width:min(300px,calc(100vw - 28px));padding:12px 14px}
+    .lr{display:grid;grid-template-columns:22px 1fr;align-items:center;gap:8px;font-size:12px;margin:4px 0}
+    .sw{height:13px;border-radius:4px}
+    .loading{left:50%;top:50%;transform:translate(-50%,-50%);padding:14px 18px;font-weight:900}
+    .hidden{display:none}
+    .cc{position:absolute;pointer-events:none;z-index:450}
+    .max-dot-label{font-weight:900}
+    @media(max-width:700px){.readout{display:none}.meta{grid-template-columns:1fr}.legend{width:min(250px,calc(100vw - 28px))}}
+  </style>
+</head>
+<body>
+  <div id="map"></div>
+  <div id="loading" class="loading">Loading HREF Max QPF...</div>
+
+  <section class="top">
+    <div class="hdr">
+      <div class="title">HREF 6-Hour Max QPF Viewer</div>
+      <div class="sub">True 6-hour Max QPF ending every 6 forecast hours.</div>
+    </div>
+    <div class="meta">
+      <div class="card"><div class="ml">Model Run</div><div id="runValue" class="mv run">Loading...</div></div>
+      <div class="card"><div class="ml">Valid Time</div><div id="validValue" class="mv">Loading...</div></div>
+      <div class="card"><div class="ml">Forecast Period</div><div id="periodValue" class="mv">Loading...</div></div>
+      <div class="card"><div class="ml">Catalog Updated</div><div id="generatedValue" class="mv">Loading...</div></div>
+    </div>
+    <div class="ctrl">
+      <div><label for="timeSelect">Forecast Period</label><select id="timeSelect"></select></div>
+      <div><label for="opacitySlider">QPF Opacity</label><input id="opacitySlider" type="range" min="0" max="1" step="0.05" value="0.74"></div>
+      <label class="check"><input id="contourToggle" type="checkbox"><span>Show legend-matched contours</span></label>
+      <div><button id="prevBtn">◀ Previous</button><button id="nextBtn">Next ▶</button></div>
+    </div>
+    <div id="status" class="status">Loading catalog...</div>
+  </section>
+
+  <section class="readout"><div class="box"><div class="big" id="sampleValue">-</div><div id="sampleDetail">Move over the map for QPF.</div></div></section>
+  <section class="maxbox"><div class="box"><div style="color:var(--m);font-size:11px;font-weight:900">Layer Max</div><div id="maxValue" class="big">-</div><div id="maxDetail"></div></div></section>
+  <section class="legend"><div style="font-size:12px;font-weight:900;margin-bottom:8px">QPF Inches</div><div id="legendRows"></div></section>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script>
+    const state={catalog:null,activeLayer:null,valueGrid:null,rasterLayer:null,maxMarker:null,contourCanvas:null,contoursOn:false,opacity:.74,lastLatLng:null};
+    const map=L.map('map').setView([30.1,-90.2],6);
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}.png',{maxZoom:18,subdomains:'abcd'}).addTo(map);
+
+    const LIX_COUNTY_ZONE_AREAS=['LA','MS'];
+    const LIX_COUNTY_ZONE_IDS=new Set(['LAC005','LAC007','LAC033','LAC037','LAC047','LAC051','LAC057','LAC063','LAC071','LAC075','LAC077','LAC087','LAC089','LAC091','LAC093','LAC095','LAC103','LAC105','LAC109','LAC117','LAC121','LAC125','MSC005','MSC045','MSC047','MSC059','MSC109','MSC113','MSC147','MSC157']);
+    const STATE_BOUNDARY_URL="https://tigerweb.geo.census.gov/arcgis/rest/services/TIGERweb/State_County/MapServer/0/query?where=STATE%20IN%20(%2701%27%2C%2722%27%2C%2728%27)&outFields=STATE%2CNAME&returnGeometry=true&outSR=4326&f=geojson";
+
+    function setupBoundaryPane(name,zIndex){
+      if(!map.getPane(name))map.createPane(name);
+      const pane=map.getPane(name);
+      pane.style.zIndex=zIndex;
+      pane.style.pointerEvents='none';
+    }
+
+    async function fetchBoundaryJson(url){
+      const response=await fetch(url,{cache:'no-store',headers:{Accept:'application/geo+json, application/json'}});
+      if(!response.ok)throw new Error(`HTTP ${response.status} loading ${url}`);
+      return response.json();
+    }
+
+    function zoneIdFromFeature(feature){
+      const p=feature?.properties||{};
+      const raw=String(p.id||p.zoneId||p.ugc||'').toUpperCase();
+      return raw.split('/').pop();
+    }
+
+    function isLixCountyZone(feature){
+      const p=feature?.properties||{};
+      const zoneId=zoneIdFromFeature(feature);
+      if(LIX_COUNTY_ZONE_IDS.has(zoneId))return true;
+      const cwa=p.cwa||p.forecastOffice||p.forecastOffices||p.office;
+      if(Array.isArray(cwa))return cwa.map(x=>String(x).toUpperCase()).includes('LIX');
+      if(typeof cwa==='string'){
+        const value=cwa.toUpperCase();
+        return value.split(/[^A-Z0-9]+/).includes('LIX')||value.endsWith('/LIX');
+      }
+      return false;
+    }
+
+    async function loadBoundaryLayers(){
+      setupBoundaryPane('countyLinePane',560);
+      setupBoundaryPane('stateLinePane',570);
+
+      try{
+        const collections=await Promise.all(LIX_COUNTY_ZONE_AREAS.map(area=>fetchBoundaryJson(`https://api.weather.gov/zones?type=county&area=${area}`)));
+        const features=collections.flatMap(fc=>fc.features||[]).filter(f=>f.geometry&&isLixCountyZone(f));
+        if(features.length){
+          L.geoJSON({type:'FeatureCollection',features},{
+            pane:'countyLinePane',
+            interactive:false,
+            style:()=>({color:'#000',weight:1.25,opacity:.92,fill:false,fillOpacity:0})
+          }).addTo(map);
+        }
+      }catch(err){
+        console.warn('Could not load WFO LIX county/parish boundaries',err);
+      }
+
+      try{
+        const states=await fetchBoundaryJson(STATE_BOUNDARY_URL);
+        L.geoJSON(states,{
+          pane:'stateLinePane',
+          interactive:false,
+          style:()=>({color:'#000',weight:2.2,opacity:.95,fill:false,fillOpacity:0})
+        }).addTo(map);
+      }catch(err){
+        console.warn('Could not load state boundaries',err);
+      }
+    }
+    loadBoundaryLayers();
+
+    const $=id=>document.getElementById(id);
+    const els={loading:$('loading'),status:$('status'),timeSelect:$('timeSelect'),opacitySlider:$('opacitySlider'),contourToggle:$('contourToggle'),prevBtn:$('prevBtn'),nextBtn:$('nextBtn'),sampleValue:$('sampleValue'),sampleDetail:$('sampleDetail'),maxValue:$('maxValue'),maxDetail:$('maxDetail'),legendRows:$('legendRows'),runValue:$('runValue'),validValue:$('validValue'),periodValue:$('periodValue'),generatedValue:$('generatedValue')};
+
+    function fmtUTC(iso){if(!iso)return '-';const d=new Date(iso);if(isNaN(d))return '-';return `${d.getUTCMonth()+1}/${d.getUTCDate()} ${String(d.getUTCHours()).padStart(2,'0')}Z`}
+    function fmtGen(iso){if(!iso)return '-';const d=new Date(iso);if(isNaN(d))return '-';return `${d.getUTCMonth()+1}/${d.getUTCDate()} ${String(d.getUTCHours()).padStart(2,'0')}:${String(d.getUTCMinutes()).padStart(2,'0')}Z`}
+    function fmtRun(l){if(!l)return '-';const r=String(l.run||'');return /^\d{10}$/.test(r)?`${r.slice(0,4)}-${r.slice(4,6)}-${r.slice(6,8)} ${r.slice(8,10)}Z`:(l.runLabel||r||'-')}
+    function updateMeta(){const l=state.activeLayer;els.runValue.textContent=fmtRun(l);els.validValue.textContent=l?fmtUTC(l.validTimeUTC):'-';els.periodValue.textContent=l?.periodLabel||'-';els.generatedValue.textContent=fmtGen(state.catalog?.generatedUTC);if(state.catalog&&l)els.status.textContent=`Loaded ${state.catalog.layers.length} periods • ${l.name||l.productLabel||'HREF Max QPF'}`}
+    function fillTimes(){els.timeSelect.innerHTML='';for(const l of state.catalog.layers){const o=document.createElement('option');o.value=l.id;o.textContent=`${l.periodLabel} ending ${fmtUTC(l.validTimeUTC)}`;els.timeSelect.appendChild(o)}}
+    async function loadJson(url){const r=await fetch(url,{cache:'no-store'});if(!r.ok)throw new Error(`HTTP ${r.status} loading ${url}`);if(url.endsWith('.gz')){if(!('DecompressionStream'in window))throw new Error('Browser lacks gzip stream support');const ds=new DecompressionStream('gzip');return JSON.parse(await new Response(r.body.pipeThrough(ds)).text())}return r.json()}
+    function drawLegend(){els.legendRows.innerHTML='';for(const b of state.catalog.colorScale){const row=document.createElement('div');row.className='lr';row.innerHTML=`<div class="sw" style="background:${b.color}"></div><div>${b.label}</div>`;els.legendRows.appendChild(row)}}
+    async function setLayer(id){const layer=state.catalog.layers.find(x=>x.id===id);if(!layer)throw new Error(`Layer not found: ${id}`);const grid=await loadJson(layer.valueGridUrl);state.activeLayer=layer;state.valueGrid=grid;els.timeSelect.value=layer.id;if(state.rasterLayer)map.removeLayer(state.rasterLayer);const b=layer.rasterBounds;state.rasterLayer=L.imageOverlay(layer.rasterUrl,[[b.south,b.west],[b.north,b.east]],{opacity:state.opacity}).addTo(map);updateMeta();placeMaxMarker();drawContours();if(state.lastLatLng)sample(state.lastLatLng)}
+    function overlayPoints(){const g=state.valueGrid,l=state.activeLayer;if(!g||!l)return null;const b=l.rasterBounds||g.bounds,nw=map.latLngToLayerPoint([b.north,b.west]),se=map.latLngToLayerPoint([b.south,b.east]);return{nw,se,width:se.x-nw.x,height:se.y-nw.y}}
+    function rasterPixelForLatLng(ll){const g=state.valueGrid,p=overlayPoints();if(!g||!p)return null;const q=map.latLngToLayerPoint(ll),fx=(q.x-p.nw.x)/p.width,fy=(q.y-p.nw.y)/p.height;if(fx<0||fx>1||fy<0||fy>1)return null;const x=Math.round(fx*(g.width-1)),y=Math.round(fy*(g.height-1));return x<0||y<0||x>=g.width||y>=g.height?null:{x,y}}
+    function latLngForRasterPixel(x,y){const g=state.valueGrid,p=overlayPoints();if(!g||!p)return null;return map.layerPointToLatLng(L.point(p.nw.x+x/(g.width-1)*p.width,p.nw.y+y/(g.height-1)*p.height))}
+    function gridValueAt(x,y){const g=state.valueGrid;if(!g)return NaN;const raw=g.values[y*g.width+x];return raw===g.missing||raw<-1000?NaN:Number(raw)}
+    function displayGridMax(){const g=state.valueGrid;if(!g)return null;let best=-Infinity,bx=0,by=0;for(let y=0;y<g.height;y++){const off=y*g.width;for(let x=0;x<g.width;x++){const raw=g.values[off+x];if(raw===g.missing||raw<-1000)continue;const v=Number(raw);if(isFinite(v)&&v>best){best=v;bx=x;by=y}}}return isFinite(best)?{value:best,x:bx,y:by}:null}
+    function placeMaxMarker(){if(state.maxMarker){map.removeLayer(state.maxMarker);state.maxMarker=null}const m=displayGridMax();if(!m)return;const ll=latLngForRasterPixel(m.x,m.y);if(!ll)return;state.maxMarker=L.circleMarker(ll,{radius:7,color:'#111',weight:3,fillColor:'#fff',fillOpacity:1}).addTo(map).bindTooltip(`Max ${m.value.toFixed(2)} in`,{className:'max-dot-label',direction:'top'});els.maxValue.textContent=`${m.value.toFixed(2)} in`;els.maxDetail.innerHTML=`Run ${fmtRun(state.activeLayer)}<br>${state.activeLayer.periodLabel}<br>Ending ${fmtUTC(state.activeLayer.validTimeUTC)}<br>${ll.lat.toFixed(3)}, ${ll.lng.toFixed(3)}`}
+    function sample(ll){state.lastLatLng=ll;const g=state.valueGrid;if(!g||!g.bounds)return;const pix=rasterPixelForLatLng(ll);if(!pix){els.sampleValue.textContent='-';els.sampleDetail.textContent='Outside QPF raster';return}const v=gridValueAt(pix.x,pix.y);if(!isFinite(v)){els.sampleValue.textContent='-';els.sampleDetail.textContent='No data at cursor';return}els.sampleValue.textContent=`${v.toFixed(2)} in`;els.sampleDetail.innerHTML=`Overlay-pixel sample<br>${ll.lat.toFixed(3)}, ${ll.lng.toFixed(3)}<br>pixel ${pix.x}, ${pix.y}`}
+    function ensureContourCanvas(){if(state.contourCanvas)return state.contourCanvas;const c=L.DomUtil.create('canvas','cc');map.getPanes().overlayPane.appendChild(c);state.contourCanvas=c;return c}
+    function contourLevels(){return(state.catalog.colorScale||[]).slice(1).map(b=>({value:Number(b.min),color:b.color})).filter(x=>isFinite(x.value)&&x.value>0)}
+    function drawSeg(ctx,a,b,sx,sy,color){ctx.beginPath();ctx.moveTo(a.x*sx,a.y*sy);ctx.lineTo(b.x*sx,b.y*sy);ctx.strokeStyle='rgba(0,0,0,.72)';ctx.lineWidth=3.2;ctx.stroke();ctx.beginPath();ctx.moveTo(a.x*sx,a.y*sy);ctx.lineTo(b.x*sx,b.y*sy);ctx.strokeStyle=color;ctx.lineWidth=1.6;ctx.stroke()}
+    function ept(e,x,y,v00,v10,v11,v01,t){const f=(a,b)=>Math.abs(b-a)<1e-9?.5:(t-a)/(b-a);if(e==='top')return{x:x+f(v00,v10),y};if(e==='right')return{x:x+1,y:y+f(v10,v11)};if(e==='bottom')return{x:x+f(v01,v11),y:y+1};return{x,y:y+f(v00,v01)}}
+    function drawContours(){const c=ensureContourCanvas();if(!state.contoursOn||!state.valueGrid||!state.activeLayer){c.style.display='none';return}const g=state.valueGrid,p=overlayPoints();if(!p){c.style.display='none';return}const w=Math.max(1,Math.round(p.width)),h=Math.max(1,Math.round(p.height));c.style.display='block';c.width=w;c.height=h;c.style.width=w+'px';c.style.height=h+'px';L.DomUtil.setPosition(c,p.nw);const ctx=c.getContext('2d');ctx.clearRect(0,0,w,h);ctx.lineCap='round';ctx.lineJoin='round';const sx=w/(g.width-1),sy=h/(g.height-1),vals=g.values,miss=g.missing;for(const lev of contourLevels()){const t=lev.value;for(let y=0;y<g.height-1;y++){const row=y*g.width,next=(y+1)*g.width;for(let x=0;x<g.width-1;x++){const v00=Number(vals[row+x]),v10=Number(vals[row+x+1]),v01=Number(vals[next+x]),v11=Number(vals[next+x+1]);if(v00===miss||v10===miss||v01===miss||v11===miss||v00<-1000||v10<-1000||v01<-1000||v11<-1000)continue;const ed=[];if((v00<t)!=(v10<t))ed.push('top');if((v10<t)!=(v11<t))ed.push('right');if((v01<t)!=(v11<t))ed.push('bottom');if((v00<t)!=(v01<t))ed.push('left');if(ed.length<2)continue;const ps=ed.map(e=>ept(e,x,y,v00,v10,v11,v01,t));if(ps.length===2)drawSeg(ctx,ps[0],ps[1],sx,sy,lev.color);else if(ps.length===4){drawSeg(ctx,ps[0],ps[1],sx,sy,lev.color);drawSeg(ctx,ps[2],ps[3],sx,sy,lev.color)}}}}}
+
+    map.on('mousemove',e=>sample(e.latlng));
+    map.on('zoomend moveend resize',()=>{placeMaxMarker();drawContours();if(state.lastLatLng)sample(state.lastLatLng)});
+    els.timeSelect.addEventListener('change',()=>setLayer(els.timeSelect.value));
+    els.contourToggle.addEventListener('change',()=>{state.contoursOn=els.contourToggle.checked;drawContours()});
+    els.opacitySlider.addEventListener('input',()=>{state.opacity=Number(els.opacitySlider.value);if(state.rasterLayer)state.rasterLayer.setOpacity(state.opacity)});
+    function step(d){const ls=state.catalog.layers,i=ls.findIndex(x=>x.id===state.activeLayer.id),n=Math.max(0,Math.min(ls.length-1,i+d));setLayer(ls[n].id)}
+    els.prevBtn.onclick=()=>step(-1);
+    els.nextBtn.onclick=()=>step(1);
+
+    (async()=>{
+      try{
+        const c=await fetch('data/catalog.json',{cache:'no-store'}).then(r=>{if(!r.ok)throw new Error(`HTTP ${r.status}`);return r.json()});
+        state.catalog=c;
+        fillTimes();
+        drawLegend();
+        await setLayer(c.defaultLayerId||c.layers[0].id);
+        els.loading.classList.add('hidden');
+      }catch(e){
+        els.loading.classList.add('hidden');
+        els.status.innerHTML=`<span style="color:var(--d);font-weight:900">Failed to load data.</span><br>${e.message}`;
+        console.error(e);
+      }
+    })();
+  </script>
+</body>
+</html>
