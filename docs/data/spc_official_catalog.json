@@ -1,5 +1,5 @@
 {
-  "generatedUTC": "2026-07-12T15:14:19.371699+00:00",
+  "generatedUTC": "2026-07-12T16:11:19.691737+00:00",
   "graphicsRoot": "https://www.spc.noaa.gov/exper/href/graphics",
   "source": "SPC official HREF finished PNG image URL pattern from SPC viewer JavaScript image_url_model()",
   "defaultLayerId": "spc_2026071212_qpf_006h_max_se_f01200",
@@ -59,7 +59,7 @@
       "startTimeUTC": "2026-07-13T00:00:00+00:00",
       "validTimeUTC": "2026-07-13T06:00:00+00:00",
       "imageUrl": "https://www.spc.noaa.gov/exper/href/graphics/models/href/2026/07/12/1200/f01800/qpf_006h_max.se.f01800.png",
-      "available": false
+      "available": true
     },
     {
       "id": "spc_2026071212_qpf_006h_max_se_f02400",
@@ -78,7 +78,7 @@
       "startTimeUTC": "2026-07-13T06:00:00+00:00",
       "validTimeUTC": "2026-07-13T12:00:00+00:00",
       "imageUrl": "https://www.spc.noaa.gov/exper/href/graphics/models/href/2026/07/12/1200/f02400/qpf_006h_max.se.f02400.png",
-      "available": false
+      "available": true
     },
     {
       "id": "spc_2026071212_qpf_006h_max_se_f03000",
@@ -97,7 +97,7 @@
       "startTimeUTC": "2026-07-13T12:00:00+00:00",
       "validTimeUTC": "2026-07-13T18:00:00+00:00",
       "imageUrl": "https://www.spc.noaa.gov/exper/href/graphics/models/href/2026/07/12/1200/f03000/qpf_006h_max.se.f03000.png",
-      "available": false
+      "available": true
     },
     {
       "id": "spc_2026071212_qpf_006h_max_se_f03600",
@@ -211,7 +211,7 @@
       "startTimeUTC": "2026-07-13T00:00:00+00:00",
       "validTimeUTC": "2026-07-13T06:00:00+00:00",
       "imageUrl": "https://www.spc.noaa.gov/exper/href/graphics/models/href/2026/07/12/1200/f01800/qpf_006h_max.sp.f01800.png",
-      "available": false
+      "available": true
     },
     {
       "id": "spc_2026071212_qpf_006h_max_sp_f02400",
@@ -230,7 +230,7 @@
       "startTimeUTC": "2026-07-13T06:00:00+00:00",
       "validTimeUTC": "2026-07-13T12:00:00+00:00",
       "imageUrl": "https://www.spc.noaa.gov/exper/href/graphics/models/href/2026/07/12/1200/f02400/qpf_006h_max.sp.f02400.png",
-      "available": false
+      "available": true
     },
     {
       "id": "spc_2026071212_qpf_006h_max_sp_f03000",
@@ -249,7 +249,7 @@
       "startTimeUTC": "2026-07-13T12:00:00+00:00",
       "validTimeUTC": "2026-07-13T18:00:00+00:00",
       "imageUrl": "https://www.spc.noaa.gov/exper/href/graphics/models/href/2026/07/12/1200/f03000/qpf_006h_max.sp.f03000.png",
-      "available": false
+      "available": true
     },
     {
       "id": "spc_2026071212_qpf_006h_max_sp_f03600",
