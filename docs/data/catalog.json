@@ -1,5 +1,5 @@
 {
-  "generatedUTC": "2026-07-28T15:05:44.731371+00:00",
+  "generatedUTC": "2026-07-28T18:02:11.370928+00:00",
   "domain": {
     "west": -95.0,
     "east": -83.0,
@@ -383,9 +383,9 @@
         "east": -83.00002
       },
       "maxPoint": {
-        "lat": 28.2576,
-        "lon": -86.807,
-        "value": 7.745
+        "lat": 27.3188,
+        "lon": -86.7068,
+        "value": 11.314
       },
       "periodKey": "f48_a06_42_48",
       "periodLabel": "F42-F48 (6-hr Ensemble Max QPF)",
@@ -402,8 +402,8 @@
       "validTimeUTC": "2026-07-30T12:00:00+00:00",
       "stepRange": "42-48",
       "name": "HREF member-computed Ensemble Max QPF",
-      "sourceFile": "6 member APCP slices",
-      "maxValue": 7.75,
+      "sourceFile": "8 member APCP slices",
+      "maxValue": 11.31,
       "pointCount": 55200,
       "native": false
     }
