@@ -1,5 +1,5 @@
 {
-  "generatedUTC": "2026-07-31T15:06:51.100608+00:00",
+  "generatedUTC": "2026-07-31T18:10:29.528089+00:00",
   "domain": {
     "west": -95.0,
     "east": -83.0,
@@ -402,7 +402,7 @@
       "validTimeUTC": "2026-08-02T12:00:00+00:00",
       "stepRange": "42-48",
       "name": "HREF member-computed Ensemble Max QPF",
-      "sourceFile": "6 member APCP slices",
+      "sourceFile": "8 member APCP slices",
       "maxValue": 7.97,
       "pointCount": 55200,
       "native": false
