@@ -1,5 +1,5 @@
 {
-  "generatedUTC": "2026-08-12T03:08:44.757082+00:00",
+  "generatedUTC": "2026-08-12T06:03:38.268981+00:00",
   "domain": {
     "west": -95.0,
     "east": -83.0,
@@ -377,15 +377,15 @@
       "valueGridUrl": "data/value_grids/2026081200_max_f48_a06.json.gz",
       "rasterUrl": "data/rasters/2026081200_max_f48_a06.png",
       "rasterBounds": {
-        "south": 24.00016,
-        "north": 33.99978,
-        "west": -94.95372,
-        "east": -83.00009
+        "south": 24.00002,
+        "north": 33.99999,
+        "west": -94.99702,
+        "east": -83.00002
       },
       "maxPoint": {
-        "lat": 32.4209,
-        "lon": -87.2729,
-        "value": 6.813
+        "lat": 30.0044,
+        "lon": -84.4527,
+        "value": 7.777
       },
       "periodKey": "f48_a06_42_48",
       "periodLabel": "F42-F48 (6-hr Ensemble Max QPF)",
@@ -402,9 +402,9 @@
       "validTimeUTC": "2026-08-14T00:00:00+00:00",
       "stepRange": "42-48",
       "name": "HREF member-computed Ensemble Max QPF",
-      "sourceFile": "3 member APCP slices",
-      "maxValue": 6.81,
-      "pointCount": 13570,
+      "sourceFile": "4 member APCP slices",
+      "maxValue": 7.78,
+      "pointCount": 55200,
       "native": false
     }
   ]
