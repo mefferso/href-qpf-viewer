@@ -1,5 +1,5 @@
 {
-  "generatedUTC": "2026-09-24T07:48:49.256986+00:00",
+  "generatedUTC": "2026-09-24T13:47:03.933886+00:00",
   "domain": {
     "west": -95.0,
     "east": -83.0,
@@ -150,7 +150,7 @@
       "validTimeUTC": "2026-09-24T06:00:00+00:00",
       "stepRange": "0-6",
       "name": "HREF member-computed Ensemble Max QPF",
-      "sourceFile": "4 member APCP slices",
+      "sourceFile": "6 member APCP slices",
       "maxValue": 6.25,
       "pointCount": 55200,
       "native": false
@@ -186,7 +186,7 @@
       "validTimeUTC": "2026-09-24T12:00:00+00:00",
       "stepRange": "6-12",
       "name": "HREF member-computed Ensemble Max QPF",
-      "sourceFile": "4 member APCP slices",
+      "sourceFile": "5 member APCP slices",
       "maxValue": 5.59,
       "pointCount": 55200,
       "native": false
