@@ -1,5 +1,5 @@
 {
-  "generatedUTC": "2026-10-23T07:56:04.118423+00:00",
+  "generatedUTC": "2026-10-23T13:47:37.175366+00:00",
   "domain": {
     "west": -95.0,
     "east": -83.0,
@@ -131,9 +131,9 @@
         "east": -83.00002
       },
       "maxPoint": {
-        "lat": 25.0699,
-        "lon": -88.6354,
-        "value": 1.301
+        "lat": 24.262,
+        "lon": -84.8033,
+        "value": 2.519
       },
       "periodKey": "f06_a06_00_06",
       "periodLabel": "F00-F06 (6-hr Ensemble Max QPF)",
@@ -150,8 +150,8 @@
       "validTimeUTC": "2026-10-23T06:00:00+00:00",
       "stepRange": "0-6",
       "name": "HREF member-computed Ensemble Max QPF",
-      "sourceFile": "4 member APCP slices",
-      "maxValue": 1.3,
+      "sourceFile": "6 member APCP slices",
+      "maxValue": 2.52,
       "pointCount": 55200,
       "native": false
     },
@@ -186,7 +186,7 @@
       "validTimeUTC": "2026-10-23T12:00:00+00:00",
       "stepRange": "6-12",
       "name": "HREF member-computed Ensemble Max QPF",
-      "sourceFile": "4 member APCP slices",
+      "sourceFile": "5 member APCP slices",
       "maxValue": 0.41,
       "pointCount": 55200,
       "native": false
